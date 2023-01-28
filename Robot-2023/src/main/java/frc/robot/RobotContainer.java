@@ -6,8 +6,7 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
-import frc.robot.commands.ExampleCommand;
-
+import frc.robot.commands.drivebase.ArcadeDrive;
 import frc.robot.subsystems.Drivebase;
 import frc.robot.subsystems.Intake;
 
@@ -20,6 +19,11 @@ import edu.wpi.first.wpilibj2.command.Command;
  * subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
+
+  // Xbox Controllers
+  final static XboxController m_primary = new XboxController(Constants.PRIMARY_PORT);
+
+  
   // The robot's subsystems and commands are defined here...
   private final Drivebase m_drivebase = new Drivebase();
   private final Intake m_intake = new Intake();
@@ -30,6 +34,11 @@ public class RobotContainer {
   public RobotContainer() {
     // Configure the button bindings
     configureButtonBindings();
+
+
+
+
+    m_drivebase.setDefaultCommand(new ArcadeDrive(() -> -m_primary.getLeftY(), () -> m_primary.getRightX(), m_drivebase));
   }
 
   /**
