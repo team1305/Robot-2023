@@ -27,17 +27,6 @@ public class Drivebase extends SubsystemBase {
   private final MotorController m_leftGroup = new MotorControllerGroup(m_leftMotor1, m_leftMotor2, m_leftMotor3);
   private final MotorController m_rightGroup = new MotorControllerGroup(m_rightMotor1, m_rightMotor2, m_rightMotor3);
 
-  // Encoders - We use the internal hall effect sensors of each of the NEO Motors
-  private final RelativeEncoder m_leftEncoder1 = m_leftMotor1.getEncoder(SparkMaxRelativeEncoder.Type.kHallEffect, Constants.NEO_HALL_CPR);
-  private final RelativeEncoder m_leftEncoder2 = m_leftMotor2.getEncoder(SparkMaxRelativeEncoder.Type.kHallEffect, Constants.NEO_HALL_CPR);
-  private final RelativeEncoder m_leftEncoder3 = m_leftMotor3.getEncoder(SparkMaxRelativeEncoder.Type.kHallEffect, Constants.NEO_HALL_CPR);
-  private final RelativeEncoder m_rightEncoder1 = m_rightMotor1.getEncoder(SparkMaxRelativeEncoder.Type.kHallEffect, Constants.NEO_HALL_CPR);
-  private final RelativeEncoder m_rightEncoder2 = m_rightMotor2.getEncoder(SparkMaxRelativeEncoder.Type.kHallEffect, Constants.NEO_HALL_CPR);
-  private final RelativeEncoder m_rightEncoder3 = m_rightMotor3.getEncoder(SparkMaxRelativeEncoder.Type.kHallEffect, Constants.NEO_HALL_CPR);
-
-  // Inertial Measurement Units (IMUs)
-  private final PigeonIMU pigeon = new PigeonIMU(Constants.PIGEON_CAN_ID);
-
   // Drive Style - We use a differntial drive (for tank or arcade style drive) as opposed to a mecanum style drive
   private final DifferentialDrive m_drive = new DifferentialDrive(m_leftGroup, m_rightGroup);
 
@@ -49,9 +38,7 @@ public class Drivebase extends SubsystemBase {
     super();
 
     setInversion();
-    setEncoderDistancePerPulse(
-      getDistancePerPulse()
-    );
+   
   }
 
   @Override
@@ -64,23 +51,6 @@ public class Drivebase extends SubsystemBase {
     // For our robot, the right side is inverted so that forward is forward.
     m_rightGroup.setInverted(rightInverted);
     m_leftGroup.setInverted(!rightInverted);
-  }
-
-  private void setEncoderDistancePerPulse(double dpp){
-    m_leftEncoder1.setDistancePerPulse(dpp);
-    m_leftEncoder2.setDistancePerPulse(dpp);
-    m_leftEncoder3.setDistancePerPulse(dpp);
-    m_rightEncoder1.setDistancePerPulse(dpp);
-    m_rightEncoder2.setDistancePerPulse(dpp);
-    m_rightEncoder3.setDistancePerPulse(dpp);
-  }
-
-  private double getDistancePerPulse(){
-    return 1/Constants.NEO_HALL_CPR *  
-    Constants.GEARBOX_STAGE_1 * 
-    Constants.GEARBOX_STAGE_2 * 
-    Constants.PULLEY_STAGE * 
-    Math.PI * Constants.WHEEL_DIAMETER_IN;
   }
 
   public void drive(double left, double right) {
