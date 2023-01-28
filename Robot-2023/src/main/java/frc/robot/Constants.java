@@ -14,9 +14,12 @@ package frc.robot;
  */
 public final class Constants {
 
-    public static final int ARM_MOTOR_CAN_ID = 6;
-    public static final int LEFT_INTAKE_MOTOR_CAN_ID = 7;
-    public static final int RIGHT_INTAKE_MOTOR_CAN_ID = 8;
+    // CAN IDs for motors
+    public static final int INTAKE_ARM_MOTOR_CAN_ID = 7;
+    public static final int LEFT_INTAKE_MOTOR_CAN_ID = 8;
+    public static final int RIGHT_INTAKE_MOTOR_CAN_ID = 9;
+
+    public static final double INTAKE_ARM_RATIO = 12.0/84.0;
 
 
 

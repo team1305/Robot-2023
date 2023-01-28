@@ -4,14 +4,37 @@
 
 package frc.robot.subsystems;
 
+
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+
+import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 
 public class Intake extends SubsystemBase {
 
-  
+  // Motor controllers
+  private final CANSparkMax m_armMotor = new CANSparkMax(Constants.INTAKE_ARM_MOTOR_CAN_ID, MotorType.kBrushless);
+  private final CANSparkMax m_leftMotor = new CANSparkMax(Constants.LEFT_INTAKE_MOTOR_CAN_ID, MotorType.kBrushless);
+  private final CANSparkMax m_rightMotor = new CANSparkMax(Constants.RIGHT_INTAKE_MOTOR_CAN_ID, MotorType.kBrushless);
 
-  /** Creates a new Intake. */
-  public Intake() {}
+  private final MotorControllerGroup m_intakeMotors = new MotorControllerGroup(m_leftMotor, m_rightMotor);
+
+  private boolean rightInverted = true;
+
+  /** Creates a new Intake. **/
+  public Intake() {
+    super();
+
+    setInversion();
+  }
+
+  private void setInversion(){
+    m_rightMotor.setInverted(rightInverted);
+    m_leftMotor.setInverted(!rightInverted);
+  }
+
 
   @Override
   public void periodic() {
