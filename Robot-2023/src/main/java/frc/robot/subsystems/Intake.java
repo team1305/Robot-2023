@@ -5,6 +5,7 @@
 package frc.robot.subsystems;
 
 
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
@@ -16,8 +17,8 @@ public class Intake extends SubsystemBase {
 
   // Motor controllers
   private final CANSparkMax m_armMotor = new CANSparkMax(Constants.INTAKE_ARM_MOTOR_CAN_ID, MotorType.kBrushless);
-  private final CANSparkMax m_leftMotor = new CANSparkMax(Constants.LEFT_INTAKE_MOTOR_CAN_ID, MotorType.kBrushless);
-  private final CANSparkMax m_rightMotor = new CANSparkMax(Constants.RIGHT_INTAKE_MOTOR_CAN_ID, MotorType.kBrushless);
+	public static WPI_TalonFX m_leftMotor = new WPI_TalonFX(Constants.LEFT_INTAKE_MOTOR_CAN_ID);
+	public static WPI_TalonFX m_rightMotor = new WPI_TalonFX(Constants.RIGHT_INTAKE_MOTOR_CAN_ID);
 
   private final MotorControllerGroup m_intakeMotors = new MotorControllerGroup(m_leftMotor, m_rightMotor);
 
