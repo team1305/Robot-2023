@@ -23,6 +23,10 @@ public final class Constants {
     public static final int RIGHT_DRIVE_MOTOR_3_CAN_ID = 5;
 
     public static final int PIGEON_CAN_ID = 6;
+    
+    public static final int INTAKE_ARM_MOTOR_CAN_ID = 7;
+    public static final int LEFT_INTAKE_MOTOR_CAN_ID = 8;
+    public static final int RIGHT_INTAKE_MOTOR_CAN_ID = 9;
 
     // Hardware Parameters
     public static final int NEO_HALL_CPR = 48;
@@ -32,4 +36,5 @@ public final class Constants {
     public static final Double GEARBOX_STAGE_1 = 12.0/64.0;
     public static final Double GEARBOX_STAGE_2 = 24.0/64.0;
     public static final Double PULLEY_STAGE = 30.0/24.0;
+    public static final double INTAKE_ARM_RATIO = 12.0/84.0;
 }
