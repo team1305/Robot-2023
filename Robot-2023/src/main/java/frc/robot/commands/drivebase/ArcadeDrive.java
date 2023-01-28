@@ -2,25 +2,31 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.commands;
+package frc.robot.commands.drivebase;
 
 import frc.robot.subsystems.Drivebase;
+
+import java.util.function.DoubleSupplier;
+
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
-/** An example command that uses an example subsystem. */
-public class ExampleCommand extends CommandBase {
-  @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
-  private final Drivebase m_subsystem;
+/** An arcade drive commmand that uses a drive base subsystem*/
+public class ArcadeDrive extends CommandBase {
+  private final Drivebase m_drivebase;
+  private final DoubleSupplier m_speed;
+  private final DoubleSupplier m_rotation;
 
   /**
-   * Creates a new ExampleCommand.
+   * Creates a new arcade drive.
    *
    * @param subsystem The subsystem used by this command.
    */
-  public ExampleCommand(Drivebase subsystem) {
-    m_subsystem = subsystem;
+  public ArcadeDrive(DoubleSupplier speed, DoubleSupplier rotation, Drivebase drivebase) {
+    m_speed = speed;
+    m_rotation = rotation;
+    m_drivebase = drivebase;
     // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(subsystem);
+    addRequirements(drivebase);
   }
 
   // Called when the command is initially scheduled.
@@ -29,7 +35,10 @@ public class ExampleCommand extends CommandBase {
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
-  public void execute() {}
+  public void execute() {
+
+    m_drivebase.drive(m_speed.getAsDouble(), m_rotation.getAsDouble());
+  }
 
   // Called once the command ends or is interrupted.
   @Override

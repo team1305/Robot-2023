@@ -37,4 +37,8 @@ public final class Constants {
     public static final Double GEARBOX_STAGE_2 = 24.0/64.0;
     public static final Double PULLEY_STAGE = 30.0/24.0;
     public static final double INTAKE_ARM_RATIO = 12.0/84.0;
+
+    // Controller Ports
+    public static final int PRIMARY_PORT = 0;
+    public static final int SECONDARY_PORT = 1;
 }

@@ -53,8 +53,8 @@ public class Drivebase extends SubsystemBase {
     m_leftGroup.setInverted(!rightInverted);
   }
 
-  public void drive(double left, double right) {
-    m_drive.tankDrive(left, right);
+  public void drive(double speed, double rotation) {
+    m_drive.arcadeDrive(speed, rotation);
   }
 }
 
