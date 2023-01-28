@@ -8,7 +8,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Intake extends SubsystemBase {
 
-  New Controllers
+  
 
   /** Creates a new Intake. */
   public Intake() {}
