@@ -7,8 +7,11 @@ package frc.robot.subsystems;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Intake extends SubsystemBase {
+
+  New Controllers
+
   /** Creates a new Intake. */
-  publis Intake() {}
+  public Intake() {}
 
   @Override
   public void periodic() {
