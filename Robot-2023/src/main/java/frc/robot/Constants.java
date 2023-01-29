@@ -24,9 +24,12 @@ public final class Constants {
 
     public static final int PIGEON_CAN_ID = 6;
     
-    public static final int INTAKE_ARM_MOTOR_CAN_ID = 7;
-    public static final int LEFT_INTAKE_MOTOR_CAN_ID = 8;
-    public static final int RIGHT_INTAKE_MOTOR_CAN_ID = 9;
+    public static final int LEFT_INTAKE_ARM_MOTOR_CAN_ID = 7;
+    public static final int RIGHT_INTAKE_ARM_MOTOR_CAN_ID = 8;
+    public static final int INTAKE_WRIST_MOTOR_CAN_ID = 9;
+    public static final int LEFT_INTAKE_MOTOR_CAN_ID = 10;
+    public static final int RIGHT_INTAKE_MOTOR_CAN_ID = 11;
+    
 
     // Hardware Parameters
     public static final int NEO_HALL_CPR = 48;

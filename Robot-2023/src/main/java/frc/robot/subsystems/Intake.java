@@ -16,24 +16,34 @@ import frc.robot.Constants;
 public class Intake extends SubsystemBase {
 
   // Motor controllers
-  private final CANSparkMax m_armMotor = new CANSparkMax(Constants.INTAKE_ARM_MOTOR_CAN_ID, MotorType.kBrushless);
-	public static WPI_TalonFX m_leftMotor = new WPI_TalonFX(Constants.LEFT_INTAKE_MOTOR_CAN_ID);
-	public static WPI_TalonFX m_rightMotor = new WPI_TalonFX(Constants.RIGHT_INTAKE_MOTOR_CAN_ID);
+  private final CANSparkMax m_leftArmMotor = new CANSparkMax(Constants.LEFT_INTAKE_ARM_MOTOR_CAN_ID, MotorType.kBrushless);
+  private final CANSparkMax m_rightArmMotor = new CANSparkMax(Constants.RIGHT_INTAKE_ARM_MOTOR_CAN_ID, MotorType.kBrushless);
+  private final CANSparkMax m_wristMotor = new CANSparkMax(Constants.INTAKE_WRIST_MOTOR_CAN_ID, MotorType.kBrushless);
+	private static WPI_TalonFX m_leftMotor = new WPI_TalonFX(Constants.LEFT_INTAKE_MOTOR_CAN_ID);
+	private static WPI_TalonFX m_rightMotor = new WPI_TalonFX(Constants.RIGHT_INTAKE_MOTOR_CAN_ID);
 
   private final MotorControllerGroup m_intakeMotors = new MotorControllerGroup(m_leftMotor, m_rightMotor);
+  private final MotorControllerGroup m_intakeArmMotors = new MotorControllerGroup(m_leftArmMotor, m_rightArmMotor);
 
-  private boolean rightInverted = true;
+  private boolean intakeRightInverted = true;
+  private boolean armRightInverted = true;
 
   /** Creates a new Intake. **/
   public Intake() {
     super();
 
-    setInversion();
+    setIntakeInversion();
+    setArmInversion();
   }
 
-  private void setInversion(){
-    m_rightMotor.setInverted(rightInverted);
-    m_leftMotor.setInverted(!rightInverted);
+  private void setIntakeInversion(){
+    m_rightMotor.setInverted(intakeRightInverted);
+    m_leftMotor.setInverted(!intakeRightInverted);
+  }
+
+  private void setArmInversion(){
+    m_rightArmMotor.setInverted(armRightInverted);
+    m_leftArmMotor.setInverted(!armRightInverted);
   }
 
 
