@@ -41,4 +41,21 @@ public final class Constants {
     // Controller Ports
     public static final int PRIMARY_PORT = 0;
     public static final int SECONDARY_PORT = 1;
+
+    //BUTTON NUMBER CONSTANTS
+    public static final int A_BUTTON = 1;  //xbox "A" Button 1
+    public static final int B_BUTTON=  2; //xbox "B" Button 2
+    public static final int X_BUTTON=  3; //xbox "X" Button 3
+    public static final int Y_BUTTON=  4; //xbox "Y" Button 4
+    public static final int LEFT_BUMPER =  5; //xbox "LB" Button 5
+    public static final int RIGHT_BUMPER =  6; //xbox "RB" Button 6
+    public static final int BACK=  7; //xbox "Back" Button 7
+    public static final int START =  8;  //xbox "Start" Button 8
+    public static final int LEFT_STICK_CLICK =  9; //xbox "Left Stick Click" Button 9
+    public static final int RIGHT_STICK_CLICK =  10;  //xbox "Right Stick Click" Button 10
+
+    public static final int DPAD_NORTH =  0;
+    public static final int DPAD_EAST =  90;
+    public static final int DPAD_SOUTH =  180;
+    public static final int DPAD_WEST =  270;
 }
