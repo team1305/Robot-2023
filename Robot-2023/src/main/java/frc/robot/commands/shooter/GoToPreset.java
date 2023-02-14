@@ -2,13 +2,13 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.commands.auto;
+package frc.robot.commands.shooter;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
-public class ExampleAutoCommand extends CommandBase {
-  /** Creates a new ExampleAutoCommand. */
-  public ExampleAutoCommand() {
+public class GoToPreset extends CommandBase {
+  /** Creates a new GoToPreset. */
+  public GoToPreset() {
     // Use addRequirements() here to declare subsystem dependencies.
   }
 
