@@ -2,17 +2,19 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.commands.other;
+package frc.robot.commands.intake;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.subsystems.Intake;
 
-public class ShootTargeting extends CommandBase {
+public class Intake_AutoIn extends CommandBase {
 
-  private boolean m_usesReflective;
+  private final Intake m_intake;
 
-  /** Creates a new ShootTargeting. */
-  public ShootTargeting(boolean usesReflective) {
-    m_usesReflective = usesReflective;
+  /** Creates a new AutoIn. */
+  public Intake_AutoIn(Intake intake) {
+    m_intake = intake;
+    addRequirements(m_intake);
   }
 
   // Called when the command is initially scheduled.

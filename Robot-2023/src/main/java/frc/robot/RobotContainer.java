@@ -6,7 +6,6 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
-import frc.robot.commands.auto.ExampleAutoCommand;
 import frc.robot.commands.drivebase.ArcadeDrive;
 import frc.robot.commands.drivebase.Balance;
 import frc.robot.commands.intake.ArmDown;
@@ -14,16 +13,14 @@ import frc.robot.commands.intake.ArmUp;
 import frc.robot.commands.intake.AutoIn;
 import frc.robot.commands.intake.ManualIn;
 import frc.robot.commands.intake.ManualOut;
-import frc.robot.commands.other.ArmOverride;
 import frc.robot.commands.other.ShootTargeting;
 import frc.robot.commands.shooter.Shoot;
 import frc.robot.commands.shooter.ShootOverride;
 import frc.robot.commands.shooter.ShooterDown;
 import frc.robot.commands.shooter.ShooterUp;
-import frc.robot.extensions.DpadButton;
 import frc.robot.subsystems.Drivebase;
 import frc.robot.subsystems.Intake;
-
+import frc.robot.utils.DpadButton;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 
@@ -64,7 +61,7 @@ public class RobotContainer {
     new JoystickButton(m_primary, Constants.LEFT_BUMPER).whileHeld(new ManualOut());
     new JoystickButton(m_primary, Constants.RIGHT_BUMPER).whileHeld(new ManualIn());
     new JoystickButton(m_primary, Constants.Y_BUTTON).whileHeld(new Balance());
-    new JoystickButton(m_primary, Constants.B_BUTTON).whileHeld(new ShootTargeting());
+    new JoystickButton(m_primary, Constants.B_BUTTON).whileHeld(new ShootTargeting(true));
     new JoystickButton(m_primary, Constants.A_BUTTON).whenPressed(new AutoIn());
 
     // Secondary Controls
@@ -83,6 +80,6 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     // An ExampleCommand will run in autonomous
-    return new ExampleAutoCommand();
+    return new Balance();
   }
 }

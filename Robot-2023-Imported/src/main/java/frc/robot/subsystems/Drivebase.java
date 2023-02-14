@@ -51,7 +51,11 @@ public class Drivebase extends SubsystemBase {
   private final WPI_Pigeon2 m_gyro = new WPI_Pigeon2(Constants.PIGEON_CAN_ID);
 
   // Odometry
-  private final DifferentialDriveOdometry m_odometry = new DifferentialDriveOdometry(m_gyro.getRotation2d());;
+  private final DifferentialDriveOdometry m_odometry = new DifferentialDriveOdometry(
+    m_gyro.getRotation2d(),
+    getLeftEncoderDistance(),
+    getRightEncoderDistance()
+  );
 
   // Fields
   private boolean rightInverted = true;
@@ -61,6 +65,10 @@ public class Drivebase extends SubsystemBase {
     super();
 
     setInversion();
+  }
+
+  public void log(){
+    
   }
 
   @Override
@@ -78,6 +86,8 @@ public class Drivebase extends SubsystemBase {
   public void arcadeDrive(double speed, double rotation) {
     m_drive.arcadeDrive(speed, rotation);
   }
+
+  public void balance(){}
 
   public BiConsumer<Double, Double> voltageDrive = (Double left, Double right) -> {
     m_leftGroup.setVoltage(left);
@@ -111,6 +121,24 @@ public class Drivebase extends SubsystemBase {
       m_rightEncoder1.getVelocity(),
       m_rightEncoder2.getVelocity(),
       m_rightEncoder3.getVelocity()
+    ).vote();
+  }
+
+  public double getLeftEncoderDistance(){
+    return new TMR_Voter(
+      Constants.T_NEO_ENC_VEL,
+      m_leftEncoder1.getVelocity(),
+      m_leftEncoder2.getVelocity(),
+      m_leftEncoder3.getVelocity()
+    ).vote();
+  }
+
+  public double getRightEncoderDistance(){
+    return new TMR_Voter(
+      Constants.T_NEO_ENC_VEL,
+      m_leftEncoder1.getVelocity(),
+      m_leftEncoder2.getVelocity(),
+      m_leftEncoder3.getVelocity()
     ).vote();
   }
 }
