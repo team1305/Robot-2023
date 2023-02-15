@@ -6,11 +6,18 @@ package frc.robot.commands.shooter;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.constants.SmartDashboardConstants;
+import frc.robot.subsystems.Shooter;
 
 public class Shooter_TargettedFire extends CommandBase {
+
+  private final Shooter m_shooter;
+
   /** Creates a new TargettedFire. */
-  public Shooter_TargettedFire() {
-    // Use addRequirements() here to declare subsystem dependencies.
+  public Shooter_TargettedFire(Shooter shooter) {
+    super();
+    addRequirements(shooter);
+    m_shooter = shooter;
   }
 
   // Called when the command is initially scheduled.
@@ -20,12 +27,15 @@ public class Shooter_TargettedFire extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    SmartDashboard.putString("Firing", "Targetted");
+    SmartDashboard.putString(SmartDashboardConstants.SHOOTER_COMMAND, "Targetted");
+    m_shooter.shootIfTargetted();
   }
 
   // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted) {}
+  public void end(boolean interrupted) {
+
+  }
 
   // Returns true when the command should end.
   @Override

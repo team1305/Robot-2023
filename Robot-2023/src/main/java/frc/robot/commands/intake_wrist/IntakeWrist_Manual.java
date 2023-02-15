@@ -6,7 +6,9 @@ package frc.robot.commands.intake_wrist;
 
 import java.util.function.DoubleSupplier;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.constants.SmartDashboardConstants;
 import frc.robot.subsystems.IntakeWrist;
 
 public class IntakeWrist_Manual extends CommandBase {
@@ -18,9 +20,9 @@ public class IntakeWrist_Manual extends CommandBase {
   /** Creates a new IntakeWrist_Manual. */
   public IntakeWrist_Manual(DoubleSupplier valueSupplier, IntakeWrist intakeWrist) {
     super();
+    addRequirements(intakeWrist);
     m_IntakeWrist = intakeWrist;
     m_valueSupplier = valueSupplier;
-    addRequirements(intakeWrist);
   }
 
   // Called when the command is initially scheduled.
@@ -30,13 +32,14 @@ public class IntakeWrist_Manual extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    m_IntakeWrist.move(m_valueSupplier.getAsDouble());
+    SmartDashboard.getString(SmartDashboardConstants.INTAKE_WRIST_COMMAND, "Manual");
+    m_IntakeWrist.setIntakeWrist(m_valueSupplier.getAsDouble());
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    m_IntakeWrist.move(0);
+    m_IntakeWrist.setIntakeWrist(0);
   }
 
   // Returns true when the command should end.

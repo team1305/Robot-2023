@@ -4,7 +4,10 @@
 
 package frc.robot.commands.intake;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.constants.ControlConstants;
+import frc.robot.constants.SmartDashboardConstants;
 import frc.robot.subsystems.Intake;
 
 public class Intake_AutoIn extends CommandBase {
@@ -13,8 +16,9 @@ public class Intake_AutoIn extends CommandBase {
 
   /** Creates a new AutoIn. */
   public Intake_AutoIn(Intake intake) {
+    super();
+    addRequirements(intake);
     m_intake = intake;
-    addRequirements(m_intake);
   }
 
   // Called when the command is initially scheduled.
@@ -23,7 +27,10 @@ public class Intake_AutoIn extends CommandBase {
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
-  public void execute() {}
+  public void execute() {
+    SmartDashboard.putString(SmartDashboardConstants.INTAKE_COMMAND, "Auto In");
+    m_intake.setIntake(ControlConstants.INTAKE_IN_VAL);
+  }
 
   // Called once the command ends or is interrupted.
   @Override
@@ -32,6 +39,6 @@ public class Intake_AutoIn extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return false;
+    return m_intake.hasGamePiece();
   }
 }

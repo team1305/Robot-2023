@@ -4,7 +4,10 @@
 
 package frc.robot.commands.intake;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.constants.ControlConstants;
+import frc.robot.constants.SmartDashboardConstants;
 import frc.robot.subsystems.Intake;
 
 public class Intake_Out extends CommandBase {
@@ -13,9 +16,9 @@ public class Intake_Out extends CommandBase {
 
   /** Creates a new ManualOut. */
   public Intake_Out(Intake intake) {
+    super();
+    addRequirements(intake);
     m_intake = intake;
-
-    addRequirements(m_intake);
   }
 
   // Called when the command is initially scheduled.
@@ -25,7 +28,8 @@ public class Intake_Out extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    m_intake.setIntake(-1.0);
+    SmartDashboard.putString(SmartDashboardConstants.INTAKE_COMMAND, "Manual Out");
+    m_intake.setIntake(ControlConstants.INTAKE_OUT_VAL);
   }
 
   // Called once the command ends or is interrupted.

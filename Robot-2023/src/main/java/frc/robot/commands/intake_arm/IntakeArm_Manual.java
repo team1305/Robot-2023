@@ -6,22 +6,22 @@ package frc.robot.commands.intake_arm;
 
 import java.util.function.DoubleSupplier;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.constants.SmartDashboardConstants;
 import frc.robot.subsystems.IntakeArm;
 
 public class IntakeArm_Manual extends CommandBase {
 
   private final IntakeArm m_intakeArm;
-
   private final DoubleSupplier m_valueSupplier;
 
   /** Creates a new ArmManual. */
-  public IntakeArm_Manual(DoubleSupplier valueSupplier, IntakeArm intakeArm ) {
+  public IntakeArm_Manual(DoubleSupplier valueSupplier, IntakeArm intakeArm) {
+    super();
+    addRequirements(intakeArm);
     m_intakeArm = intakeArm;
     m_valueSupplier = valueSupplier;
-
-    addRequirements(m_intakeArm);
-    // Use addRequirements() here to declare subsystem dependencies.
   }
 
   // Called when the command is initially scheduled.
@@ -32,6 +32,7 @@ public class IntakeArm_Manual extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
+    SmartDashboard.getString(SmartDashboardConstants.INTAKE_ARM_COMMAND, "Manual");
     m_intakeArm.setIntakeArms(m_valueSupplier.getAsDouble());
   }
 

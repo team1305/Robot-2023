@@ -4,15 +4,22 @@
 
 package frc.robot.commands.shooter_arm;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.constants.SmartDashboardConstants;
+import frc.robot.presets.ShooterArmPresets;
 import frc.robot.subsystems.ShooterArm;
 
 public class ShooterArm_Up extends CommandBase {
 
+  private final ShooterArm m_shooterArm;
+
   /** Creates a new ShooterUp. */
   public ShooterArm_Up(ShooterArm shooterArm) {
-    // Use addRequirements() here to declare subsystem dependencies.
+    super();
     addRequirements(shooterArm);
+
+    m_shooterArm = shooterArm;
   }
 
   // Called when the command is initially scheduled.
@@ -22,6 +29,12 @@ public class ShooterArm_Up extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
+    SmartDashboard.getString(SmartDashboardConstants.SHOOTER_ARM_COMMAND, "Up");
+    m_shooterArm.setShooterArmTarget(
+      ShooterArmPresets.getHigherThan(
+        m_shooterArm.getShooterArmTarget()
+      )
+    );
   }
 
   // Called once the command ends or is interrupted.

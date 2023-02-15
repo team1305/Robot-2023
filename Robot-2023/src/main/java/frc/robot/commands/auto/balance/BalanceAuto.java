@@ -10,8 +10,10 @@ import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.wpilibj2.command.RamseteCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import frc.robot.Constants;
 import frc.robot.commands.shooter.Shooter_ManualFire;
+import frc.robot.constants.AutoConstants;
+import frc.robot.constants.ControlConstants;
+import frc.robot.constants.RobotConstants;
 import frc.robot.subsystems.Drivebase;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
@@ -21,40 +23,29 @@ import frc.robot.utils.TrajectoryResolver;
 // information, see:
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
 public class BalanceAuto extends SequentialCommandGroup {
-
-  private final Drivebase m_drivebase;
-  private final Intake m_intake;
-  private final Shooter m_shooter;
-
   /** Creates a new Balance. */
   public BalanceAuto(Drivebase drivebase, Intake intake, Shooter shooter) {
-
-    m_drivebase = drivebase;
-    m_intake = intake;
-    m_shooter = shooter;
-
-    // Add your commands in the addCommands() call, e.g.
-    // addCommands(new FooCommand(), new BarCommand());
+    super();
     addCommands(
-      new Shooter_ManualFire(m_shooter),
+      new Shooter_ManualFire(shooter),
       new RamseteCommand(
-        new TrajectoryResolver(Constants.PATH_SUS_GRID_TO_CHRG_STN).getTrajectory(), 
-        m_drivebase.pose, 
+        new TrajectoryResolver(AutoConstants.PATH_SUS_GRID_TO_CHRG_STN).getTrajectory(), 
+        drivebase.pose, 
         new RamseteController(
-          Constants.RAMSETE_B, 
-          Constants.RAMSETE_ZETA
+          ControlConstants.RAMSETE_B, 
+          ControlConstants.RAMSETE_ZETA
         ),
         new SimpleMotorFeedforward(
-          Constants.RAMSETE_S,
-          Constants.RAMSETE_V,
-          Constants.RAMSETE_A
+          ControlConstants.RAMSETE_S,
+          ControlConstants.RAMSETE_V,
+          ControlConstants.RAMSETE_A
         ),
-        new DifferentialDriveKinematics(Constants.TRACK_WIDTH_IN),
-        m_drivebase.wheelSpeeds,
-        new PIDController(Constants.RAMSETE_P, 0, 0),
-        new PIDController(Constants.RAMSETE_P, 0, 0),
-        m_drivebase.voltageDrive,
-        m_drivebase
+        new DifferentialDriveKinematics(RobotConstants.TRACK_WIDTH_IN),
+        drivebase.wheelSpeeds,
+        new PIDController(ControlConstants.RAMSETE_P, 0, 0),
+        new PIDController(ControlConstants.RAMSETE_P, 0, 0),
+        drivebase.voltageDrive,
+        drivebase
       )
     );
   }

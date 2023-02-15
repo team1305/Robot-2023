@@ -7,33 +7,33 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
+import com.revrobotics.ColorSensorV3;
 
+import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
+import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
+import frc.robot.constants.ControlConstants;
+import frc.robot.constants.RobotConstants;
+import frc.robot.utils.GamePiece;
 
 public class Intake extends SubsystemBase {
-
   // Motor controllers
-	private static WPI_TalonFX m_leftMotor = new WPI_TalonFX(Constants.LEFT_INTAKE_MOTOR_CAN_ID);
-	private static WPI_TalonFX m_rightMotor = new WPI_TalonFX(Constants.RIGHT_INTAKE_MOTOR_CAN_ID);
+	private static WPI_TalonFX m_leftMotor = new WPI_TalonFX(RobotConstants.LEFT_INTAKE_MOTOR_CAN_ID);
+	private static WPI_TalonFX m_rightMotor = new WPI_TalonFX(RobotConstants.RIGHT_INTAKE_MOTOR_CAN_ID);
 
   private final MotorControllerGroup m_intakeMotors = new MotorControllerGroup(m_leftMotor, m_rightMotor);
 
-  private boolean intakeRightInverted = true;
+  private final ColorSensorV3 m_colorSensor = new ColorSensorV3(I2C.Port.kOnboard);
+
+  private boolean rightInverted = true;
   private boolean isBrakeMode = true;
 
   /** Creates a new Intake. **/
   public Intake() {
     super();
-
-    m_leftMotor.setNeutralMode(NeutralMode.Brake);
     setMode();
-    setIntakeInversion();
-  }
-
-  public void log(){
-
+    setInversion();
   }
 
   private void setMode(){
@@ -41,13 +41,41 @@ public class Intake extends SubsystemBase {
     m_rightMotor.setNeutralMode(isBrakeMode ? NeutralMode.Brake : NeutralMode.Coast);
   }
 
-  private void setIntakeInversion(){
-    m_rightMotor.setInverted(intakeRightInverted);
-    m_leftMotor.setInverted(!intakeRightInverted);
+  private void setInversion(){
+    m_rightMotor.setInverted(rightInverted);
+    m_leftMotor.setInverted(!rightInverted);
   }
 
   public void setIntake(double value){
     m_intakeMotors.set(value);
+  }
+
+  public boolean hasGamePiece(){
+    GamePiece capturedPiece = capturedPiece();
+    if(capturedPiece == GamePiece.Cone || capturedPiece == GamePiece.Cube){
+      return true;
+    }
+    return false;
+  }
+
+  public void hold(){
+    if(capturedPiece() == GamePiece.Cube){
+      m_intakeMotors.set(ControlConstants.INTAKE_HOLD_VAL);
+    }
+    else{
+      m_intakeMotors.set(0);
+    }
+  }
+
+  private GamePiece capturedPiece(){
+    Color color = m_colorSensor.getColor();
+    if(color == Color.kPurple){
+      return GamePiece.Cube;
+    }
+    if(color == Color.kYellow){
+      return GamePiece.Cone;
+    }
+    return GamePiece.None;
   }
 
   @Override

@@ -4,7 +4,9 @@
 
 package frc.robot.commands.drivebase;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.constants.SmartDashboardConstants;
 import frc.robot.subsystems.Drivebase;
 
 public class Balance extends CommandBase {
@@ -13,8 +15,9 @@ public class Balance extends CommandBase {
 
   /** Creates a new Balance. */
   public Balance(Drivebase drivebase) {
+    super();
+    addRequirements(drivebase);
     m_drivebase = drivebase;
-    addRequirements(m_drivebase);
   }
 
   // Called when the command is initially scheduled.
@@ -24,6 +27,7 @@ public class Balance extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
+    SmartDashboard.putString(SmartDashboardConstants.DRIVEBASE_COMMAND, "Balance");
     m_drivebase.balance();
   }
 
