@@ -4,9 +4,16 @@
 
 package frc.robot.subsystems;
 
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.RamseteController;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
+import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.motorcontrol.MotorController;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
@@ -57,8 +64,17 @@ public class Drivebase extends SubsystemBase {
     getRightEncoderDistance()
   );
 
+  private final DifferentialDriveKinematics m_kinematics = new DifferentialDriveKinematics(Units.inchesToMeters(RobotConstants.TRACK_WIDTH_IN));
+
+  //Controllers
+  private final PIDController m_balancePID = new PIDController(ControlConstants.BALANCE_P, ControlConstants.BALANCE_I, ControlConstants.BALANCE_D);
+  private final RamseteController m_ramseteController = new RamseteController(ControlConstants.RAMSETE_B, ControlConstants.RAMSETE_ZETA);
+  private final SimpleMotorFeedforward m_feedForward = new SimpleMotorFeedforward(ControlConstants.FEEDFORWARD_S, ControlConstants.FEEDFORWARD_V, ControlConstants.FEEDFORWARD_A);
+  private final Timer m_timer = new Timer();
+
   // Fields
   private boolean rightInverted = true;
+  private DifferentialDriveWheelSpeeds m_previousSpeeds;
 
   /** Creates a new Drivebase Subsystem. */
   public Drivebase() {
@@ -81,16 +97,43 @@ public class Drivebase extends SubsystemBase {
   public void arcadeDrive(double speed, double rotation) {
     m_drive.arcadeDrive(speed, rotation);
   }
-
-  public BiConsumer<Double, Double> voltageDrive = (Double left, Double right) -> {
-    m_leftGroup.setVoltage(left);
-    m_rightGroup.setVoltage(right);
-    m_drive.feed();
-  };
   
   public void balance(){
-
+    m_drive.arcadeDrive(
+      m_balancePID.calculate(m_gyro.getPitch(), 0.0), 
+      0.0
+    );
   }
+
+  public void initForTrajectory(){
+    m_timer.reset();
+    m_previousSpeeds = null;
+  }
+
+  public void followTrajectory(Trajectory trajectory){
+    DifferentialDriveWheelSpeeds wheelSpeeds = getWheelSpeeds(trajectory);
+
+    m_leftGroup.setVoltage(
+      getLeftFeedForward() + getLeftPID()
+    );
+    m_rightGroup.setVoltage(
+      getRightFeedForward() + getRightPID()
+    );
+    m_drive.feed();
+
+    m_previousSpeeds = wheelSpeeds;
+  }
+
+  private DifferentialDriveWheelSpeeds getWheelSpeeds(Trajectory trajectory){
+    return m_kinematics.toWheelSpeeds(
+      m_ramseteController.calculate(
+        m_odometry.getPoseMeters(), 
+        trajectory.sample(m_timer.get())
+      )
+    ); 
+  }
+
+  private double 
 
   public void targetGoal(){
 
@@ -102,18 +145,7 @@ public class Drivebase extends SubsystemBase {
 
   
 
-  public Supplier<Pose2d> pose = () -> {
-    return m_odometry.getPoseMeters();
-  };
-
-  public Supplier<DifferentialDriveWheelSpeeds> wheelSpeeds = () -> {
-    return new DifferentialDriveWheelSpeeds(
-     getLeftEncoderSpeed(),
-     getRightEncoderSpeed()
-    );
-  };
-
-  public double getLeftEncoderSpeed(){
+  private double getLeftEncoderSpeed(){
     return new TMR_Voter(
       ControlConstants.T_NEO_ENC_VEL,
       m_leftEncoder1.getVelocity(),
@@ -122,7 +154,7 @@ public class Drivebase extends SubsystemBase {
     ).vote();
   }
 
-  public double getRightEncoderSpeed(){
+  private double getRightEncoderSpeed(){
     return new TMR_Voter(
       ControlConstants.T_NEO_ENC_VEL,
       m_rightEncoder1.getVelocity(),
@@ -131,7 +163,7 @@ public class Drivebase extends SubsystemBase {
     ).vote();
   }
 
-  public double getLeftEncoderDistance(){
+  private double getLeftEncoderDistance(){
     return new TMR_Voter(
       ControlConstants.T_NEO_ENC_VEL,
       m_leftEncoder1.getVelocity(),
@@ -140,7 +172,7 @@ public class Drivebase extends SubsystemBase {
     ).vote();
   }
 
-  public double getRightEncoderDistance(){
+  private double getRightEncoderDistance(){
     return new TMR_Voter(
       ControlConstants.T_NEO_ENC_VEL,
       m_leftEncoder1.getVelocity(),

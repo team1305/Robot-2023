@@ -44,26 +44,26 @@ public class ShooterArm extends SubsystemBase {
     return m_encoder.getAbsolutePosition() <= ControlConstants.SHOOTER_ARM_LOWER_LIMIT;
   }
 
-private boolean reachedUpperLimit() {
-  return m_encoder.getAbsolutePosition() >= ControlConstants.SHOOTER_ARM_UPPER_LIMIT;
-}
+  private boolean reachedUpperLimit() {
+    return m_encoder.getAbsolutePosition() >= ControlConstants.SHOOTER_ARM_UPPER_LIMIT;
+  }
 
-public void setShooterArmTarget(double value){
-  m_targetPosition = value;
-}
+  public void setShooterArmTarget(double value){
+    m_targetPosition = value;
+  }
 
-public double getShooterArmTarget(){
-  return m_targetPosition;
-}
+  public double getShooterArmTarget(){
+    return m_targetPosition;
+  }
 
-public void hold(){
-  m_armMotor.set(
-    m_pidController.calculate(
-      m_encoder.getAbsolutePosition(), 
-      m_targetPosition
-    )
-  );
-}
+  public void hold(){
+    m_armMotor.set(
+      m_pidController.calculate(
+        m_encoder.getAbsolutePosition(), 
+        m_targetPosition
+      )
+    );
+  }
 
   @Override
   public void periodic() {
