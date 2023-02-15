@@ -7,7 +7,6 @@ package frc.robot.subsystems;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.RamseteController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
@@ -21,9 +20,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.ControlConstants;
 import frc.robot.constants.RobotConstants;
 import frc.robot.utils.TMR_Voter;
-
-import java.util.function.BiConsumer;
-import java.util.function.Supplier;
 
 import com.ctre.phoenix.sensors.WPI_Pigeon2;
 import com.revrobotics.CANSparkMax;
@@ -63,18 +59,19 @@ public class Drivebase extends SubsystemBase {
     getLeftEncoderDistance(),
     getRightEncoderDistance()
   );
-
   private final DifferentialDriveKinematics m_kinematics = new DifferentialDriveKinematics(Units.inchesToMeters(RobotConstants.TRACK_WIDTH_IN));
 
   //Controllers
   private final PIDController m_balancePID = new PIDController(ControlConstants.BALANCE_P, ControlConstants.BALANCE_I, ControlConstants.BALANCE_D);
   private final RamseteController m_ramseteController = new RamseteController(ControlConstants.RAMSETE_B, ControlConstants.RAMSETE_ZETA);
   private final SimpleMotorFeedforward m_feedForward = new SimpleMotorFeedforward(ControlConstants.FEEDFORWARD_S, ControlConstants.FEEDFORWARD_V, ControlConstants.FEEDFORWARD_A);
+  private final PIDController m_cruisePID = new PIDController(ControlConstants.CRUISE_P, ControlConstants.CRUISE_I, ControlConstants.CRUISE_D);
   private final Timer m_timer = new Timer();
 
   // Fields
   private boolean rightInverted = true;
   private DifferentialDriveWheelSpeeds m_previousSpeeds;
+  private Double m_prevTime;
 
   /** Creates a new Drivebase Subsystem. */
   public Drivebase() {
@@ -108,32 +105,65 @@ public class Drivebase extends SubsystemBase {
   public void initForTrajectory(){
     m_timer.reset();
     m_previousSpeeds = null;
+    m_prevTime = 0.0;
   }
 
   public void followTrajectory(Trajectory trajectory){
-    DifferentialDriveWheelSpeeds wheelSpeeds = getWheelSpeeds(trajectory);
+
+    double currentTime = m_timer.get();
+    double dt = currentTime - m_prevTime;
+    
+
+    DifferentialDriveWheelSpeeds wheelSpeeds = getWheelSpeeds(trajectory, currentTime);
 
     m_leftGroup.setVoltage(
-      getLeftFeedForward() + getLeftPID()
+      getLeftFeedForward(wheelSpeeds.leftMetersPerSecond, dt) + getLeftPID(wheelSpeeds.leftMetersPerSecond)
     );
     m_rightGroup.setVoltage(
-      getRightFeedForward() + getRightPID()
+      getRightFeedForward(wheelSpeeds.rightMetersPerSecond, dt) + getRightPID(wheelSpeeds.rightMetersPerSecond)
     );
     m_drive.feed();
 
     m_previousSpeeds = wheelSpeeds;
+    m_prevTime = currentTime;
   }
 
-  private DifferentialDriveWheelSpeeds getWheelSpeeds(Trajectory trajectory){
+  private DifferentialDriveWheelSpeeds getWheelSpeeds(Trajectory trajectory, double time){
     return m_kinematics.toWheelSpeeds(
       m_ramseteController.calculate(
         m_odometry.getPoseMeters(), 
-        trajectory.sample(m_timer.get())
+        trajectory.sample(time)
       )
     ); 
   }
 
-  private double 
+  private double getLeftFeedForward(double meterPerSecond, double dt){
+    return m_feedForward.calculate(
+      meterPerSecond,
+      (meterPerSecond - m_previousSpeeds.leftMetersPerSecond) / dt
+    );
+  }
+
+  private double getRightFeedForward(double meterPerSecond, double dt){
+    return m_feedForward.calculate(
+      meterPerSecond,
+      (meterPerSecond - m_previousSpeeds.rightMetersPerSecond)  / dt
+    );
+  }
+
+  private double getLeftPID(double targetMeterPerSecond){
+    return m_cruisePID.calculate(
+      getLeftEncoderSpeed(),
+      targetMeterPerSecond
+    );
+  }
+
+  private double getRightPID(double targetMeterPerSecond){
+    return m_cruisePID.calculate(
+      getRightEncoderSpeed(),
+      targetMeterPerSecond
+    );
+  }
 
   public void targetGoal(){
 

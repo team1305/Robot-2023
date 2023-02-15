@@ -1,7 +1,7 @@
 package frc.robot.subsystems;
 
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableInstance;
+//import edu.wpi.first.networktables.NetworkTable;
+//import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -12,8 +12,8 @@ public class Shooter extends SubsystemBase {
     private final Solenoid m_leftSolenoid = new Solenoid(PneumaticsModuleType.REVPH, RobotConstants.LEFT_SHOOTER_CH);
     private final Solenoid m_rightSolenoid = new Solenoid(PneumaticsModuleType.REVPH, RobotConstants.RIGHT_SHOOTER_CH);
 
-    private final NetworkTable m_leftLimelight = NetworkTableInstance.getDefault().getTable("Limelight_Left");
-    private final NetworkTable m_rightLimelight = NetworkTableInstance.getDefault().getTable("Limelight_Right");
+    //private final NetworkTable m_leftLimelight = NetworkTableInstance.getDefault().getTable("Limelight_Left");
+    //private final NetworkTable m_rightLimelight = NetworkTableInstance.getDefault().getTable("Limelight_Right");
 
     /** Creates a new Intake. **/
     public Shooter() {

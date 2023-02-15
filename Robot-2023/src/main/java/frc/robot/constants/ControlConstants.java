@@ -5,13 +5,16 @@ public class ControlConstants {
     // Drivetrain Controller Values
     public static final double RAMSETE_B = 2;
     public static final double RAMSETE_ZETA = 0.7;
-    public static final double RAMSETE_S = 0.53111;
-    public static final double RAMSETE_V = 2.4475;
-    public static final double RAMSETE_A = 0.21498;
-    public static final double RAMSETE_P = 2.9309;
+    public static final double FEEDFORWARD_S = 0.53111;
+    public static final double FEEDFORWARD_V = 2.4475;
+    public static final double FEEDFORWARD_A = 0.21498;
     public static final double BALANCE_P = 0;
     public static final double BALANCE_I = 0;
     public static final double BALANCE_D = 0;
+    public static final double CRUISE_P = 0;
+    public static final double CRUISE_I = 0;
+    public static final double CRUISE_D = 0;
+
 
 
     // Intake Control Values
