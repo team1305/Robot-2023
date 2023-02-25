@@ -2,22 +2,20 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.commands.shooter_arm;
+package frc.robot.commands.pneumatics;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.constants.SmartDashboardConstants;
-import frc.robot.subsystems.ShooterArm;
+import frc.robot.subsystems.Pneumatics;
 
-public class ShooterArm_Hold extends CommandBase {
+public class TurnOnCompressor extends CommandBase {
 
-  private final ShooterArm m_shooterArm;
+  private final Pneumatics m_pneumatics;
 
-  /** Creates a new ShooterManual. */
-  public ShooterArm_Hold(ShooterArm shooterArm) {
+  /** Creates a new IntakeWrist_Manual. */
+  public TurnOnCompressor(Pneumatics pneumatics) {
     super();
-    addRequirements(shooterArm);
-    m_shooterArm = shooterArm;
+    addRequirements(pneumatics);
+    m_pneumatics = pneumatics;
   }
 
   // Called when the command is initially scheduled.
@@ -27,15 +25,12 @@ public class ShooterArm_Hold extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    SmartDashboard.getString(SmartDashboardConstants.SHOOTER_ARM_COMMAND, "Hold");
-    m_shooterArm.hold();
+    m_pneumatics.compressorOn();
   }
 
   // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted) {
-    m_shooterArm.setShooterArm(0);
-  }
+  public void end(boolean interrupted) {}
 
   // Returns true when the command should end.
   @Override

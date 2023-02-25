@@ -4,23 +4,27 @@
 
 package frc.robot.subsystems;
 
-
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.revrobotics.ColorSensorV3;
 
 import edu.wpi.first.wpilibj.I2C;
+import edu.wpi.first.wpilibj.PneumaticsModuleType;
+import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.constants.ControlConstants;
 import frc.robot.constants.RobotConstants;
+import frc.robot.constants.SmartDashboardConstants;
 import frc.robot.utils.GamePiece;
 
 public class Intake extends SubsystemBase {
   // Motor controllers
 	private static WPI_TalonFX m_leftMotor = new WPI_TalonFX(RobotConstants.LEFT_INTAKE_MOTOR_CAN_ID);
 	private static WPI_TalonFX m_rightMotor = new WPI_TalonFX(RobotConstants.RIGHT_INTAKE_MOTOR_CAN_ID);
+
+  private final Solenoid m_solenoid = new Solenoid(PneumaticsModuleType.REVPH, RobotConstants.INTAKE_CH);
 
   private final MotorControllerGroup m_intakeMotors = new MotorControllerGroup(m_leftMotor, m_rightMotor);
 
@@ -49,6 +53,17 @@ public class Intake extends SubsystemBase {
   public void setIntake(double value){
     m_intakeMotors.set(value);
   }
+  
+  public void openIntake(){
+    m_solenoid.set(true);
+
+  }
+
+  public void closeIntake(){
+    m_solenoid.set(false);
+
+  }
+
 
   public boolean hasGamePiece(){
     GamePiece capturedPiece = capturedPiece();
@@ -58,33 +73,35 @@ public class Intake extends SubsystemBase {
     return false;
   }
 
-  public void hold(){
-    if(capturedPiece() == GamePiece.Cube){
-      m_intakeMotors.set(ControlConstants.INTAKE_HOLD_VAL);
-    }
-    else{
-      m_intakeMotors.set(0);
-    }
+  public GamePiece capturedPiece(){
+    Color color = m_colorSensor.getColor();
+    SmartDashboard.putString("Test", color.toString());
+    if (inConeRange(color))
+      return GamePiece.Cone;
+    if(inCubeRange(color))
+      return GamePiece.Cube;
+    return GamePiece.None;
   }
 
-  private GamePiece capturedPiece(){
-    Color color = m_colorSensor.getColor();
-    if(color == Color.kPurple){
-      return GamePiece.Cube;
-    }
-    if(color == Color.kYellow){
-      return GamePiece.Cone;
-    }
-    return GamePiece.None;
+  private boolean inConeRange(Color color){
+    return  inRange(color.red, 80, 96) && 
+            inRange(color.green, 112,144) && 
+            inRange(color.blue, 21, 48);
+  }
+
+  private boolean inCubeRange(Color color){
+    return  inRange(color.red, 53, 69) && 
+            inRange(color.green, 101, 117) && 
+            inRange(color.blue, 69, 101);
+  }
+
+  private boolean inRange(double value, int lowerLimit, int upperLimit){
+    double checkVal = value * 255;
+    return checkVal > lowerLimit && checkVal < upperLimit;
   }
 
   @Override
   public void periodic() {
-    // This method will be called once per scheduler run
-  }
-
-  @Override
-  public void simulationPeriodic() {
-    // This method will be called once per scheduler run during simulation
+    SmartDashboard.putString(SmartDashboardConstants.INTAKE_HAS_GAME_PIECE, capturedPiece().name());
   }
 }

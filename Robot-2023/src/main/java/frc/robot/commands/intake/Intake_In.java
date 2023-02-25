@@ -4,10 +4,8 @@
 
 package frc.robot.commands.intake;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.constants.ControlConstants;
-import frc.robot.constants.SmartDashboardConstants;
 import frc.robot.subsystems.Intake;
 
 public class Intake_In extends CommandBase {
@@ -28,7 +26,6 @@ public class Intake_In extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    SmartDashboard.putString(SmartDashboardConstants.INTAKE_COMMAND, "Manual In");
     m_intake.setIntake(ControlConstants.INTAKE_IN_VAL);
   }
 

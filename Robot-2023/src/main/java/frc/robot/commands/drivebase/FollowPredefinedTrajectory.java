@@ -1,9 +1,7 @@
 package frc.robot.commands.drivebase;
 
 import edu.wpi.first.math.trajectory.Trajectory;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.constants.SmartDashboardConstants;
 import frc.robot.subsystems.Drivebase;
 
 public class FollowPredefinedTrajectory extends CommandBase {
@@ -26,13 +24,12 @@ public class FollowPredefinedTrajectory extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    m_drivebase.initForTrajectory();
+    m_drivebase.initForTrajectory(m_trajectory);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    SmartDashboard.putString(SmartDashboardConstants.DRIVEBASE_COMMAND, "Follow Predefined Trajectory");
     m_drivebase.followTrajectory(m_trajectory);
   }
 

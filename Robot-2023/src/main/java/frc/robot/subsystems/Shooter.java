@@ -9,8 +9,7 @@ import frc.robot.constants.RobotConstants;
 
 public class Shooter extends SubsystemBase {
     // Solenoids
-    private final Solenoid m_leftSolenoid = new Solenoid(PneumaticsModuleType.REVPH, RobotConstants.LEFT_SHOOTER_CH);
-    private final Solenoid m_rightSolenoid = new Solenoid(PneumaticsModuleType.REVPH, RobotConstants.RIGHT_SHOOTER_CH);
+    private final Solenoid m_solenoid = new Solenoid(PneumaticsModuleType.REVPH, RobotConstants.SHOOTER_CH);
 
     //private final NetworkTable m_leftLimelight = NetworkTableInstance.getDefault().getTable("Limelight_Left");
     //private final NetworkTable m_rightLimelight = NetworkTableInstance.getDefault().getTable("Limelight_Right");
@@ -18,13 +17,11 @@ public class Shooter extends SubsystemBase {
     /** Creates a new Intake. **/
     public Shooter() {
       super();
-
       reload();
     }
 
     public void shoot(){
-        m_leftSolenoid.set(true);
-        m_rightSolenoid.set(true);
+        m_solenoid.set(true);
     }
 
     public void shootIfTargetted(){
@@ -38,18 +35,7 @@ public class Shooter extends SubsystemBase {
     }
 
     public void reload(){
-        m_leftSolenoid.set(false);
-        m_rightSolenoid.set(false);
-    }
-  
-    @Override
-    public void periodic() {
-      // This method will be called once per scheduler run
-    }
-  
-    @Override
-    public void simulationPeriodic() {
-      // This method will be called once per scheduler run during simulation
+        m_solenoid.set(false);
     }
   }
   

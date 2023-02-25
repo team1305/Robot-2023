@@ -2,23 +2,20 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.commands.intake_arm;
+package frc.robot.commands.pneumatics;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.constants.SmartDashboardConstants;
-import frc.robot.presets.IntakeArmPresets;
-import frc.robot.subsystems.IntakeArm;
+import frc.robot.subsystems.Pneumatics;
 
-public class IntakeArm_Down extends CommandBase {
+public class TurnOffCompressor extends CommandBase {
 
-  private final IntakeArm m_intakeArm;
+  private final Pneumatics m_pneumatics;
 
-  /** Creates a new ArmDown. */
-  public IntakeArm_Down(IntakeArm intakeArm) {
+  /** Creates a new IntakeWrist_Manual. */
+  public TurnOffCompressor(Pneumatics pneumatics) {
     super();
-    addRequirements(intakeArm);
-    m_intakeArm = intakeArm;
+    addRequirements(pneumatics);
+    m_pneumatics = pneumatics;
   }
 
   // Called when the command is initially scheduled.
@@ -28,12 +25,7 @@ public class IntakeArm_Down extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    SmartDashboard.getString(SmartDashboardConstants.INTAKE_ARM_COMMAND, "Down");
-    m_intakeArm.setIntakeArmTarget(
-      IntakeArmPresets.getLowerThan(
-        m_intakeArm.getIntakeArmTarget()
-      )
-    );
+    m_pneumatics.compressorOff();
   }
 
   // Called once the command ends or is interrupted.

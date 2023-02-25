@@ -4,9 +4,7 @@
 
 package frc.robot.commands.shooter;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.constants.SmartDashboardConstants;
 import frc.robot.subsystems.Shooter;
 
 public class Shooter_TargettedFire extends CommandBase {
@@ -27,7 +25,6 @@ public class Shooter_TargettedFire extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    SmartDashboard.putString(SmartDashboardConstants.SHOOTER_COMMAND, "Targetted");
     m_shooter.shootIfTargetted();
   }
 

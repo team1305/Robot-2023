@@ -4,13 +4,16 @@
 
 package frc.robot.commands.intake;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.constants.ControlConstants;
-import frc.robot.constants.SmartDashboardConstants;
 import frc.robot.subsystems.Intake;
 
 public class Intake_Out extends CommandBase {
+
+  private final Timer m_timer;
 
   private final Intake m_intake;
 
@@ -19,22 +22,35 @@ public class Intake_Out extends CommandBase {
     super();
     addRequirements(intake);
     m_intake = intake;
+    m_timer = null;
+  }
+
+  public Intake_Out(Intake intake, Timer timer) {
+    super();
+    addRequirements(intake);
+    m_intake = intake;
+    m_timer = timer;
   }
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {}
+  public void initialize() {
+    if(m_timer != null){
+      m_timer.reset();
+      m_timer.start();
+    }
+  }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    SmartDashboard.putString(SmartDashboardConstants.INTAKE_COMMAND, "Manual Out");
     m_intake.setIntake(ControlConstants.INTAKE_OUT_VAL);
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
+    DriverStation.reportError("Starting shot", false);
     m_intake.setIntake(0);
   }
 

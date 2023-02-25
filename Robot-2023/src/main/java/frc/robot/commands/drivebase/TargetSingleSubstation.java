@@ -4,9 +4,7 @@
 
 package frc.robot.commands.drivebase;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.constants.SmartDashboardConstants;
 import frc.robot.subsystems.Drivebase;
 
 public class TargetSingleSubstation extends CommandBase {
@@ -23,13 +21,12 @@ public class TargetSingleSubstation extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    m_drivebase.initForTrajectory();
+    //m_drivebase.initForTrajectory();
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    SmartDashboard.putString(SmartDashboardConstants.DRIVEBASE_COMMAND, "Target Single Substation");
     m_drivebase.targetSingleSubstation();
   }
 

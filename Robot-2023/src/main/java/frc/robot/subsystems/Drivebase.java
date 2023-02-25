@@ -7,18 +7,24 @@ package frc.robot.subsystems;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.RamseteController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.math.trajectory.Trajectory.State;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.motorcontrol.MotorController;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.ControlConstants;
+import frc.robot.constants.HardwareConstants;
 import frc.robot.constants.RobotConstants;
+import frc.robot.constants.SmartDashboardConstants;
 import frc.robot.utils.TMR_Voter;
 
 import com.ctre.phoenix.sensors.WPI_Pigeon2;
@@ -53,35 +59,69 @@ public class Drivebase extends SubsystemBase {
   // Gyroscopes
   private final WPI_Pigeon2 m_gyro = new WPI_Pigeon2(RobotConstants.PIGEON_CAN_ID);
 
-  // Odometry
-  private final DifferentialDriveOdometry m_odometry = new DifferentialDriveOdometry(
-    m_gyro.getRotation2d(),
-    getLeftEncoderDistance(),
-    getRightEncoderDistance()
-  );
+  // Odometry and kinematics
   private final DifferentialDriveKinematics m_kinematics = new DifferentialDriveKinematics(Units.inchesToMeters(RobotConstants.TRACK_WIDTH_IN));
 
   //Controllers
-  private final PIDController m_balancePID = new PIDController(ControlConstants.BALANCE_P, ControlConstants.BALANCE_I, ControlConstants.BALANCE_D);
+  private final PIDController m_balancePID = new PIDController(
+    ControlConstants.BALANCE_P,
+    ControlConstants.BALANCE_I,
+    ControlConstants.BALANCE_D
+  );
+  private final PIDController m_holdPID = new PIDController(
+    ControlConstants.HOLD_P,
+    ControlConstants.HOLD_I,
+    ControlConstants.HOLD_D
+  );
+  private final PIDController m_cruisePID = new PIDController(
+    ControlConstants.CRUISE_P,
+    ControlConstants.CRUISE_I,
+    ControlConstants.CRUISE_D
+  );
   private final RamseteController m_ramseteController = new RamseteController(ControlConstants.RAMSETE_B, ControlConstants.RAMSETE_ZETA);
   private final SimpleMotorFeedforward m_feedForward = new SimpleMotorFeedforward(ControlConstants.FEEDFORWARD_S, ControlConstants.FEEDFORWARD_V, ControlConstants.FEEDFORWARD_A);
-  private final PIDController m_cruisePID = new PIDController(ControlConstants.CRUISE_P, ControlConstants.CRUISE_I, ControlConstants.CRUISE_D);
+  
+  //Timers
   private final Timer m_timer = new Timer();
 
   // Fields
   private boolean rightInverted = true;
   private DifferentialDriveWheelSpeeds m_previousSpeeds;
   private Double m_prevTime;
+  private double m_leftHoldPosition;
+  private double m_rightHoldPosition;
 
   /** Creates a new Drivebase Subsystem. */
   public Drivebase() {
     super();
-    setInversion();
-  }
+    //setInversion();
+    m_gyro.reset();
 
-  @Override
-  public void periodic() {
-    // This method will be called once per scheduler run
+
+
+    double factor = (RobotConstants.GEARBOX_STAGE_1 * 
+    RobotConstants.GEARBOX_STAGE_2 * 
+    RobotConstants.PULLEY_STAGE);     // Wheel Rotations
+
+    factor = factor * Units.inchesToMeters(RobotConstants.WHEEL_DIAMETER_IN) * Math.PI;
+    
+    factor = 1/factor;
+
+    SmartDashboard.putNumber("factor", factor);
+
+    // m_leftEncoder1.setPositionConversionFactor(factor);
+    // m_leftEncoder2.setPositionConversionFactor(factor);
+    // m_leftEncoder3.setPositionConversionFactor(factor);
+    // m_rightEncoder1.setPositionConversionFactor(factor);
+    // m_rightEncoder2.setPositionConversionFactor(factor);
+    // m_rightEncoder3.setPositionConversionFactor(factor);
+
+    // m_leftEncoder1.setVelocityConversionFactor(factor);
+    // m_leftEncoder2.setVelocityConversionFactor(factor);
+    // m_leftEncoder3.setVelocityConversionFactor(factor);
+    // m_rightEncoder1.setVelocityConversionFactor(factor);
+    // m_rightEncoder2.setVelocityConversionFactor(factor);
+    // m_rightEncoder3.setVelocityConversionFactor(factor);
   }
 
   private void setInversion(){
@@ -92,6 +132,8 @@ public class Drivebase extends SubsystemBase {
   }
 
   public void arcadeDrive(double speed, double rotation) {
+    SmartDashboard.putNumber("speed: ", speed);
+    SmartDashboard.putNumber("rotation: ", rotation);
     m_drive.arcadeDrive(speed, rotation);
   }
   
@@ -102,26 +144,68 @@ public class Drivebase extends SubsystemBase {
     );
   }
 
-  public void initForTrajectory(){
+  public void initHold(){
+    m_leftHoldPosition = getLeftEncoderDistance();
+    m_rightHoldPosition = getRightEncoderDistance();
+  }
+  
+  public void hold(){
+    m_leftGroup.set(m_holdPID.calculate(getLeftEncoderDistance(), m_leftHoldPosition));
+    m_rightGroup.set(m_holdPID.calculate(getRightEncoderDistance(), m_rightHoldPosition));
+    m_drive.feed();
+  }
+
+  public void initForTrajectory(Trajectory trajectory){
     m_timer.reset();
-    m_previousSpeeds = null;
+    State initialState = trajectory.sample(0);
+    m_previousSpeeds = m_kinematics.toWheelSpeeds(
+      new ChassisSpeeds(
+          initialState.velocityMetersPerSecond,
+          0,
+          initialState.curvatureRadPerMeter * initialState.velocityMetersPerSecond));
     m_prevTime = 0.0;
+    m_timer.start();
+    m_leftEncoder1.setPosition(0);
+    m_rightEncoder1.setPosition(0);
   }
 
   public void followTrajectory(Trajectory trajectory){
 
     double currentTime = m_timer.get();
     double dt = currentTime - m_prevTime;
-    
 
     DifferentialDriveWheelSpeeds wheelSpeeds = getWheelSpeeds(trajectory, currentTime);
 
+    SmartDashboard.putNumber("dt", dt);
+    SmartDashboard.putNumber("ct", currentTime);
+
+    double leftFeed = getLeftFeedForward(wheelSpeeds.leftMetersPerSecond, dt);
+    double rightFeed = getRightFeedForward(wheelSpeeds.rightMetersPerSecond, dt);
+    double leftPID =  getLeftPID(wheelSpeeds.leftMetersPerSecond);
+    double rightPID =  getRightPID(wheelSpeeds.rightMetersPerSecond);
+    double leftVoltage = leftFeed + leftPID;
+    double rightVoltage = rightFeed + rightPID;
+
+
+    SmartDashboard.putNumber("l_feed", leftFeed);
+    SmartDashboard.putNumber("r_feed", rightFeed);
+
+    
+    SmartDashboard.putNumber("l_pid", leftPID);
+    SmartDashboard.putNumber("r_pid", rightPID);
+
+    
+    SmartDashboard.putNumber("l_vol", leftVoltage);
+    SmartDashboard.putNumber("r_vol", rightVoltage);
+
     m_leftGroup.setVoltage(
-      getLeftFeedForward(wheelSpeeds.leftMetersPerSecond, dt) + getLeftPID(wheelSpeeds.leftMetersPerSecond)
+      leftVoltage
     );
+
     m_rightGroup.setVoltage(
-      getRightFeedForward(wheelSpeeds.rightMetersPerSecond, dt) + getRightPID(wheelSpeeds.rightMetersPerSecond)
+      rightVoltage
     );
+
     m_drive.feed();
 
     m_previousSpeeds = wheelSpeeds;
@@ -129,15 +213,30 @@ public class Drivebase extends SubsystemBase {
   }
 
   private DifferentialDriveWheelSpeeds getWheelSpeeds(Trajectory trajectory, double time){
+    
+    State state = trajectory.sample(time);
+
+    SmartDashboard.putNumber("vel mps", state.velocityMetersPerSecond);
+
+    Pose2d pose = new DifferentialDriveOdometry(
+      m_gyro.getRotation2d(),
+      getLeftEncoderDistance(),
+      getRightEncoderDistance()
+    ).getPoseMeters();
+
+    SmartDashboard.putNumber("pose x", pose.getX());
+    SmartDashboard.putNumber("pose y", pose.getY());
+    
     return m_kinematics.toWheelSpeeds(
       m_ramseteController.calculate(
-        m_odometry.getPoseMeters(), 
-        trajectory.sample(time)
+        pose,
+        state
       )
     ); 
   }
 
   private double getLeftFeedForward(double meterPerSecond, double dt){
+    SmartDashboard.putNumber("l_mps", meterPerSecond);
     return m_feedForward.calculate(
       meterPerSecond,
       (meterPerSecond - m_previousSpeeds.leftMetersPerSecond) / dt
@@ -145,6 +244,7 @@ public class Drivebase extends SubsystemBase {
   }
 
   private double getRightFeedForward(double meterPerSecond, double dt){
+    SmartDashboard.putNumber("r_mps", meterPerSecond);
     return m_feedForward.calculate(
       meterPerSecond,
       (meterPerSecond - m_previousSpeeds.rightMetersPerSecond)  / dt
@@ -152,63 +252,96 @@ public class Drivebase extends SubsystemBase {
   }
 
   private double getLeftPID(double targetMeterPerSecond){
+    double enc_speed = rpmToMPS(getLeftEncoderSpeed());
+    SmartDashboard.putNumber("enc speed", enc_speed);
     return m_cruisePID.calculate(
-      getLeftEncoderSpeed(),
+      enc_speed,
       targetMeterPerSecond
     );
   }
 
   private double getRightPID(double targetMeterPerSecond){
     return m_cruisePID.calculate(
-      getRightEncoderSpeed(),
+      rpmToMPS(getRightEncoderRPM()),
       targetMeterPerSecond
     );
   }
 
-  public void targetGoal(){
+  private double rpmToMPS(double rpm){
+    double motor_rps = rpm/60;
+    double wheel_rps = motor_rps * RobotConstants.GEARBOX_STAGE_1 * RobotConstants.GEARBOX_STAGE_2 * RobotConstants.PULLEY_STAGE;
+    double dpr = Units.inchesToMeters(RobotConstants.WHEEL_DIAMETER_IN) * Math.PI;
+    return wheel_rps * dpr;
+  }
 
+  public void targetGoal(){
+    m_drive.feed();
   }
 
   public void targetSingleSubstation(){
 
   }
 
-  
-
   private double getLeftEncoderSpeed(){
-    return new TMR_Voter(
-      ControlConstants.T_NEO_ENC_VEL,
-      m_leftEncoder1.getVelocity(),
-      m_leftEncoder2.getVelocity(),
-      m_leftEncoder3.getVelocity()
-    ).vote();
+
+    return m_leftEncoder1.getVelocity();
+
+    // return new TMR_Voter(
+    //   ControlConstants.T_NEO_ENC_VEL,
+    //   m_leftEncoder1.getVelocity(),
+    //   m_leftEncoder2.getVelocity(),
+    //   m_leftEncoder3.getVelocity()
+    // ).vote();
   }
 
-  private double getRightEncoderSpeed(){
-    return new TMR_Voter(
-      ControlConstants.T_NEO_ENC_VEL,
-      m_rightEncoder1.getVelocity(),
-      m_rightEncoder2.getVelocity(),
-      m_rightEncoder3.getVelocity()
-    ).vote();
+  private double getRightEncoderRPM(){
+    double retVal = m_rightEncoder1.getVelocity();
+
+    return  m_rightEncoder1.getVelocity();
+
+    // return new TMR_Voter(
+    //   ControlConstants.T_NEO_ENC_VEL,
+    //   m_rightEncoder1.getVelocity(),
+    //   m_rightEncoder2.getVelocity(),
+    //   m_rightEncoder3.getVelocity()
+    // ).vote();
   }
 
   private double getLeftEncoderDistance(){
-    return new TMR_Voter(
-      ControlConstants.T_NEO_ENC_VEL,
-      m_leftEncoder1.getVelocity(),
-      m_leftEncoder2.getVelocity(),
-      m_leftEncoder3.getVelocity()
-    ).vote();
+    return m_leftEncoder1.getPosition();
+    // return new TMR_Voter(
+    //   ControlConstants.T_NEO_ENC_VEL,
+    //   ,
+    //   m_leftEncoder2.getPosition(),
+    //   m_leftEncoder3.getPosition()
+    // ).vote();
   }
 
   private double getRightEncoderDistance(){
-    return new TMR_Voter(
-      ControlConstants.T_NEO_ENC_VEL,
-      m_leftEncoder1.getVelocity(),
-      m_leftEncoder2.getVelocity(),
-      m_leftEncoder3.getVelocity()
-    ).vote();
+    return m_rightEncoder1.getPosition();
+    
+    // new TMR_Voter(
+    //   ControlConstants.T_NEO_ENC_VEL,
+    //   ,
+    //   m_rightEncoder2.getPosition(),
+    //   m_rightEncoder3.getPosition()
+    // ).vote();
+  }
+
+  @Override
+  public void periodic()
+  {
+    SmartDashboard.putNumber("GYRO: yaw", m_gyro.getYaw());
+    SmartDashboard.putNumber("GYRO: pitch", m_gyro.getPitch());
+    SmartDashboard.putNumber("GYRO: roll", m_gyro.getRoll());
+    SmartDashboard.putNumber("ANGLE", m_gyro.getAngle());
+    SmartDashboard.putBoolean("l_inv", m_leftGroup.getInverted());
+    SmartDashboard.putBoolean("r_inv", m_rightGroup.getInverted());
+    SmartDashboard.putNumber("speed", m_rightEncoder1.getVelocity()/60);
+    SmartDashboard.putNumber("conv", m_rightEncoder1.getVelocityConversionFactor());
+    SmartDashboard.putNumber("l enc", m_leftEncoder1.getPosition());
+    SmartDashboard.putNumber("2enc", m_rightEncoder1.getPosition());
+    SmartDashboard.putNumber("conv2", m_rightEncoder1.getPositionConversionFactor());
   }
 }
 

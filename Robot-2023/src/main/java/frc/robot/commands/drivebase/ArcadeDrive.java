@@ -4,12 +4,10 @@
 
 package frc.robot.commands.drivebase;
 
-import frc.robot.constants.SmartDashboardConstants;
 import frc.robot.subsystems.Drivebase;
 
 import java.util.function.DoubleSupplier;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
 /** An arcade drive commmand that uses a drive base subsystem*/
@@ -38,7 +36,6 @@ public class ArcadeDrive extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    SmartDashboard.putString(SmartDashboardConstants.DRIVEBASE_COMMAND, "Arcade Drive");
     m_drivebase.arcadeDrive(
       m_speedSupplier.getAsDouble(), 
       m_rotationSupplier.getAsDouble()

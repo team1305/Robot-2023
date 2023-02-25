@@ -4,45 +4,46 @@
 
 package frc.robot;
 
-import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.GenericHID;
-import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.XboxController;
-
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.commands.arm.IntakeArm_GoTo;
+import frc.robot.commands.auto.DriveStraight;
+import frc.robot.commands.auto.TwoCubeAndBalance;
 import frc.robot.commands.drivebase.ArcadeDrive;
 import frc.robot.commands.drivebase.Balance;
+import frc.robot.commands.drivebase.Hold;
 import frc.robot.commands.drivebase.TargetGoal;
 import frc.robot.commands.drivebase.TargetSingleSubstation;
 import frc.robot.commands.intake.Intake_AutoIn;
-import frc.robot.commands.intake.Intake_Hold;
+import frc.robot.commands.intake.Intake_Close;
 import frc.robot.commands.intake.Intake_In;
+import frc.robot.commands.intake.Intake_Open;
 import frc.robot.commands.intake.Intake_Out;
-import frc.robot.commands.intake_arm.IntakeArm_Down;
-import frc.robot.commands.intake_arm.IntakeArm_Hold;
-import frc.robot.commands.intake_arm.IntakeArm_Manual;
-import frc.robot.commands.intake_arm.IntakeArm_Up;
-import frc.robot.commands.intake_wrist.IntakeWrist_Hold;
-import frc.robot.commands.presets.LoadShooter;
-import frc.robot.commands.presets.PrepareForFloorIntake;
-import frc.robot.commands.presets.PrepareForSingleSubstationIntake;
+import frc.robot.commands.pneumatics.TurnOffCompressor;
+import frc.robot.commands.pneumatics.TurnOnCompressor;
 import frc.robot.commands.shooter.Shooter_ManualFire;
 import frc.robot.commands.shooter.Shooter_TargettedFire;
-import frc.robot.commands.shooter_arm.ShooterArm_Down;
-import frc.robot.commands.shooter_arm.ShooterArm_Hold;
-import frc.robot.commands.shooter_arm.ShooterArm_Manual;
-import frc.robot.commands.shooter_arm.ShooterArm_Up;
+import frc.robot.commands.wrist.IntakeWrist_GoTo;
+import frc.robot.commands.wrist.IntakeWrist_Manual;
 import frc.robot.constants.ControlConstants;
 import frc.robot.constants.DriverControllerConstants;
+import frc.robot.constants.SmartDashboardConstants;
+import frc.robot.presets.enums.IntakeArmPreset;
+import frc.robot.presets.enums.IntakeWristPreset;
 import frc.robot.subsystems.Drivebase;
 import frc.robot.subsystems.Intake;
-import frc.robot.subsystems.IntakeArm;
-import frc.robot.subsystems.IntakeWrist;
+import frc.robot.subsystems.Arm;
+import frc.robot.subsystems.Wrist;
+import frc.robot.subsystems.Pneumatics;
 import frc.robot.subsystems.Shooter;
-import frc.robot.subsystems.ShooterArm;
 
 import frc.robot.utils.DpadButton;
+import frc.robot.utils.GoalType;
 import frc.robot.utils.TriggerButton;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 
 /**
@@ -59,45 +60,32 @@ public class RobotContainer {
   
   // Subsystems
   private final Drivebase m_drivebase = new Drivebase();
-  private final IntakeArm m_intakeArm = new IntakeArm();
-  private final IntakeWrist m_intakeWrist = new IntakeWrist();
+  private final Arm m_intakeArm = new Arm();
+  private final Wrist m_intakeWrist = new Wrist();
   private final Intake m_intake = new Intake();
-  private final ShooterArm m_shooterArm = new ShooterArm();
   private final Shooter m_shooter = new Shooter();
+  private final Pneumatics m_pneumatics = new Pneumatics();
 
-  // Other Hardware
-  private final Compressor m_compressor = new Compressor(1, PneumaticsModuleType.REVPH);
+  private final SendableChooser<Command> m_chooser = new SendableChooser<Command>();
 
   /** The container for the robot. Contains subsystems, OI devices, and default commands. */
   public RobotContainer() {
     // Configure the button bindings
     configureButtonBindings();
 
+    setupAutoChooser();
+
     m_drivebase.setDefaultCommand(
       new ArcadeDrive(
-        () -> ControlConstants.THROTTLE_FACTOR * m_primary.getLeftY(),
-        () -> ControlConstants.ROTATION_FACTOR * m_primary.getRightX(),
+        () -> ControlConstants.THROTTLE_FACTOR * m_primary.getRawAxis(1),
+        () -> ControlConstants.ROTATION_FACTOR * m_primary.getRawAxis(4),
         m_drivebase
       )
     );
 
-    m_intake.setDefaultCommand(
-      new Intake_Hold(m_intake)
+    m_pneumatics.setDefaultCommand(
+      new TurnOffCompressor(m_pneumatics)
     );
-
-    m_intakeArm.setDefaultCommand(
-      new IntakeArm_Hold(m_intakeArm)
-    );
-
-    m_intakeWrist.setDefaultCommand(
-      new IntakeWrist_Hold(m_intakeWrist)
-    );
-
-    m_shooterArm.setDefaultCommand(
-      new ShooterArm_Hold(m_shooterArm)
-    );
-
-    m_compressor.enableDigital();
   }
 
   /**
@@ -109,81 +97,94 @@ public class RobotContainer {
   private void configureButtonBindings() {
     // Primary Button Controls
     new JoystickButton(m_primary, DriverControllerConstants.LEFT_BUMPER).whileTrue(
-      new Intake_In(m_intake)
+      new Intake_Out(m_intake)
     );
     
     new JoystickButton(m_primary, DriverControllerConstants.RIGHT_BUMPER).whileTrue(
-      new Intake_Out(m_intake)
+      new Intake_In(m_intake)
+    );
+    
+    new TriggerButton(m_primary, DriverControllerConstants.LEFT_TRIGGER).onTrue(
+      new Intake_Close(m_intake)
+    );
+
+    new TriggerButton(m_primary, DriverControllerConstants.RIGHT_TRIGGER).onTrue(
+      new Intake_Open(m_intake)
     );
     
     new JoystickButton(m_primary, DriverControllerConstants.A_BUTTON).onTrue(
       new Intake_AutoIn(m_intake)
     );
-    
-    new JoystickButton(m_primary, DriverControllerConstants.Y_BUTTON).whileTrue(
-      new Balance(m_drivebase)
-    );
-    
-    new JoystickButton(m_primary, DriverControllerConstants.B_BUTTON).whileTrue(
-      new TargetGoal(m_drivebase)
+
+    new JoystickButton(m_primary, DriverControllerConstants.B_BUTTON).onTrue(
+      Commands.parallel(
+        new IntakeArm_GoTo(m_intakeArm, IntakeArmPreset.floor),
+        new IntakeWrist_GoTo(m_intakeWrist, IntakeWristPreset.floor)
+      )
     );
 
-    new JoystickButton(m_primary, DriverControllerConstants.X_BUTTON).whileTrue(
+    new JoystickButton(m_primary, DriverControllerConstants.Y_BUTTON).onTrue(
+      Commands.parallel(
+        new IntakeArm_GoTo(m_intakeArm, IntakeArmPreset.load),
+        new IntakeWrist_GoTo(m_intakeWrist, IntakeWristPreset.load)
+      )
+    );
+
+    new JoystickButton(m_primary, DriverControllerConstants.X_BUTTON).onTrue(
+      Commands.parallel(
+        new IntakeArm_GoTo(m_intakeArm, IntakeArmPreset.single_substation),
+        new IntakeWrist_GoTo(m_intakeWrist, IntakeWristPreset.single_substation)
+      )
+    );
+
+    new DpadButton(m_primary, DriverControllerConstants.DPAD_NORTH).whileTrue(
+      new TargetGoal(m_drivebase, GoalType.AprilTag)
+    );
+    
+    new DpadButton(m_primary, DriverControllerConstants.DPAD_EAST).whileTrue(
+      new Hold(m_drivebase)
+    );
+
+    new DpadButton(m_primary, DriverControllerConstants.DPAD_SOUTH).whileTrue(
       new TargetSingleSubstation(m_drivebase)
     );
 
+    new DpadButton(m_primary, DriverControllerConstants.DPAD_WEST).whileTrue(
+      new Balance(m_drivebase)
+    );
+
     // Secondary Controls
-    new JoystickButton(m_secondary, DriverControllerConstants.RIGHT_BUMPER).and(new JoystickButton(m_secondary, DriverControllerConstants.LEFT_BUMPER)).whileTrue(
-      new Shooter_ManualFire(m_shooter)
+    new JoystickButton(m_secondary, DriverControllerConstants.RIGHT_BUMPER).and(
+      new JoystickButton(m_secondary, DriverControllerConstants.LEFT_BUMPER)).whileTrue(
+        new Shooter_ManualFire(m_shooter)
     );
 
-    new JoystickButton(m_secondary, DriverControllerConstants.RIGHT_BUMPER).and(new JoystickButton(m_secondary, DriverControllerConstants.LEFT_BUMPER).negate()).whileTrue(
-      new Shooter_TargettedFire(m_shooter)
+    new JoystickButton(m_secondary, DriverControllerConstants.RIGHT_BUMPER).and(
+      new JoystickButton(m_secondary, DriverControllerConstants.LEFT_BUMPER).negate()).whileTrue(
+        new Shooter_TargettedFire(m_shooter)
     );
     
-    // Take off of B and put onto trigger
-    new TriggerButton(m_secondary.getLeftTriggerAxis()).whileTrue(
-      new IntakeArm_Manual(
-        () -> ControlConstants.INTAKE_ARM_FACTOR * m_secondary.getLeftY(),
-        m_intakeArm
-      )
+    new TriggerButton(m_secondary, DriverControllerConstants.LEFT_TRIGGER).and(
+      new TriggerButton(m_secondary, DriverControllerConstants.RIGHT_TRIGGER).negate()).whileTrue(
+        new IntakeWrist_Manual(
+          () -> ControlConstants.INTAKE_WRIST_FACTOR * m_secondary.getRawAxis(DriverControllerConstants.RIGHT_Y),
+          m_intakeWrist
+        )
     );
 
-    // Take off of B and put onto trigger
-    new TriggerButton(m_secondary.getLeftTriggerAxis()).whileTrue(
-      new ShooterArm_Manual(
-        () -> ControlConstants.SHOOTER_ARM_FACTOR * m_secondary.getRightY(),
-        m_shooterArm
-      )
+    new JoystickButton(m_secondary, DriverControllerConstants.BACK).onTrue(
+      new TurnOffCompressor(m_pneumatics)
     );
 
-    new JoystickButton(m_secondary, DriverControllerConstants.Y_BUTTON).onTrue(
-      new ShooterArm_Up(m_shooterArm)
+    new JoystickButton(m_secondary, DriverControllerConstants.BACK).onTrue(
+      new TurnOnCompressor(m_pneumatics)
     );
+  }
 
-    new JoystickButton(m_secondary, DriverControllerConstants.A_BUTTON).onTrue(
-      new ShooterArm_Down(m_shooterArm)
-    );
-    
-    new JoystickButton(m_secondary, DriverControllerConstants.X_BUTTON).onTrue(
-      new LoadShooter(m_intakeArm, m_intakeWrist, m_shooterArm)
-    );
-
-    new DpadButton(m_secondary, DriverControllerConstants.DPAD_NORTH).onTrue(
-      new IntakeArm_Up(m_intakeArm)
-    );
-    
-    new DpadButton(m_secondary, DriverControllerConstants.DPAD_SOUTH).onTrue(
-      new IntakeArm_Down(m_intakeArm)
-    );
-
-    new DpadButton(m_secondary, DriverControllerConstants.DPAD_EAST).onTrue(
-      new PrepareForSingleSubstationIntake(m_intakeArm, m_intakeWrist)
-    );
-
-    new DpadButton(m_secondary, DriverControllerConstants.DPAD_WEST).onTrue(
-      new PrepareForFloorIntake(m_intakeArm, m_intakeWrist)
-    );
+  private void setupAutoChooser(){
+    m_chooser.setDefaultOption(SmartDashboardConstants.STRIGHT, new DriveStraight(m_drivebase));
+    m_chooser.addOption(SmartDashboardConstants.AUTO_TWO_CUBE_AND_BALANCE, new TwoCubeAndBalance(m_drivebase, m_intakeArm, m_intakeWrist, m_intake));
+    SmartDashboard.putData(m_chooser);
   }
 
   /**
@@ -192,7 +193,6 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    // An ExampleCommand will run in autonomous
-    return new Balance(m_drivebase);
+    return m_chooser.getSelected();
   }
 }
