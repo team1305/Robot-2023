@@ -17,11 +17,11 @@ public class ControlConstants {
     public static final double CRUISE_I = 0;
     public static final double CRUISE_D = 0;
 
-    // Intake Control Values
-    public static final double INTAKE_IN_VAL = 0.40;
-    public static final double INTAKE_OUT_VAL = -1.0;
+    // Roller Intake Control Values
+    public static final double ROLLER_IN_VAL = 0.40;
+    public static final double ROLLER_OUT_VAL = -1.0;
 
-    // Intake Arm Control Values
+    // Arm Control Values
     public static final double ARM_FAR_THRESHOLD = 0.03;
     public static final double ARM_FAR_P = 2.5;
     public static final double ARM_FAR_I = 0.0;
@@ -35,13 +35,17 @@ public class ControlConstants {
     public static final double ARM_UPPER_POWER_LIMIT = 0.4;
     public static final double ARM_ON_TARGET_THRESHOLD = 0.005;
 
-    // Intake Wrist Control Values
+    // Wrist Control Values
     public static final double WRIST_P = 4.0;
     public static final double INTAKE_WRIST_I = 0.1;
     public static final double INTAKE_WRIST_D = 0;
     public static final double INTAKE_WRIST_LOWER_LIMIT = 0.5;
     public static final double INTAKE_WRIST_UPPER_LIMIT = 0.95;
     public static final double INTAKE_WRIST_ON_TARGET_THRESHOLD = 0.01;
+
+    // Shooter Control Values
+    public static final double SHOT_DELAY = 0.1;
+    public static final double MIN_SHOT_TIME = 0.5;
 
     // Manual Control Factors
     public static final double THROTTLE_FACTOR = -1.0;

@@ -27,7 +27,7 @@ public final class RobotConstants {
 
     // Pneumatic channels
     public static final int SHOOTER_CH = 2;
-    public static final int INTAKE_CH = 0;
+    public static final int CLAW_CH = 0;
 
     // DIO Channels
     public static final int SHOOTER_ARM_ENCODER_CH = 7;

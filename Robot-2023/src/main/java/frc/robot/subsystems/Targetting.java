@@ -10,6 +10,18 @@ public class Targetting extends SubsystemBase {
   /** Creates a new Targetting. */
   public Targetting() {}
 
+  public boolean frontHasAprilTag(){
+    return false; //TODO: Get if front limelight has an april tag
+  }
+
+  public boolean rearHasAprilTag(){
+    return false; //TODO: Get if rear limelight has an april tag
+  }
+
+  public boolean isTargetted(){
+    return false; //TODO: Get if front limelight has a target and is centered
+  }
+
   @Override
   public void periodic() {
     // This method will be called once per scheduler run

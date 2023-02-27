@@ -9,37 +9,42 @@ import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.commands.arm.Arm_GoTo;
-import frc.robot.commands.auto.TwoCubeAuto;
-import frc.robot.commands.drivebase.Drivebase_ArcadeDrive;
-import frc.robot.commands.drivebase.Drivebase_Balance;
-import frc.robot.commands.drivebase.Drivebase_Hold;
-import frc.robot.commands.drivebase.Drivebase_TargetGoal;
-import frc.robot.commands.intake.Intake_AutoIn;
-import frc.robot.commands.intake.Intake_Close;
-import frc.robot.commands.intake.Intake_In;
-import frc.robot.commands.intake.Intake_Open;
-import frc.robot.commands.intake.Intake_Out;
-import frc.robot.commands.pneumatics.TurnOffCompressor;
-import frc.robot.commands.pneumatics.TurnOnCompressor;
-import frc.robot.commands.shooter.Shooter_ManualFire;
-import frc.robot.commands.shooter.Shooter_TargettedFire;
-import frc.robot.commands.wrist.Wrist_GoTo;
+import frc.robot.commands.ArcadeDrive;
+import frc.robot.commands.AutoIntake;
+import frc.robot.commands.BalanceOnChargeStation;
+import frc.robot.commands.CloseClaw;
+import frc.robot.commands.DriveToGoal;
+import frc.robot.commands.HoldOnChargeStation;
+import frc.robot.commands.OpenClaw;
+import frc.robot.commands.RollOut;
+import frc.robot.commands.RollIn;
+import frc.robot.commands.GoToConeHighPreset;
+import frc.robot.commands.GoToConeMidPreset;
+import frc.robot.commands.GoToCubeHighPreset;
+import frc.robot.commands.GoToFloorPreset;
+import frc.robot.commands.GoToOverheadCubeHighPreset;
+import frc.robot.commands.GoToOverheadCubeMidPreset;
+import frc.robot.commands.GoToSingleSubstationPreset;
+import frc.robot.commands.GoToStowedPreset;
+import frc.robot.commands.ShootManually;
+import frc.robot.commands.ShootTargetted;
+import frc.robot.commands.TurnOffCompressor;
+import frc.robot.commands.TurnOnCompressor;
+import frc.robot.commands.auto.SuperAuto;
 import frc.robot.constants.ControlConstants;
 import frc.robot.constants.DriverControllerConstants;
-import frc.robot.constants.SmartDashboardConstants;
-import frc.robot.presets.ArmPresets;
-import frc.robot.presets.WristPresets;
 import frc.robot.subsystems.Drivebase;
-import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.RollerIntake;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Wrist;
 import frc.robot.subsystems.Pneumatics;
 import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.Targetting;
 import frc.robot.utils.controller.DpadButton;
 import frc.robot.utils.controller.TriggerButton;
+import frc.robot.utils.game_specific.CommunityAccess;
+import frc.robot.utils.game_specific.GoalHeight;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 
 /**
@@ -58,11 +63,23 @@ public class RobotContainer {
   private final Drivebase m_drivebase;
   private final Arm m_arm;
   private final Wrist m_wrist;
-  private final Intake m_intake;
+  private final RollerIntake m_intake;
   private final Shooter m_shooter;
   private final Pneumatics m_pneumatics;
+  private final Targetting m_targetting;
 
-  private final SendableChooser<Command> m_autoChooser = new SendableChooser<Command>();
+  // Choosers
+  private final SendableChooser<GoalHeight> m_firstGoalHeightChooser = new SendableChooser<GoalHeight>();
+  private final SendableChooser<Integer> m_startingPositionChooser = new SendableChooser<Integer>();
+  private final SendableChooser<CommunityAccess> m_firstDriveDirectionChooser = new SendableChooser<CommunityAccess>();
+  private final SendableChooser<Integer> m_gamePiecePositionChooser = new SendableChooser<Integer>();
+  private final SendableChooser<Boolean> m_scoreObjectChooser = new SendableChooser<Boolean>();
+  private final SendableChooser<CommunityAccess> m_secondDriveDirectionChooser = new SendableChooser<CommunityAccess>();
+  private final SendableChooser<Integer> m_secondPositionChooser = new SendableChooser<Integer>();
+  private final SendableChooser<Boolean> m_scoreOverheadChooser = new SendableChooser<Boolean>();
+  private final SendableChooser<GoalHeight> m_secondGoalHeightChooser = new SendableChooser<GoalHeight>();
+  private final SendableChooser<Boolean> m_balanceChooser = new SendableChooser<Boolean>();
+  private final SendableChooser<CommunityAccess> m_thirdDriveDirectionChooser = new SendableChooser<CommunityAccess>();
 
   public RobotContainer() {
     PneumaticsModuleType moduleType = PneumaticsModuleType.CTREPCM;
@@ -70,9 +87,10 @@ public class RobotContainer {
     m_drivebase = new Drivebase();
     m_arm = new Arm();
     m_wrist = new Wrist();
-    m_intake = new Intake(moduleType);
+    m_intake = new RollerIntake(moduleType);
     m_shooter = new Shooter(moduleType);
     m_pneumatics = new Pneumatics(moduleType);
+    m_targetting = new Targetting();
 
     setupDefaultCommands();
     configureButtonBindings();
@@ -81,7 +99,7 @@ public class RobotContainer {
 
   private void setupDefaultCommands(){
     m_drivebase.setDefaultCommand(
-      new Drivebase_ArcadeDrive(
+      new ArcadeDrive(
         () -> ControlConstants.THROTTLE_FACTOR * m_primary.getRawAxis(DriverControllerConstants.LEFT_Y),
         () -> ControlConstants.ROTATION_FACTOR * m_primary.getRawAxis(DriverControllerConstants.RIGHT_X),
         m_drivebase
@@ -106,47 +124,47 @@ public class RobotContainer {
 
   private void configurePrimary(){
     new JoystickButton(m_primary, DriverControllerConstants.LEFT_BUMPER).whileTrue(
-      new Intake_Out(m_intake)
+      new RollOut(m_intake)
     );
     
     new JoystickButton(m_primary, DriverControllerConstants.RIGHT_BUMPER).whileTrue(
-      new Intake_In(m_intake)
+      new RollIn(m_intake)
     );
     
     new TriggerButton(m_primary, DriverControllerConstants.LEFT_TRIGGER).onTrue(
-      new Intake_Close(m_intake)
+      new CloseClaw(m_intake)
     );
 
     new TriggerButton(m_primary, DriverControllerConstants.RIGHT_TRIGGER).onTrue(
-      new Intake_Open(m_intake)
+      new OpenClaw(m_intake)
     );
     
     new JoystickButton(m_primary, DriverControllerConstants.A_BUTTON).onTrue(
-      new Intake_AutoIn(m_intake)
+      new AutoIntake(m_intake)
     );
 
     new JoystickButton(m_primary, DriverControllerConstants.B_BUTTON).whileTrue(
-      new Drivebase_Balance(m_drivebase)
+      new BalanceOnChargeStation(m_drivebase)
     );
 
     new JoystickButton(m_primary, DriverControllerConstants.Y_BUTTON).whileTrue(
-      new Drivebase_TargetGoal(m_drivebase, m_intake)
+      new DriveToGoal(m_drivebase, m_intake)
     );
 
     new JoystickButton(m_primary, DriverControllerConstants.X_BUTTON).whileTrue(
-      new Drivebase_Hold(m_drivebase)
+      new HoldOnChargeStation(m_drivebase)
     );
   }
 
   private void configureSecondary(){
     new JoystickButton(m_secondary, DriverControllerConstants.RIGHT_BUMPER).and(
       new JoystickButton(m_secondary, DriverControllerConstants.LEFT_BUMPER)).whileTrue(
-        new Shooter_ManualFire(m_shooter, m_intake)
+        new ShootManually(m_shooter, m_intake)
     );
 
     new JoystickButton(m_secondary, DriverControllerConstants.RIGHT_BUMPER).and(
       new JoystickButton(m_secondary, DriverControllerConstants.LEFT_BUMPER).negate()).whileTrue(
-        new Shooter_TargettedFire(m_shooter)
+        new ShootTargetted(m_shooter)
     );
 
     new JoystickButton(m_secondary, DriverControllerConstants.START).onTrue(
@@ -158,80 +176,100 @@ public class RobotContainer {
     );
 
     new JoystickButton(m_secondary, DriverControllerConstants.Y_BUTTON).onTrue(
-      Commands.parallel(
-        new Arm_GoTo(m_arm, ArmPresets.cone_high),
-        new Wrist_GoTo(m_wrist, WristPresets.cone_high)
-      )
-    );
-
-    new JoystickButton(m_secondary, DriverControllerConstants.Y_BUTTON).onTrue(
-      Commands.parallel(
-        new Arm_GoTo(m_arm, ArmPresets.cone_high),
-        new Wrist_GoTo(m_wrist, WristPresets.cone_high)
-      )
+      new GoToConeHighPreset(m_arm, m_wrist)
     );
 
     new JoystickButton(m_secondary, DriverControllerConstants.A_BUTTON).onTrue(
-      Commands.parallel(
-        new Arm_GoTo(m_arm, ArmPresets.cone_low),
-        new Wrist_GoTo(m_wrist, WristPresets.cone_low)
-      )
+      new GoToConeMidPreset(m_arm, m_wrist)
     );
 
     new JoystickButton(m_secondary, DriverControllerConstants.B_BUTTON).onTrue(
-      Commands.parallel(
-        new Arm_GoTo(m_arm, ArmPresets.floor),
-        new Wrist_GoTo(m_wrist, WristPresets.floor)
-      )
+      new GoToFloorPreset(m_arm, m_wrist)
     );
 
     new JoystickButton(m_secondary, DriverControllerConstants.X_BUTTON).onTrue(
-      Commands.parallel(
-        new Arm_GoTo(m_arm, ArmPresets.single_substation),
-        new Wrist_GoTo(m_wrist, WristPresets.single_substation)
-      )
+      new GoToSingleSubstationPreset(m_arm, m_wrist)
     );
 
     new JoystickButton(m_secondary, DriverControllerConstants.RIGHT_STICK).onTrue(
-      Commands.parallel(
-        new Arm_GoTo(m_arm, ArmPresets.stowed),
-        new Wrist_GoTo(m_wrist, WristPresets.stowed)
-      )
+      new GoToStowedPreset(m_arm, m_wrist)
     );
 
     new DpadButton(m_secondary, DriverControllerConstants.DPAD_NORTH).onTrue(
-      Commands.parallel(
-        new Arm_GoTo(m_arm, ArmPresets.cube_high),
-        new Wrist_GoTo(m_wrist, WristPresets.cube_high)
-      )
+      new GoToCubeHighPreset(m_arm, m_wrist)
     );
 
     new DpadButton(m_secondary, DriverControllerConstants.DPAD_SOUTH).onTrue(
-      Commands.parallel(
-        new Arm_GoTo(m_arm, ArmPresets.cube_low),
-        new Wrist_GoTo(m_wrist, WristPresets.cube_low)
-      )
+      new GoToConeMidPreset(m_arm, m_wrist)
     );
 
     new DpadButton(m_secondary, DriverControllerConstants.DPAD_EAST).onTrue(
-      Commands.parallel(
-        new Arm_GoTo(m_arm, ArmPresets.overhead_cube),
-        new Wrist_GoTo(m_wrist, WristPresets.overhead_cube_high)
-      )
+      new GoToOverheadCubeHighPreset(m_arm, m_wrist)
     );
 
     new DpadButton(m_secondary, DriverControllerConstants.DPAD_WEST).onTrue(
-      Commands.parallel(
-        new Arm_GoTo(m_arm, ArmPresets.overhead_cube),
-        new Wrist_GoTo(m_wrist, WristPresets.overhead_cube_low)
-      )
+      new GoToOverheadCubeMidPreset(m_arm, m_wrist)
     );
   } 
 
   private void setupAutoChoosers(){
-    m_autoChooser.setDefaultOption(SmartDashboardConstants.AUTO_TWO_CUBE_AND_BALANCE, new TwoCubeAuto(m_drivebase, m_arm, m_wrist, m_intake));
-    
-    SmartDashboard.putData(m_autoChooser);
+    setupGoalHeightChoosers();
+    setupGridPositionChoosers();
+    setupDriveDirectionChoosers();
+    setupGamePiecePositionChoosers();
+    setupBooleanChoosers();
+    putChoosersToDashboard();
+  }
+
+  private void setupGoalHeightChoosers(){
+    for(GoalHeight height : GoalHeight.values()){
+      m_firstGoalHeightChooser.addOption(height.name(), height);
+      m_secondGoalHeightChooser.addOption(height.name(), height);
+    }
+  }
+
+  private void setupGridPositionChoosers(){
+    for(int i = 1; i <= 9; ++i){
+      m_startingPositionChooser.addOption("Position " + i, i);
+      m_secondPositionChooser.addOption("Position " + i, i);
+    }
+  }
+
+  private void setupDriveDirectionChoosers(){
+    for(CommunityAccess access : CommunityAccess.values()){
+      m_firstDriveDirectionChooser.addOption(access.name(), access);
+      m_secondDriveDirectionChooser.addOption(access.name(), access);
+      m_thirdDriveDirectionChooser.addOption(access.name(), access);
+    }
+  }
+
+  private void setupGamePiecePositionChoosers(){
+    for(int i = 1; i <= 4; ++i){
+      m_gamePiecePositionChooser.addOption("Position " + i, i);
+    }
+  }
+
+  private void setupBooleanChoosers(){
+    m_scoreObjectChooser.addOption("Yes", true);
+    m_scoreObjectChooser.addOption("No", false);
+    m_scoreOverheadChooser.addOption("Yes", true);
+    m_scoreOverheadChooser.addOption("No", false);
+    m_balanceChooser.addOption("Yes", true);
+    m_balanceChooser.addOption("No", false);
+  }
+
+  private void putChoosersToDashboard(){
+    SmartDashboard.putData(m_startingPositionChooser);
+    SmartDashboard.putData(m_firstGoalHeightChooser);
+    SmartDashboard.putData(m_firstDriveDirectionChooser);
+    SmartDashboard.putData(m_gamePiecePositionChooser);
+    SmartDashboard.putData(m_scoreObjectChooser);
+    SmartDashboard.putData(m_secondDriveDirectionChooser);
+    SmartDashboard.putData(m_secondPositionChooser);
+    SmartDashboard.putData(m_scoreOverheadChooser);
+    SmartDashboard.putData(m_secondGoalHeightChooser);
+    SmartDashboard.putData(m_balanceChooser);
+    SmartDashboard.putData(m_thirdDriveDirectionChooser);
   }
 
   /**
@@ -240,6 +278,24 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return m_autoChooser.getSelected();
+    return new SuperAuto(
+      m_firstGoalHeightChooser,
+      m_startingPositionChooser,
+      m_firstDriveDirectionChooser,
+      m_gamePiecePositionChooser,
+      m_scoreObjectChooser,
+      m_secondDriveDirectionChooser,
+      m_secondPositionChooser,
+      m_scoreOverheadChooser,
+      m_secondGoalHeightChooser,
+      m_balanceChooser,
+      m_thirdDriveDirectionChooser,
+      m_drivebase,
+      m_arm,
+      m_wrist,
+      m_intake,
+      m_shooter,
+      m_targetting
+    );
   }
 }

@@ -24,17 +24,7 @@ public class Shooter extends SubsystemBase {
     public void shoot(){
         m_solenoid.set(true);
     }
-
-    public void shootIfTargetted(){
-      if(onTarget()){
-        shoot();
-      }
-    }
-
-    private boolean onTarget(){
-      return false;
-    }
-
+    
     public void reload(){
         m_solenoid.set(false);
     }

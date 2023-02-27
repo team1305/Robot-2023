@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrajectoryUtil;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 
 public class TrajectoryResolver {
@@ -21,6 +22,7 @@ public class TrajectoryResolver {
             );
         }
         catch (IOException e){
+            DriverStation.reportError("Trajectory file not found. Returning blank trajectory", false);
             return new Trajectory();
         }
     }
