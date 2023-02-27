@@ -4,40 +4,32 @@
 
 package frc.robot.commands.arm;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.constants.SmartDashboardConstants;
-import frc.robot.presets.IntakeArmPresets;
-import frc.robot.presets.enums.IntakeArmPreset;
 import frc.robot.subsystems.Arm;
 
-public class IntakeArm_GoTo extends CommandBase {
+public class Arm_GoTo extends CommandBase {
 
   private final Arm m_intakeArm;
 
-  private final IntakeArmPreset m_preset;
+  private final double m_setpoint;
 
   /** Creates a new ArmDown. */
-  public IntakeArm_GoTo(Arm intakeArm, IntakeArmPreset preset) {
+  public Arm_GoTo(Arm intakeArm, double setpoint) {
     super();
     addRequirements(intakeArm);
     m_intakeArm = intakeArm;
-    m_preset = preset;
+    m_setpoint = setpoint;
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    m_intakeArm.setIntakeArmTarget(
-      IntakeArmPresets.get(m_preset)
-    );
+    m_intakeArm.setSetpoint(m_setpoint);
 }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    SmartDashboard.putString(SmartDashboardConstants.INTAKE_ARM_COMMAND, "Go To");
-
     m_intakeArm.goToSetpoint();
   }
 

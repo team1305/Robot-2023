@@ -6,17 +6,18 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Pneumatics extends SubsystemBase {
- 
-// Other Hardware
-private final Compressor m_compressor = new Compressor(1, PneumaticsModuleType.REVPH);
+  // Other Hardware
+  private final Compressor m_compressor;
 
   /** Creates a new Intake. **/
-  public Pneumatics() {
+  public Pneumatics(PneumaticsModuleType moduleType) {
     super();
-
+    int module = moduleType == PneumaticsModuleType.CTREPCM ? 0 : 1;
+    m_compressor = new Compressor(module, moduleType);
   }
 
   public void compressorOn(){
@@ -25,6 +26,11 @@ private final Compressor m_compressor = new Compressor(1, PneumaticsModuleType.R
 
   public void compressorOff(){
     m_compressor.disable();
+  }
+
+  @Override
+  public void periodic(){
+    SmartDashboard.putBoolean("Compressor Enabled", m_compressor.isEnabled());
   }
 
 }

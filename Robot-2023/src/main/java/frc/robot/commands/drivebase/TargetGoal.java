@@ -6,14 +6,14 @@ package frc.robot.commands.drivebase;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Drivebase;
-import frc.robot.utils.GoalType;
+import frc.robot.subsystems.Intake;
 
 public class TargetGoal extends CommandBase {
 
   private final Drivebase m_drivebase;
 
   /** Creates a new Target. */
-  public TargetGoal(Drivebase drivebase, GoalType goalType) {
+  public TargetGoal(Drivebase drivebase, Intake intake) {
     super();
     addRequirements(drivebase);
     m_drivebase = drivebase;

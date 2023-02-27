@@ -5,22 +5,27 @@
 package frc.robot.commands.shooter;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
 
 public class Shooter_ManualFire extends CommandBase {
 
   private final Shooter m_shooter;
+  private final Intake m_intake;
 
   /** Creates a new Shoot. */
-  public Shooter_ManualFire(Shooter shooter) {
+  public Shooter_ManualFire(Shooter shooter, Intake intake) {
     super();
-    addRequirements(shooter);
+    addRequirements(shooter, intake);
     m_shooter = shooter;
+    m_intake = intake;
   }
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {}
+  public void initialize() {
+    m_intake.closeIntake();
+  }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override

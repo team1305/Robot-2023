@@ -4,8 +4,6 @@
 
 package frc.robot.commands.intake;
 
-
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.constants.ControlConstants;
@@ -14,6 +12,7 @@ import frc.robot.subsystems.Intake;
 public class Intake_Out extends CommandBase {
 
   private final Timer m_timer;
+  private final Double m_timeout;
 
   private final Intake m_intake;
 
@@ -23,13 +22,15 @@ public class Intake_Out extends CommandBase {
     addRequirements(intake);
     m_intake = intake;
     m_timer = null;
+    m_timeout = null;
   }
 
-  public Intake_Out(Intake intake, Timer timer) {
+  public Intake_Out(Intake intake, double timeout) {
     super();
     addRequirements(intake);
     m_intake = intake;
-    m_timer = timer;
+    m_timer = new Timer();
+    m_timeout = timeout;
   }
 
   // Called when the command is initially scheduled.
@@ -50,13 +51,15 @@ public class Intake_Out extends CommandBase {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    DriverStation.reportError("Starting shot", false);
     m_intake.setIntake(0);
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
+    if(m_timer != null){
+      if(m_timer.get() > m_timeout) return true;
+    };
     return false;
   }
 }

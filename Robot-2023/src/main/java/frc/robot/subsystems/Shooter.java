@@ -9,14 +9,15 @@ import frc.robot.constants.RobotConstants;
 
 public class Shooter extends SubsystemBase {
     // Solenoids
-    private final Solenoid m_solenoid = new Solenoid(PneumaticsModuleType.REVPH, RobotConstants.SHOOTER_CH);
+    private final Solenoid m_solenoid;
 
     //private final NetworkTable m_leftLimelight = NetworkTableInstance.getDefault().getTable("Limelight_Left");
     //private final NetworkTable m_rightLimelight = NetworkTableInstance.getDefault().getTable("Limelight_Right");
 
     /** Creates a new Intake. **/
-    public Shooter() {
+    public Shooter(PneumaticsModuleType moduleType) {
       super();
+      m_solenoid = new Solenoid(moduleType, RobotConstants.SHOOTER_CH);
       reload();
     }
 

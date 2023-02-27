@@ -8,7 +8,6 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -23,7 +22,7 @@ public class Wrist extends SubsystemBase {
   private final DutyCycleEncoder m_encoder = new DutyCycleEncoder(RobotConstants.WRIST_ENCODER_CH);
 
   private final PIDController m_pidController = new PIDController(
-    ControlConstants.INTAKE_WRIST_P,
+    ControlConstants.WRIST_P,
     ControlConstants.INTAKE_WRIST_I,
      ControlConstants.INTAKE_WRIST_D
   );
@@ -37,30 +36,36 @@ public class Wrist extends SubsystemBase {
 
   public void manuallySetIntakeWrist(double value){
     setIntakeWrist(value);
-    setIntakeWristTarget(m_encoder.getAbsolutePosition());
+    setSetpoint(m_encoder.getAbsolutePosition());
   }
 
   private void setIntakeWrist(double value){
     m_motor.set(rangeFilter(value));
   }
   
-  public void setIntakeWristTarget(double value){
-    DriverStation.reportWarning("setting target " + value, false);
+  public void setSetpoint(double value){
     m_targetPosition = value;
   }
 
   public boolean onTarget(){
-    boolean retVal = Math.abs(m_targetPosition - m_encoder.getAbsolutePosition()) < ControlConstants.INTAKE_WRIST_ON_TARGET_THRESHOLD;
-    return retVal;
+    return Math.abs(m_targetPosition - m_encoder.getAbsolutePosition()) < ControlConstants.INTAKE_WRIST_ON_TARGET_THRESHOLD;
   }
 
-  public void hold(){
+  public void goToSetpoint(){
     setIntakeWrist(
       m_pidController.calculate(
         m_encoder.getAbsolutePosition(), 
         m_targetPosition
       )
     );
+  }
+
+  public double getSetpoint(){
+    return m_targetPosition;
+  }
+
+  public double getCurrentPosition(){
+    return m_encoder.getAbsolutePosition();
   }
 
   private double rangeFilter(double value){
@@ -84,5 +89,7 @@ public class Wrist extends SubsystemBase {
     SmartDashboard.putNumber(SmartDashboardConstants.INTAKE_WRIST_POWER, m_motor.get());
     SmartDashboard.putNumber(SmartDashboardConstants.INTAKE_WRIST_POSITION, m_encoder.getAbsolutePosition());
     SmartDashboard.putBoolean("Wrist On Target", onTarget());
+    SmartDashboard.putBoolean("Wrist reached upper limit", reachedUpperLimit());
+    SmartDashboard.putBoolean("Wrist reached lower limit", reachedLowerLimit());
   }
 }

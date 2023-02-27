@@ -52,4 +52,5 @@ public class SmartDashboardConstants {
     // Auto names
     public static final String AUTO_TWO_CUBE_AND_BALANCE = "2 cube and balance";
     public static final String STRIGHT = "Striht";
+    public static final String STRIGHTANDBACK = "Striht&BAck";
 }

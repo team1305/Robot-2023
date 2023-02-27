@@ -18,7 +18,6 @@ public final class RobotConstants {
     public static final int LEFT_DRIVE_MOTOR_3_CAN_ID = 6;
 
     public static final int PIGEON_CAN_ID = 14;
-    public static final int PNEUMATIC_HUB_CAN_ID = 8;
     
     public static final int ARM_MOTOR_1_CAN_ID = 9;
     public static final int ARM_MOTOR_2_CAN_ID = 10;

@@ -27,10 +27,16 @@ public class Arm extends SubsystemBase {
 
   private final DutyCycleEncoder m_absEncoder = new DutyCycleEncoder(RobotConstants.INTAKE_ARM_ENCODER_CH);
 
-  private final PIDController m_pidController = new PIDController(
-    ControlConstants.INTAKE_ARM_P,
-    ControlConstants.INTAKE_ARM_I,
-    ControlConstants.INTAKE_ARM_D
+  private final PIDController m_farPIDController = new PIDController(
+    ControlConstants.ARM_FAR_P,
+    ControlConstants.ARM_FAR_I,
+    ControlConstants.ARM_FAR_D
+  );
+
+  private final PIDController m_closePIDController = new PIDController(
+    ControlConstants.ARM_CLOSE_P,
+    ControlConstants.ARM_CLOSE_I,
+    ControlConstants.ARM_CLOSE_D
   );
 
   private double m_targetPosition;
@@ -41,25 +47,41 @@ public class Arm extends SubsystemBase {
     m_motors.setInverted(true);
   }
 
-  public void setIntakeArmTarget(double value){
+  public void setSetpoint(double value){
     m_targetPosition = value;
   }
 
   public void goToSetpoint(){
-    setIntakeArms(
-      m_pidController.calculate(
-        m_absEncoder.getAbsolutePosition(), 
-        m_targetPosition
-      )
-    );
+    if(Math.abs(m_absEncoder.getAbsolutePosition() - m_targetPosition) > ControlConstants.ARM_FAR_THRESHOLD){
+      SmartDashboard.putString("PID Used", "Far") ;
+      setIntakeArms(
+        m_farPIDController.calculate(
+          m_absEncoder.getAbsolutePosition(), 
+          m_targetPosition
+        )
+      );
+    }
+    else{
+      SmartDashboard.putString("PID Used", "Close") ;
+      setIntakeArms(
+        m_closePIDController.calculate(
+          m_absEncoder.getAbsolutePosition(), 
+          m_targetPosition
+        )
+      );
+    }
+
+
+   
   }
 
   public boolean onTarget(){
-    return Math.abs(m_targetPosition - m_absEncoder.getAbsolutePosition()) < ControlConstants.INTAKE_ARM_ON_TARGET_THRESHOLD;
+    return Math.abs(m_targetPosition - m_absEncoder.getAbsolutePosition()) < ControlConstants.ARM_ON_TARGET_THRESHOLD;
   }
 
   private void setIntakeArms(double value){
-     m_motors.set(m_limiter.calculate(rangeFilter(value)));
+    double val = m_limiter.calculate(rangeFilter(value));
+    m_motors.set(val);
   }
   
   private double rangeFilter(double value){
@@ -70,11 +92,11 @@ public class Arm extends SubsystemBase {
   }
 
   private boolean reachedLowerLimit() {
-    return m_absEncoder.getAbsolutePosition() <= ControlConstants.INTAKE_ARM_LOWER_LIMIT;
+    return m_absEncoder.getAbsolutePosition() <= ControlConstants.ARM_LOWER_LIMIT;
   }
 
   private boolean reachedUpperLimit() {
-    return m_absEncoder.getAbsolutePosition() >= ControlConstants.INTAKE_ARM_UPPER_LIMIT;
+    return m_absEncoder.getAbsolutePosition() >= ControlConstants.ARM_UPPER_LIMIT;
   }
 
   @Override
@@ -83,6 +105,7 @@ public class Arm extends SubsystemBase {
     SmartDashboard.putNumber(SmartDashboardConstants.INTAKE_ARM_POWER, m_motors.get());
     SmartDashboard.putNumber(SmartDashboardConstants.INTAKE_ARM_POSITION, m_absEncoder.getAbsolutePosition());
     SmartDashboard.putBoolean("Arm On Target", onTarget());
-    SmartDashboard.putBoolean("Arm reached limit", reachedUpperLimit());
+    SmartDashboard.putBoolean("Arm reached upper limit", reachedUpperLimit());
+    SmartDashboard.putBoolean("Arm reached lower limit", reachedLowerLimit());
   }
 }

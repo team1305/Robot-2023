@@ -14,14 +14,14 @@ public final class DriverControllerConstants {
     public static final int RIGHT_BUMPER = 6; 
     public static final int BACK = 7;
     public static final int START = 8; 
-    public static final int LEFT_STICK_CLICK = 9;
-    public static final int RIGHT_STICK_CLICK = 10; 
+    public static final int LEFT_STICK = 9;
+    public static final int RIGHT_STICK = 10; 
 
     // D-Pad
     public static final int DPAD_NORTH = 0;
-    public static final int DPAD_EAST = 270;
+    public static final int DPAD_EAST = 90;
     public static final int DPAD_SOUTH = 180;
-    public static final int DPAD_WEST = 90;
+    public static final int DPAD_WEST = 270;
 
     // Axis
     public static final int LEFT_X = 0;

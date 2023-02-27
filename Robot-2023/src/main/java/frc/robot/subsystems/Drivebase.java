@@ -22,11 +22,7 @@ import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.ControlConstants;
-import frc.robot.constants.HardwareConstants;
 import frc.robot.constants.RobotConstants;
-import frc.robot.constants.SmartDashboardConstants;
-import frc.robot.utils.TMR_Voter;
-
 import com.ctre.phoenix.sensors.WPI_Pigeon2;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
@@ -49,17 +45,14 @@ public class Drivebase extends SubsystemBase {
   private final DifferentialDrive m_drive = new DifferentialDrive(m_leftGroup, m_rightGroup);
 
   // Encoders
-  private final RelativeEncoder m_leftEncoder1 = m_leftMotor1.getEncoder();
-  private final RelativeEncoder m_leftEncoder2 = m_leftMotor2.getEncoder();
-  private final RelativeEncoder m_leftEncoder3 = m_leftMotor3.getEncoder();
-  private final RelativeEncoder m_rightEncoder1 = m_rightMotor1.getEncoder();
-  private final RelativeEncoder m_rightEncoder2 = m_rightMotor2.getEncoder();
-  private final RelativeEncoder m_rightEncoder3 = m_rightMotor3.getEncoder();
+  private final RelativeEncoder m_leftEncoder = m_leftMotor1.getEncoder();
+  private final RelativeEncoder m_rightEncoder = m_rightMotor1.getEncoder();
 
   // Gyroscopes
   private final WPI_Pigeon2 m_gyro = new WPI_Pigeon2(RobotConstants.PIGEON_CAN_ID);
 
   // Odometry and kinematics
+  private final DifferentialDriveOdometry m_odometry = new DifferentialDriveOdometry(m_gyro.getRotation2d(), getLeftEncoderMeters(), getRightEncoderMeters());
   private final DifferentialDriveKinematics m_kinematics = new DifferentialDriveKinematics(Units.inchesToMeters(RobotConstants.TRACK_WIDTH_IN));
 
   //Controllers
@@ -85,7 +78,6 @@ public class Drivebase extends SubsystemBase {
   private final Timer m_timer = new Timer();
 
   // Fields
-  private boolean rightInverted = true;
   private DifferentialDriveWheelSpeeds m_previousSpeeds;
   private Double m_prevTime;
   private double m_leftHoldPosition;
@@ -94,46 +86,26 @@ public class Drivebase extends SubsystemBase {
   /** Creates a new Drivebase Subsystem. */
   public Drivebase() {
     super();
-    //setInversion();
-    m_gyro.reset();
-
-
-
-    double factor = (RobotConstants.GEARBOX_STAGE_1 * 
-    RobotConstants.GEARBOX_STAGE_2 * 
-    RobotConstants.PULLEY_STAGE);     // Wheel Rotations
-
-    factor = factor * Units.inchesToMeters(RobotConstants.WHEEL_DIAMETER_IN) * Math.PI;
-    
-    factor = 1/factor;
-
-    SmartDashboard.putNumber("factor", factor);
-
-    // m_leftEncoder1.setPositionConversionFactor(factor);
-    // m_leftEncoder2.setPositionConversionFactor(factor);
-    // m_leftEncoder3.setPositionConversionFactor(factor);
-    // m_rightEncoder1.setPositionConversionFactor(factor);
-    // m_rightEncoder2.setPositionConversionFactor(factor);
-    // m_rightEncoder3.setPositionConversionFactor(factor);
-
-    // m_leftEncoder1.setVelocityConversionFactor(factor);
-    // m_leftEncoder2.setVelocityConversionFactor(factor);
-    // m_leftEncoder3.setVelocityConversionFactor(factor);
-    // m_rightEncoder1.setVelocityConversionFactor(factor);
-    // m_rightEncoder2.setVelocityConversionFactor(factor);
-    // m_rightEncoder3.setVelocityConversionFactor(factor);
+    resetSensors();
+    setMotorCurrentLimits();
   }
 
-  private void setInversion(){
-    // One of the motor groups should be set as inverted so that supplying a positive value to both left and right sides produces a forward motion instead of a rotating motion.
-    // For our robot, the right side is inverted so that forward is indeed forward.
-    m_rightGroup.setInverted(rightInverted);
-    m_leftGroup.setInverted(!rightInverted);
+  private void resetSensors(){
+    m_gyro.setYaw(0);
+    m_leftEncoder.setPosition(0);
+    m_rightEncoder.setPosition(0);
+  }
+
+  private void setMotorCurrentLimits(){
+    m_leftMotor1.setSmartCurrentLimit(40);
+    m_leftMotor2.setSmartCurrentLimit(40);
+    m_leftMotor3.setSmartCurrentLimit(40);
+    m_rightMotor1.setSmartCurrentLimit(40);
+    m_rightMotor2.setSmartCurrentLimit(40);
+    m_rightMotor3.setSmartCurrentLimit(40);
   }
 
   public void arcadeDrive(double speed, double rotation) {
-    SmartDashboard.putNumber("speed: ", speed);
-    SmartDashboard.putNumber("rotation: ", rotation);
     m_drive.arcadeDrive(speed, rotation);
   }
   
@@ -145,14 +117,18 @@ public class Drivebase extends SubsystemBase {
   }
 
   public void initHold(){
-    m_leftHoldPosition = getLeftEncoderDistance();
-    m_rightHoldPosition = getRightEncoderDistance();
+    m_leftHoldPosition = getLeftEncoderMeters();
+    m_rightHoldPosition = getRightEncoderMeters();
   }
   
   public void hold(){
-    m_leftGroup.set(m_holdPID.calculate(getLeftEncoderDistance(), m_leftHoldPosition));
-    m_rightGroup.set(m_holdPID.calculate(getRightEncoderDistance(), m_rightHoldPosition));
+    m_leftGroup.set(m_holdPID.calculate(getLeftEncoderMeters(), m_leftHoldPosition));
+    m_rightGroup.set(m_holdPID.calculate(getRightEncoderMeters(), m_rightHoldPosition));
     m_drive.feed();
+  }
+
+  public void resetOdometry(Pose2d pose){
+    m_odometry.resetPosition(m_gyro.getRotation2d(), getLeftEncoderMeters(), getRightEncoderMeters(), pose);
   }
 
   public void initForTrajectory(Trajectory trajectory){
@@ -165,8 +141,6 @@ public class Drivebase extends SubsystemBase {
           initialState.curvatureRadPerMeter * initialState.velocityMetersPerSecond));
     m_prevTime = 0.0;
     m_timer.start();
-    m_leftEncoder1.setPosition(0);
-    m_rightEncoder1.setPosition(0);
   }
 
   public void followTrajectory(Trajectory trajectory){
@@ -174,104 +148,62 @@ public class Drivebase extends SubsystemBase {
     double currentTime = m_timer.get();
     double dt = currentTime - m_prevTime;
 
-    DifferentialDriveWheelSpeeds wheelSpeeds = getWheelSpeeds(trajectory, currentTime);
+    DifferentialDriveWheelSpeeds targetWheelSpeeds = getWheelSpeeds(trajectory, currentTime);
 
-    SmartDashboard.putNumber("dt", dt);
-    SmartDashboard.putNumber("ct", currentTime);
-
-    double leftFeed = getLeftFeedForward(wheelSpeeds.leftMetersPerSecond, dt);
-    double rightFeed = getRightFeedForward(wheelSpeeds.rightMetersPerSecond, dt);
-    double leftPID =  getLeftPID(wheelSpeeds.leftMetersPerSecond);
-    double rightPID =  getRightPID(wheelSpeeds.rightMetersPerSecond);
-    double leftVoltage = leftFeed + leftPID;
-    double rightVoltage = rightFeed + rightPID;
-
-
-    SmartDashboard.putNumber("l_feed", leftFeed);
-    SmartDashboard.putNumber("r_feed", rightFeed);
-
-    
-    SmartDashboard.putNumber("l_pid", leftPID);
-    SmartDashboard.putNumber("r_pid", rightPID);
-
-    
-    SmartDashboard.putNumber("l_vol", leftVoltage);
-    SmartDashboard.putNumber("r_vol", rightVoltage);
+    SmartDashboard.putNumber("Target Left MPS", targetWheelSpeeds.leftMetersPerSecond);
+    SmartDashboard.putNumber("Target Right MPS", targetWheelSpeeds.rightMetersPerSecond);
 
     m_leftGroup.setVoltage(
-      leftVoltage
+      getLeftFeedForward(targetWheelSpeeds.leftMetersPerSecond, dt) + 
+      getLeftPID(targetWheelSpeeds.leftMetersPerSecond)
     );
 
     m_rightGroup.setVoltage(
-      rightVoltage
+      getRightFeedForward(targetWheelSpeeds.rightMetersPerSecond, dt) + 
+      getRightPID(targetWheelSpeeds.rightMetersPerSecond)
     );
 
     m_drive.feed();
 
-    m_previousSpeeds = wheelSpeeds;
+    m_previousSpeeds = targetWheelSpeeds;
     m_prevTime = currentTime;
   }
 
   private DifferentialDriveWheelSpeeds getWheelSpeeds(Trajectory trajectory, double time){
-    
-    State state = trajectory.sample(time);
-
-    SmartDashboard.putNumber("vel mps", state.velocityMetersPerSecond);
-
-    Pose2d pose = new DifferentialDriveOdometry(
-      m_gyro.getRotation2d(),
-      getLeftEncoderDistance(),
-      getRightEncoderDistance()
-    ).getPoseMeters();
-
-    SmartDashboard.putNumber("pose x", pose.getX());
-    SmartDashboard.putNumber("pose y", pose.getY());
-    
     return m_kinematics.toWheelSpeeds(
       m_ramseteController.calculate(
-        pose,
-        state
+        m_odometry.update(m_gyro.getRotation2d(), getLeftEncoderMeters(), getRightEncoderMeters()),
+        trajectory.sample(time)
       )
-    ); 
-  }
-
-  private double getLeftFeedForward(double meterPerSecond, double dt){
-    SmartDashboard.putNumber("l_mps", meterPerSecond);
-    return m_feedForward.calculate(
-      meterPerSecond,
-      (meterPerSecond - m_previousSpeeds.leftMetersPerSecond) / dt
     );
   }
 
-  private double getRightFeedForward(double meterPerSecond, double dt){
-    SmartDashboard.putNumber("r_mps", meterPerSecond);
+  private double getLeftFeedForward(double targetMeterPerSecond, double dt){
     return m_feedForward.calculate(
-      meterPerSecond,
-      (meterPerSecond - m_previousSpeeds.rightMetersPerSecond)  / dt
+      targetMeterPerSecond,
+      (targetMeterPerSecond - m_previousSpeeds.leftMetersPerSecond) / dt
+    );
+  }
+
+  private double getRightFeedForward(double targetMeterPerSecond, double dt){
+    return m_feedForward.calculate(
+      targetMeterPerSecond,
+      (targetMeterPerSecond - m_previousSpeeds.rightMetersPerSecond)  / dt
     );
   }
 
   private double getLeftPID(double targetMeterPerSecond){
-    double enc_speed = rpmToMPS(getLeftEncoderSpeed());
-    SmartDashboard.putNumber("enc speed", enc_speed);
     return m_cruisePID.calculate(
-      enc_speed,
+      getLeftEncoderMetersPerSecond(),
       targetMeterPerSecond
     );
   }
 
   private double getRightPID(double targetMeterPerSecond){
     return m_cruisePID.calculate(
-      rpmToMPS(getRightEncoderRPM()),
+      getRightEncoderMetersPerSecond(),
       targetMeterPerSecond
     );
-  }
-
-  private double rpmToMPS(double rpm){
-    double motor_rps = rpm/60;
-    double wheel_rps = motor_rps * RobotConstants.GEARBOX_STAGE_1 * RobotConstants.GEARBOX_STAGE_2 * RobotConstants.PULLEY_STAGE;
-    double dpr = Units.inchesToMeters(RobotConstants.WHEEL_DIAMETER_IN) * Math.PI;
-    return wheel_rps * dpr;
   }
 
   public void targetGoal(){
@@ -279,54 +211,37 @@ public class Drivebase extends SubsystemBase {
   }
 
   public void targetSingleSubstation(){
-
+    m_drive.feed();
   }
 
-  private double getLeftEncoderSpeed(){
-
-    return m_leftEncoder1.getVelocity();
-
-    // return new TMR_Voter(
-    //   ControlConstants.T_NEO_ENC_VEL,
-    //   m_leftEncoder1.getVelocity(),
-    //   m_leftEncoder2.getVelocity(),
-    //   m_leftEncoder3.getVelocity()
-    // ).vote();
+  private double getLeftEncoderMetersPerSecond(){
+    return rpmToMeterPerSecond(m_leftEncoder.getVelocity());
   }
 
-  private double getRightEncoderRPM(){
-    double retVal = m_rightEncoder1.getVelocity();
-
-    return  m_rightEncoder1.getVelocity();
-
-    // return new TMR_Voter(
-    //   ControlConstants.T_NEO_ENC_VEL,
-    //   m_rightEncoder1.getVelocity(),
-    //   m_rightEncoder2.getVelocity(),
-    //   m_rightEncoder3.getVelocity()
-    // ).vote();
+  private double getRightEncoderMetersPerSecond(){
+    return  rpmToMeterPerSecond(m_rightEncoder.getVelocity());
   }
 
-  private double getLeftEncoderDistance(){
-    return m_leftEncoder1.getPosition();
-    // return new TMR_Voter(
-    //   ControlConstants.T_NEO_ENC_VEL,
-    //   ,
-    //   m_leftEncoder2.getPosition(),
-    //   m_leftEncoder3.getPosition()
-    // ).vote();
+  private double rpmToMeterPerSecond(double motorRPM){
+    double motorRPS = motorRPM/60;
+    double wheelRPS = motorRPS * RobotConstants.GEARBOX_STAGE_1 * RobotConstants.GEARBOX_STAGE_2 * RobotConstants.PULLEY_STAGE;
+    double distancePerRev = Units.inchesToMeters(RobotConstants.WHEEL_DIAMETER_IN) * Math.PI;
+    return wheelRPS * distancePerRev;
   }
 
-  private double getRightEncoderDistance(){
-    return m_rightEncoder1.getPosition();
-    
-    // new TMR_Voter(
-    //   ControlConstants.T_NEO_ENC_VEL,
-    //   ,
-    //   m_rightEncoder2.getPosition(),
-    //   m_rightEncoder3.getPosition()
-    // ).vote();
+  private double getLeftEncoderMeters(){
+    return revolutionsToMeters(m_leftEncoder.getPosition());
   }
+
+  private double getRightEncoderMeters(){
+    return revolutionsToMeters(m_rightEncoder.getPosition());
+  }
+  private double revolutionsToMeters(double motorRotations){
+    double wheelRotations = motorRotations * RobotConstants.GEARBOX_STAGE_1 * RobotConstants.GEARBOX_STAGE_2 * RobotConstants.PULLEY_STAGE;
+    double distancePerRevolution = Units.inchesToMeters(RobotConstants.WHEEL_DIAMETER_IN) * Math.PI;
+    return wheelRotations * distancePerRevolution;
+  }
+  
 
   @Override
   public void periodic()
@@ -334,14 +249,18 @@ public class Drivebase extends SubsystemBase {
     SmartDashboard.putNumber("GYRO: yaw", m_gyro.getYaw());
     SmartDashboard.putNumber("GYRO: pitch", m_gyro.getPitch());
     SmartDashboard.putNumber("GYRO: roll", m_gyro.getRoll());
-    SmartDashboard.putNumber("ANGLE", m_gyro.getAngle());
-    SmartDashboard.putBoolean("l_inv", m_leftGroup.getInverted());
-    SmartDashboard.putBoolean("r_inv", m_rightGroup.getInverted());
-    SmartDashboard.putNumber("speed", m_rightEncoder1.getVelocity()/60);
-    SmartDashboard.putNumber("conv", m_rightEncoder1.getVelocityConversionFactor());
-    SmartDashboard.putNumber("l enc", m_leftEncoder1.getPosition());
-    SmartDashboard.putNumber("2enc", m_rightEncoder1.getPosition());
-    SmartDashboard.putNumber("conv2", m_rightEncoder1.getPositionConversionFactor());
+
+    SmartDashboard.putNumber("Left 1 Current", m_leftMotor1.getOutputCurrent());
+    SmartDashboard.putNumber("Left 2 Current", m_leftMotor2.getOutputCurrent());
+    SmartDashboard.putNumber("Left 3 Current", m_leftMotor3.getOutputCurrent());
+    SmartDashboard.putNumber("Right 1 Current", m_rightMotor1.getOutputCurrent());
+    SmartDashboard.putNumber("Right 2 Current", m_rightMotor2.getOutputCurrent());
+    SmartDashboard.putNumber("Right 3 Current", m_rightMotor3.getOutputCurrent());
+
+    SmartDashboard.putNumber("Left Encoder Meters", getLeftEncoderMeters());
+    SmartDashboard.putNumber("Right Encoder Meters", getRightEncoderMeters());
+    SmartDashboard.putNumber("Left Encoder Meters Per Second", getLeftEncoderMetersPerSecond());
+    SmartDashboard.putNumber("Right Encoder Meters Per Second", getRightEncoderMetersPerSecond());
   }
 }
 
