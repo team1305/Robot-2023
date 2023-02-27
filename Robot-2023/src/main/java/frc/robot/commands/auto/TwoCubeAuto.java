@@ -10,8 +10,8 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.commands.arm.Arm_GoTo;
-import frc.robot.commands.drivebase.ArcadeDrive;
-import frc.robot.commands.drivebase.FollowPredefinedTrajectory;
+import frc.robot.commands.drivebase.Drivebase_ArcadeDrive;
+import frc.robot.commands.drivebase.Drivebase_FollowPredefinedTrajectory;
 import frc.robot.commands.intake.Intake_AutoIn;
 import frc.robot.commands.intake.Intake_Out;
 import frc.robot.commands.wrist.Wrist_GoTo;
@@ -32,35 +32,35 @@ public class TwoCubeAuto extends SequentialCommandGroup {
 
     addCommands(
       Commands.parallel(
-        new ArcadeDrive(() -> 0.0, () -> 0.0, drivebase),
+        new Drivebase_ArcadeDrive(() -> 0.0, () -> 0.0, drivebase),
         new Arm_GoTo(arm, ArmPresets.overhead_cube),
         new Wrist_GoTo(wrist, WristPresets.overhead_cube_high)
       ).until(() -> arm.onTarget() && wrist.onTarget()),
       Commands.deadline(
         new Intake_Out(intake, 0.5),
-        new ArcadeDrive(() -> 0.0, () -> 0.0, drivebase),
+        new Drivebase_ArcadeDrive(() -> 0.0, () -> 0.0, drivebase),
         new Arm_GoTo(arm, ArmPresets.overhead_cube),
         new Wrist_GoTo(wrist, WristPresets.overhead_cube_high)
       ),
       Commands.deadline(
-        new FollowPredefinedTrajectory(new TrajectoryResolver(AutoConstants.PATH_RED_CLR_GRID_CUBE_TO_P1).getTrajectory(), drivebase,  new Pose2d(new Translation2d(14.7, 4.4), Rotation2d.fromDegrees(180))),
+        new Drivebase_FollowPredefinedTrajectory(new TrajectoryResolver(AutoConstants.PATH_RED_CLR_GRID_CUBE_TO_P1).getTrajectory(), drivebase,  new Pose2d(new Translation2d(14.7, 4.4), Rotation2d.fromDegrees(180))),
         new Intake_AutoIn(intake),
         new Arm_GoTo(arm, ArmPresets.floor),
         new Wrist_GoTo(wrist, WristPresets.floor)
       ),
       Commands.deadline(
-        new FollowPredefinedTrajectory(new TrajectoryResolver(AutoConstants.PATH_RED_P1_TO_CLR_GRID_CUBE).getTrajectory(), drivebase),
+        new Drivebase_FollowPredefinedTrajectory(new TrajectoryResolver(AutoConstants.PATH_RED_P1_TO_CLR_GRID_CUBE).getTrajectory(), drivebase),
         new Arm_GoTo(arm, ArmPresets.overhead_cube),
         new Wrist_GoTo(wrist, WristPresets.overhead_cube_low)
       ),
       Commands.deadline(
         new Intake_Out(intake, 0.5),
-        new ArcadeDrive(() -> 0.0, () -> 0.0, drivebase),
+        new Drivebase_ArcadeDrive(() -> 0.0, () -> 0.0, drivebase),
         new Arm_GoTo(arm, ArmPresets.overhead_cube),
         new Wrist_GoTo(wrist, WristPresets.overhead_cube_low)
       ),
       Commands.parallel(
-        new ArcadeDrive(() -> 0.0, () -> 0.0, drivebase),
+        new Drivebase_ArcadeDrive(() -> 0.0, () -> 0.0, drivebase),
         new Arm_GoTo(arm, ArmPresets.overhead_cube),
         new Wrist_GoTo(wrist, WristPresets.overhead_cube_low)
       )

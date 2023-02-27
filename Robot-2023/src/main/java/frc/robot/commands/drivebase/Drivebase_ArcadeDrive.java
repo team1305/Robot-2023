@@ -4,18 +4,29 @@
 
 package frc.robot.commands.drivebase;
 
-import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Drivebase;
 
-public class Balance extends CommandBase {
+import java.util.function.DoubleSupplier;
 
+import edu.wpi.first.wpilibj2.command.CommandBase;
+
+/** An arcade drive commmand that uses a drive base subsystem*/
+public class Drivebase_ArcadeDrive extends CommandBase {
   private final Drivebase m_drivebase;
+  private final DoubleSupplier m_speedSupplier;
+  private final DoubleSupplier m_rotationSupplier;
 
-  /** Creates a new Balance. */
-  public Balance(Drivebase drivebase) {
+  /**
+   * Creates a new arcade drive.
+   *
+   * @param subsystem The subsystem used by this command.
+   */
+  public Drivebase_ArcadeDrive(DoubleSupplier speedSupplier, DoubleSupplier rotationSupplier, Drivebase drivebase) {
     super();
     addRequirements(drivebase);
     m_drivebase = drivebase;
+    m_speedSupplier = speedSupplier;
+    m_rotationSupplier = rotationSupplier;
   }
 
   // Called when the command is initially scheduled.
@@ -25,7 +36,10 @@ public class Balance extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    m_drivebase.balance();
+    m_drivebase.arcadeDrive(
+      m_speedSupplier.getAsDouble(), 
+      m_rotationSupplier.getAsDouble()
+    );
   }
 
   // Called once the command ends or is interrupted.

@@ -6,14 +6,14 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Drivebase;
 
-public class FollowPredefinedTrajectory extends CommandBase {
+public class Drivebase_FollowPredefinedTrajectory extends CommandBase {
 
   private final Drivebase m_drivebase;
   private final Trajectory m_trajectory;
   private final Pose2d m_initialPose2d;
   private final Timer m_timer = new Timer();
 
-  public FollowPredefinedTrajectory(
+  public Drivebase_FollowPredefinedTrajectory(
       Trajectory trajectory,
       Drivebase drivebase,
       Pose2d initialPose2d
@@ -26,7 +26,7 @@ public class FollowPredefinedTrajectory extends CommandBase {
   }
 
 
-  public FollowPredefinedTrajectory(
+  public Drivebase_FollowPredefinedTrajectory(
     Trajectory trajectory,
     Drivebase drivebase
 ){

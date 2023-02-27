@@ -7,12 +7,12 @@ package frc.robot.commands.drivebase;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Drivebase;
 
-public class TargetSingleSubstation extends CommandBase {
+public class Drivebase_TargetSingleSubstation extends CommandBase {
 
   private final Drivebase m_drivebase;
 
   /** Creates a new Target. */
-  public TargetSingleSubstation(Drivebase drivebase) {
+  public Drivebase_TargetSingleSubstation(Drivebase drivebase) {
     super();
     addRequirements(drivebase);
     m_drivebase = drivebase;

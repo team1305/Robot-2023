@@ -65,4 +65,5 @@ public class ControlConstants {
 
     // Triple Modular Redundancy Voter Thresholds
     public static final double T_NEO_ENC_VEL = 2.0;
+    public static final double T_NEO_ENC_POS = 2.0;
 }

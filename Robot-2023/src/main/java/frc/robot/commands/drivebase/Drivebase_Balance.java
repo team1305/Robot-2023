@@ -6,14 +6,13 @@ package frc.robot.commands.drivebase;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Drivebase;
-import frc.robot.subsystems.Intake;
 
-public class TargetGoal extends CommandBase {
+public class Drivebase_Balance extends CommandBase {
 
   private final Drivebase m_drivebase;
 
-  /** Creates a new Target. */
-  public TargetGoal(Drivebase drivebase, Intake intake) {
+  /** Creates a new Balance. */
+  public Drivebase_Balance(Drivebase drivebase) {
     super();
     addRequirements(drivebase);
     m_drivebase = drivebase;
@@ -21,14 +20,12 @@ public class TargetGoal extends CommandBase {
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {
-    //m_drivebase.initForTrajectory();
-  }
+  public void initialize() {}
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    m_drivebase.targetGoal();
+    m_drivebase.balance();
   }
 
   // Called once the command ends or is interrupted.
@@ -38,6 +35,6 @@ public class TargetGoal extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return true;
+    return false;
   }
 }

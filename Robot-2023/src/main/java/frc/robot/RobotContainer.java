@@ -11,10 +11,10 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.commands.arm.Arm_GoTo;
 import frc.robot.commands.auto.TwoCubeAuto;
-import frc.robot.commands.drivebase.ArcadeDrive;
-import frc.robot.commands.drivebase.Balance;
-import frc.robot.commands.drivebase.Hold;
-import frc.robot.commands.drivebase.TargetGoal;
+import frc.robot.commands.drivebase.Drivebase_ArcadeDrive;
+import frc.robot.commands.drivebase.Drivebase_Balance;
+import frc.robot.commands.drivebase.Drivebase_Hold;
+import frc.robot.commands.drivebase.Drivebase_TargetGoal;
 import frc.robot.commands.intake.Intake_AutoIn;
 import frc.robot.commands.intake.Intake_Close;
 import frc.robot.commands.intake.Intake_In;
@@ -36,8 +36,8 @@ import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Wrist;
 import frc.robot.subsystems.Pneumatics;
 import frc.robot.subsystems.Shooter;
-import frc.robot.utils.DpadButton;
-import frc.robot.utils.TriggerButton;
+import frc.robot.utils.controller.DpadButton;
+import frc.robot.utils.controller.TriggerButton;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
@@ -76,12 +76,12 @@ public class RobotContainer {
 
     setupDefaultCommands();
     configureButtonBindings();
-    setupAutoChooser();
+    setupAutoChoosers();
   }
 
   private void setupDefaultCommands(){
     m_drivebase.setDefaultCommand(
-      new ArcadeDrive(
+      new Drivebase_ArcadeDrive(
         () -> ControlConstants.THROTTLE_FACTOR * m_primary.getRawAxis(DriverControllerConstants.LEFT_Y),
         () -> ControlConstants.ROTATION_FACTOR * m_primary.getRawAxis(DriverControllerConstants.RIGHT_X),
         m_drivebase
@@ -126,15 +126,15 @@ public class RobotContainer {
     );
 
     new JoystickButton(m_primary, DriverControllerConstants.B_BUTTON).whileTrue(
-      new Balance(m_drivebase)
+      new Drivebase_Balance(m_drivebase)
     );
 
     new JoystickButton(m_primary, DriverControllerConstants.Y_BUTTON).whileTrue(
-      new TargetGoal(m_drivebase, m_intake)
+      new Drivebase_TargetGoal(m_drivebase, m_intake)
     );
 
     new JoystickButton(m_primary, DriverControllerConstants.X_BUTTON).whileTrue(
-      new Hold(m_drivebase)
+      new Drivebase_Hold(m_drivebase)
     );
   }
 
@@ -228,7 +228,7 @@ public class RobotContainer {
     );
   } 
 
-  private void setupAutoChooser(){
+  private void setupAutoChoosers(){
     m_autoChooser.setDefaultOption(SmartDashboardConstants.AUTO_TWO_CUBE_AND_BALANCE, new TwoCubeAuto(m_drivebase, m_arm, m_wrist, m_intake));
     
     SmartDashboard.putData(m_autoChooser);

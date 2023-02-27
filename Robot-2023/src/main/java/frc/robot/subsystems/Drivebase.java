@@ -15,6 +15,7 @@ import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.Trajectory.State;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.motorcontrol.MotorController;
@@ -23,6 +24,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.ControlConstants;
 import frc.robot.constants.RobotConstants;
+import frc.robot.utils.voter.TMRDoubleVoter;
+
 import com.ctre.phoenix.sensors.WPI_Pigeon2;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
@@ -45,8 +48,12 @@ public class Drivebase extends SubsystemBase {
   private final DifferentialDrive m_drive = new DifferentialDrive(m_leftGroup, m_rightGroup);
 
   // Encoders
-  private final RelativeEncoder m_leftEncoder = m_leftMotor1.getEncoder();
-  private final RelativeEncoder m_rightEncoder = m_rightMotor1.getEncoder();
+  private final RelativeEncoder m_leftEncoder1 = m_leftMotor1.getEncoder();
+  private final RelativeEncoder m_leftEncoder2 = m_leftMotor2.getEncoder();
+  private final RelativeEncoder m_leftEncoder3 = m_leftMotor3.getEncoder();
+  private final RelativeEncoder m_rightEncoder1 = m_rightMotor1.getEncoder();
+  private final RelativeEncoder m_rightEncoder2 = m_rightMotor2.getEncoder();
+  private final RelativeEncoder m_rightEncoder3 = m_rightMotor3.getEncoder();
 
   // Gyroscopes
   private final WPI_Pigeon2 m_gyro = new WPI_Pigeon2(RobotConstants.PIGEON_CAN_ID);
@@ -92,8 +99,12 @@ public class Drivebase extends SubsystemBase {
 
   private void resetSensors(){
     m_gyro.setYaw(0);
-    m_leftEncoder.setPosition(0);
-    m_rightEncoder.setPosition(0);
+    m_leftEncoder1.setPosition(0);
+    m_leftEncoder2.setPosition(0);
+    m_leftEncoder3.setPosition(0);
+    m_rightEncoder1.setPosition(0);
+    m_rightEncoder2.setPosition(0);
+    m_rightEncoder3.setPosition(0);
   }
 
   private void setMotorCurrentLimits(){
@@ -215,11 +226,46 @@ public class Drivebase extends SubsystemBase {
   }
 
   private double getLeftEncoderMetersPerSecond(){
-    return rpmToMeterPerSecond(m_leftEncoder.getVelocity());
+
+    TMRDoubleVoter voter = new TMRDoubleVoter(
+      ControlConstants.T_NEO_ENC_VEL,
+      m_leftEncoder1.getVelocity(),
+      m_leftEncoder2.getVelocity(),
+      m_leftEncoder3.getVelocity()
+    );
+
+    double output = voter.vote();
+
+    int[] outliers = voter.getOutliers();
+
+    for(int i = 0; i < outliers.length; ++i){
+      DriverStation.reportError("Left Encoder at " + i + " does not agree on velocity", false);
+    }
+
+    return rpmToMeterPerSecond(
+      output 
+    );
   }
 
   private double getRightEncoderMetersPerSecond(){
-    return  rpmToMeterPerSecond(m_rightEncoder.getVelocity());
+    TMRDoubleVoter voter = new TMRDoubleVoter(
+      ControlConstants.T_NEO_ENC_VEL,
+      m_rightEncoder1.getVelocity(),
+      m_rightEncoder2.getVelocity(),
+      m_rightEncoder3.getVelocity()
+    );
+
+    double output = voter.vote();
+
+    int[] outliers = voter.getOutliers();
+
+    for(int i = 0; i < outliers.length; ++i){
+      DriverStation.reportError("Right Encoder at " + i + " does not agree on velocity", false);
+    }
+
+    return rpmToMeterPerSecond(
+      output 
+    );
   }
 
   private double rpmToMeterPerSecond(double motorRPM){
@@ -230,18 +276,48 @@ public class Drivebase extends SubsystemBase {
   }
 
   private double getLeftEncoderMeters(){
-    return revolutionsToMeters(m_leftEncoder.getPosition());
+    TMRDoubleVoter voter = new TMRDoubleVoter(
+      ControlConstants.T_NEO_ENC_POS,
+      m_leftEncoder1.getPosition(),
+      m_leftEncoder2.getPosition(),
+      m_leftEncoder3.getPosition()
+    );
+
+    double output = voter.vote();
+
+    int[] outliers = voter.getOutliers();
+
+    for(int i = 0; i < outliers.length; ++i){
+      DriverStation.reportError("Left Encoder at " + i + " does not agree on position", false);
+    }
+
+    return revolutionsToMeters(output);
   }
 
   private double getRightEncoderMeters(){
-    return revolutionsToMeters(m_rightEncoder.getPosition());
+    TMRDoubleVoter voter = new TMRDoubleVoter(
+      ControlConstants.T_NEO_ENC_POS,
+      m_rightEncoder1.getPosition(),
+      m_rightEncoder2.getPosition(),
+      m_rightEncoder3.getPosition()
+    );
+
+    double output = voter.vote();
+
+    int[] outliers = voter.getOutliers();
+
+    for(int i = 0; i < outliers.length; ++i){
+      DriverStation.reportError("Right Encoder at " + i + " does not agree on position", false);
+    }
+
+    return revolutionsToMeters(output);
   }
+
   private double revolutionsToMeters(double motorRotations){
     double wheelRotations = motorRotations * RobotConstants.GEARBOX_STAGE_1 * RobotConstants.GEARBOX_STAGE_2 * RobotConstants.PULLEY_STAGE;
     double distancePerRevolution = Units.inchesToMeters(RobotConstants.WHEEL_DIAMETER_IN) * Math.PI;
     return wheelRotations * distancePerRevolution;
   }
-  
 
   @Override
   public void periodic()
