@@ -6,7 +6,7 @@ package frc.robot.commands.auto;
 
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.subsystems.Drivebase;
-import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.RollerIntake;
 import frc.robot.subsystems.Shooter;
 
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
@@ -14,7 +14,7 @@ import frc.robot.subsystems.Shooter;
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
 public class BalanceAuto extends SequentialCommandGroup {
   /** Creates a new Balance. */
-  public BalanceAuto(Drivebase drivebase, Intake intake, Shooter shooter) {
+  public BalanceAuto(Drivebase drivebase, RollerIntake rollerIntake, Shooter shooter) {
     super();
     addCommands(
  

@@ -34,8 +34,10 @@ import frc.robot.commands.auto.SuperAuto;
 import frc.robot.constants.ControlConstants;
 import frc.robot.constants.DriverControllerConstants;
 import frc.robot.subsystems.Drivebase;
+import frc.robot.subsystems.GamePieceReader;
 import frc.robot.subsystems.RollerIntake;
 import frc.robot.subsystems.Arm;
+import frc.robot.subsystems.ClawIntake;
 import frc.robot.subsystems.Wrist;
 import frc.robot.subsystems.Pneumatics;
 import frc.robot.subsystems.Shooter;
@@ -63,7 +65,9 @@ public class RobotContainer {
   private final Drivebase m_drivebase;
   private final Arm m_arm;
   private final Wrist m_wrist;
-  private final RollerIntake m_intake;
+  private final RollerIntake m_rollerIntake;
+  private final ClawIntake m_clawIntake;
+  private final GamePieceReader m_gamePieceReader;
   private final Shooter m_shooter;
   private final Pneumatics m_pneumatics;
   private final Targetting m_targetting;
@@ -87,7 +91,9 @@ public class RobotContainer {
     m_drivebase = new Drivebase();
     m_arm = new Arm();
     m_wrist = new Wrist();
-    m_intake = new RollerIntake(moduleType);
+    m_rollerIntake = new RollerIntake();
+    m_clawIntake = new ClawIntake(moduleType);
+    m_gamePieceReader = new GamePieceReader();
     m_shooter = new Shooter(moduleType);
     m_pneumatics = new Pneumatics(moduleType);
     m_targetting = new Targetting();
@@ -100,9 +106,9 @@ public class RobotContainer {
   private void setupDefaultCommands(){
     m_drivebase.setDefaultCommand(
       new ArcadeDrive(
+        m_drivebase,
         () -> ControlConstants.THROTTLE_FACTOR * m_primary.getRawAxis(DriverControllerConstants.LEFT_Y),
-        () -> ControlConstants.ROTATION_FACTOR * m_primary.getRawAxis(DriverControllerConstants.RIGHT_X),
-        m_drivebase
+        () -> ControlConstants.ROTATION_FACTOR * m_primary.getRawAxis(DriverControllerConstants.RIGHT_X)
       )
     );
 
@@ -124,23 +130,23 @@ public class RobotContainer {
 
   private void configurePrimary(){
     new JoystickButton(m_primary, DriverControllerConstants.LEFT_BUMPER).whileTrue(
-      new RollOut(m_intake)
+      new RollOut(m_rollerIntake)
     );
     
     new JoystickButton(m_primary, DriverControllerConstants.RIGHT_BUMPER).whileTrue(
-      new RollIn(m_intake)
+      new RollIn(m_rollerIntake)
     );
     
     new TriggerButton(m_primary, DriverControllerConstants.LEFT_TRIGGER).onTrue(
-      new CloseClaw(m_intake)
+      new CloseClaw(m_clawIntake)
     );
 
     new TriggerButton(m_primary, DriverControllerConstants.RIGHT_TRIGGER).onTrue(
-      new OpenClaw(m_intake)
+      new OpenClaw(m_clawIntake)
     );
     
     new JoystickButton(m_primary, DriverControllerConstants.A_BUTTON).onTrue(
-      new AutoIntake(m_intake)
+      new AutoIntake(m_rollerIntake, m_clawIntake, m_gamePieceReader)
     );
 
     new JoystickButton(m_primary, DriverControllerConstants.B_BUTTON).whileTrue(
@@ -148,7 +154,7 @@ public class RobotContainer {
     );
 
     new JoystickButton(m_primary, DriverControllerConstants.Y_BUTTON).whileTrue(
-      new DriveToGoal(m_drivebase, m_intake)
+      new DriveToGoal(m_drivebase, m_targetting)
     );
 
     new JoystickButton(m_primary, DriverControllerConstants.X_BUTTON).whileTrue(
@@ -159,12 +165,12 @@ public class RobotContainer {
   private void configureSecondary(){
     new JoystickButton(m_secondary, DriverControllerConstants.RIGHT_BUMPER).and(
       new JoystickButton(m_secondary, DriverControllerConstants.LEFT_BUMPER)).whileTrue(
-        new ShootManually(m_shooter, m_intake)
+        new ShootManually(m_clawIntake, m_shooter)
     );
 
     new JoystickButton(m_secondary, DriverControllerConstants.RIGHT_BUMPER).and(
       new JoystickButton(m_secondary, DriverControllerConstants.LEFT_BUMPER).negate()).whileTrue(
-        new ShootTargetted(m_shooter)
+        new ShootTargetted(m_clawIntake, m_shooter, m_targetting)
     );
 
     new JoystickButton(m_secondary, DriverControllerConstants.START).onTrue(
@@ -293,7 +299,9 @@ public class RobotContainer {
       m_drivebase,
       m_arm,
       m_wrist,
-      m_intake,
+      m_rollerIntake,
+      m_clawIntake,
+      m_gamePieceReader,
       m_shooter,
       m_targetting
     );

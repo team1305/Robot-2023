@@ -47,26 +47,30 @@ public class ControlConstants {
     public static final double SHOT_DELAY = 0.1;
     public static final double MIN_SHOT_TIME = 0.5;
 
+    // Lighting
+    public static final double LIGHT_FLASH_PERIOD = 0.1; 
+
     // Manual Control Factors
     public static final double THROTTLE_FACTOR = -1.0;
     public static final double ROTATION_FACTOR = -0.8;
     public static final double INTAKE_ARM_FACTOR = 1.0;
     public static final double INTAKE_WRIST_FACTOR = 0.001;
 
-    public static final int CONE_RED_LOWER = 80;
+    public static final int CONE_RED_LOWER = 77;
     public static final int CONE_RED_UPPER = 96;
-    public static final int CONE_BLUE_LOWER = 112;
-    public static final int CONE_BLUE_UPPER = 144;
-    public static final int CONE_GREEN_LOWER = 21;
-    public static final int CONE_GREEN_UPPER = 48;
+    public static final int CONE_GREEN_LOWER = 120;
+    public static final int CONE_GREEN_UPPER = 145;
+    public static final int CONE_BLUE_LOWER = 20;
+    public static final int CONE_BLUE_UPPER = 40;
 
-    public static final int CUBE_RED_LOWER = 53;
-    public static final int CUBE_RED_UPPER = 69;
-    public static final int CUBE_BLUE_LOWER = 101;
-    public static final int CUBE_BLUE_UPPER = 117;
-    public static final int CUBE_GREEN_LOWER = 69;
-    public static final int CUBE_GREEN_UPPER = 101;
 
+    public static final int CUBE_RED_LOWER = 48;
+    public static final int CUBE_RED_UPPER = 62;
+    public static final int CUBE_GREEN_LOWER = 80;
+    public static final int CUBE_GREEN_UPPER = 120;
+    public static final int CUBE_BLUE_LOWER = 98;
+    public static final int CUBE_BLUE_UPPER = 125;
+    
     // Triple Modular Redundancy Voter Thresholds
     public static final double T_NEO_ENC_VEL = 2.0;
     public static final double T_NEO_ENC_POS = 2.0;

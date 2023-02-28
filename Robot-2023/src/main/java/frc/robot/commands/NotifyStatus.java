@@ -4,33 +4,41 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.subsystems.Drivebase;
-import frc.robot.subsystems.Targetting;
+import frc.robot.subsystems.GamePieceReader;
+import frc.robot.subsystems.Lighting;
 
-public class DriveToSingleSubstation extends CommandBase {
+public class NotifyStatus extends CommandBase {
 
-  private final Drivebase m_drivebase;
-  private final Targetting m_targetting;
+  private final Lighting m_lighting;
+  private final GamePieceReader m_reader;
 
-  /** Creates a new Target. */
-  public DriveToSingleSubstation(Drivebase drivebase, Targetting targetting) {
-    super();
-    addRequirements(drivebase, targetting);
-    m_drivebase = drivebase;
-    m_targetting = targetting;
+  /** Creates a new NotifyStatus. */
+  public NotifyStatus(Lighting lighting, GamePieceReader reader) {
+    addRequirements(lighting);
+    m_lighting = lighting;
+    m_reader = reader;
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    //m_drivebase.initForTrajectory();
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    m_drivebase.targetSingleSubstation();
+    switch(m_reader.capturedPiece()){
+      case Cube:
+        m_lighting.setAll(Color.kPurple);
+        break;
+      case Cone:
+        m_lighting.setAll(Color.kYellow);
+        break;
+      case None:
+        break;
+    }
   }
 
   // Called once the command ends or is interrupted.

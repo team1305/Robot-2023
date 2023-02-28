@@ -8,9 +8,8 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Commands;
-import frc.robot.commands.Drivebase_FollowPredefinedTrajectory;
-import frc.robot.commands.arm.Arm_GoTo;
-import frc.robot.commands.wrist.Wrist_GoTo;
+import frc.robot.commands.FollowPredefinedTrajectory;
+import frc.robot.commands.GoToStowedPreset;
 import frc.robot.presets.ArmPresets;
 import frc.robot.presets.WristPresets;
 import frc.robot.subsystems.Arm;
@@ -103,24 +102,14 @@ public class DriveToNext {
         return new SafeCommand(
             Commands.sequence(
                 Commands.deadline(
-                    new Drivebase_FollowPredefinedTrajectory(
-                        trajectory, 
+                    new FollowPredefinedTrajectory(
                         drivebase,
+                        trajectory, 
                         initialPose
                     ), 
-                    new Arm_GoTo(arm, ArmPresets.stowed),
-                    new Wrist_GoTo(wrist, WristPresets.stowed)
-                ),
-                Commands.deadline(null, null){
-                    new Drivebase_FollowPredefinedTrajectory(
-                        trajectory, 
-                        drivebase,
-                        initialPose
-                    ),
-                    new Arm_GoTo(arm, ArmPresets.stowed),
-                    new Wrist_GoTo(wrist, WristPresets.stowed)
-                }
-            )
+                    new GoToStowedPreset(arm, wrist)
+                )
+            ),
             true
         );
     }

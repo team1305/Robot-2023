@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 /** An arcade drive commmand that uses a drive base subsystem*/
 public class ArcadeDrive extends CommandBase {
   private final Drivebase m_drivebase;
+
   private final DoubleSupplier m_speedSupplier;
   private final DoubleSupplier m_rotationSupplier;
 
@@ -21,7 +22,7 @@ public class ArcadeDrive extends CommandBase {
    *
    * @param subsystem The subsystem used by this command.
    */
-  public ArcadeDrive(DoubleSupplier speedSupplier, DoubleSupplier rotationSupplier, Drivebase drivebase) {
+  public ArcadeDrive(Drivebase drivebase, DoubleSupplier speedSupplier, DoubleSupplier rotationSupplier) {
     super();
     addRequirements(drivebase);
     m_drivebase = drivebase;

@@ -7,19 +7,22 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.constants.ControlConstants;
 import frc.robot.subsystems.ClawIntake;
+import frc.robot.subsystems.GamePieceReader;
 import frc.robot.subsystems.RollerIntake;
 
 public class AutoIntake extends CommandBase {
 
   private final RollerIntake m_rollerIntake;
   private final ClawIntake m_clawIntake;
+  private final GamePieceReader m_reader;
 
   /** Creates a new AutoIn. */
-  public AutoIntake(RollerIntake rollerIntake, ClawIntake clawIntake) {
+  public AutoIntake(RollerIntake rollerIntake, ClawIntake clawIntake, GamePieceReader reader) {
     super();
-    addRequirements(rollerIntake, clawIntake);
+    addRequirements(rollerIntake, clawIntake, reader);
     m_rollerIntake = rollerIntake;
     m_clawIntake = clawIntake;
+    m_reader = reader;
   }
 
   // Called when the command is initially scheduled.
@@ -31,7 +34,7 @@ public class AutoIntake extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    switch (m_rollerIntake.capturedPiece()) {
+    switch (m_reader.capturedPiece()) {
       case Cube:
         m_rollerIntake.setIntake(0);
         m_clawIntake.openClaw();
@@ -55,6 +58,6 @@ public class AutoIntake extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return m_rollerIntake.hasGamePiece();
+    return m_reader.hasGamePiece();
   }
 }

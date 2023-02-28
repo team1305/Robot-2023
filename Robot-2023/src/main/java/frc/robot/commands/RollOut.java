@@ -40,13 +40,12 @@ public class RollOut extends CommandBase {
       m_timer.reset();
       m_timer.start();
     }
+    m_roller.setIntake(ControlConstants.ROLLER_OUT_VAL);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
-  public void execute() {
-    m_roller.setIntake(ControlConstants.ROLLER_OUT_VAL);
-  }
+  public void execute() {}
 
   // Called once the command ends or is interrupted.
   @Override

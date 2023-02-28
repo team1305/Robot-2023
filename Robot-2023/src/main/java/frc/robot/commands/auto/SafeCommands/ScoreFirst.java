@@ -4,16 +4,21 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import frc.robot.commands.ArcadeDrive;
+import frc.robot.commands.GoToConeHighPreset;
+import frc.robot.commands.GoToConeMidPreset;
+import frc.robot.commands.GoToCubeHighPreset;
+import frc.robot.commands.GoToCubeMidPreset;
+import frc.robot.commands.GoToFloorPreset;
+import frc.robot.commands.GoToOverheadCubeHighPreset;
+import frc.robot.commands.GoToOverheadCubeMidPreset;
+import frc.robot.commands.RollOut;
 import frc.robot.commands.ShootManually;
-import frc.robot.commands.arm.Arm_GoTo;
-import frc.robot.commands.intake.Intake_Out;
-import frc.robot.commands.wrist.Wrist_GoTo;
-import frc.robot.presets.ArmPresets;
-import frc.robot.presets.WristPresets;
+import frc.robot.commands.StayStill;
 import frc.robot.subsystems.Arm;
+import frc.robot.subsystems.ClawIntake;
 import frc.robot.subsystems.Drivebase;
-import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.GamePieceReader;
+import frc.robot.subsystems.RollerIntake;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Targetting;
 import frc.robot.subsystems.Wrist;
@@ -28,49 +33,45 @@ public class ScoreFirst {
         Drivebase drivebase,
         Arm arm,
         Wrist wrist,
-        Intake intake,
+        RollerIntake roller,
+        ClawIntake claw,
+        GamePieceReader reader,
         Shooter shooter,
         Targetting targetting
     )
     {
-        GamePiece gamePiece = intake.capturedPiece();
+        GamePiece gamePiece = reader.capturedPiece();
         GoalHeight goalHeight = firstGoalHeightChooser.getSelected();
 
-        double armPreset = ArmPresets.stowed;     // Should not actually go to this position
-        double wristPreset = WristPresets.stowed; // Should not actually go to this position
+        Command presetCommand = new DummyCommand();
 
         switch(gamePiece){
         case Cube:
             if(targetting.frontHasAprilTag()){
                 switch(goalHeight){
                     case high:
-                    armPreset = ArmPresets.cube_high;
-                    wristPreset = WristPresets.cube_high;
-                    break;
+                        presetCommand = new GoToCubeHighPreset(arm, wrist);
+                        break;
                     case mid:
-                    armPreset = ArmPresets.cube_mid;
-                    wristPreset = WristPresets.cube_mid;
-                    break;
+                        presetCommand = new GoToCubeMidPreset(arm, wrist);
+                        break;
                     case low:
-                    armPreset = ArmPresets.floor;
-                    wristPreset = WristPresets.floor;
-                    break;
+                        presetCommand = new GoToFloorPreset(arm, wrist);
+                        break;
                 }
             }
             else if(targetting.rearHasAprilTag()){
                 switch(goalHeight){
                     case high:
-                    armPreset = ArmPresets.overhead_cube;
-                    wristPreset = WristPresets.overhead_cube_high;
-                    break;
+                        presetCommand = new GoToOverheadCubeHighPreset(arm, wrist);
+                        break;
                     case mid:
-                    armPreset = ArmPresets.overhead_cube;
-                    wristPreset = WristPresets.overhead_cube_mid;
-                    break;
+                        presetCommand = new GoToOverheadCubeMidPreset(arm, wrist);
+                        break;
                     case low:
-                    // We can't reach the low from this position
-                    DriverStation.reportError("Overhead low commanded", false);
-                    return new SafeCommand(new DummyCommand(), false);
+                        // We can't reach the low from this position
+                        DriverStation.reportError("Overhead low commanded", false);
+                        return new SafeCommand(new DummyCommand(), false);
                 }
             }
             else{
@@ -81,16 +82,13 @@ public class ScoreFirst {
         case Cone:
             switch(goalHeight){
             case high:
-                armPreset = ArmPresets.cone_high;
-                wristPreset = WristPresets.cone_high;
+                presetCommand = new GoToConeHighPreset(arm, wrist);
                 break;
             case mid:
-                armPreset = ArmPresets.cone_mid;
-                wristPreset = WristPresets.cone_mid;
+                presetCommand = new GoToConeMidPreset(arm, wrist);
                 break;
             case low:
-                armPreset = ArmPresets.floor;
-                wristPreset = WristPresets.floor;
+                presetCommand = new GoToFloorPreset(arm, wrist);
                 break;
             }
             break;
@@ -102,31 +100,29 @@ public class ScoreFirst {
         Command scoringDeadlineCommand = new DummyCommand();
 
         switch(gamePiece){
-        case Cube:
-            scoringDeadlineCommand = new Intake_Out(intake, 0.5);
-            break;
-        case Cone:
-            scoringDeadlineCommand = new ShootManually(shooter, intake);
-            break;
-        case None:
-            break;
-        }
+            case Cube:
+                scoringDeadlineCommand = new RollOut(roller, 0.5);
+                break;
+            case Cone:
+                scoringDeadlineCommand = new ShootManually(claw, shooter);
+                break;
+            case None:
+                break;
+            }
 
         return new SafeCommand(
-        Commands.sequence(
-            Commands.parallel(
-            new ArcadeDrive(() -> 0.0, () -> 0.0, drivebase),
-            new Arm_GoTo(arm, armPreset),
-            new Wrist_GoTo(wrist, wristPreset)
-            ).until(() -> arm.onTarget() && wrist.onTarget()),
-            Commands.deadline(
-            scoringDeadlineCommand,
-            new Arm_GoTo(arm, armPreset),
-            new Wrist_GoTo(wrist, wristPreset),
-            new ArcadeDrive(() -> 0.0, () -> 0.0, drivebase)
-            )
-        ),
-        true
+            Commands.sequence(
+                Commands.parallel(
+                    new StayStill(drivebase),
+                    presetCommand
+                ).until(() -> arm.onTarget() && wrist.onTarget()),
+                Commands.deadline(
+                    scoringDeadlineCommand,
+                    new StayStill(drivebase),
+                    presetCommand
+                )
+            ),
+            true
         );
     }
 }

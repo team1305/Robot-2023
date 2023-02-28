@@ -4,33 +4,30 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.subsystems.Drivebase;
-import frc.robot.subsystems.Targetting;
+import frc.robot.subsystems.Lighting;
 
-public class DriveToSingleSubstation extends CommandBase {
+public class SolidYellow extends CommandBase {
+ 
+  private final Lighting m_lighting;
 
-  private final Drivebase m_drivebase;
-  private final Targetting m_targetting;
-
-  /** Creates a new Target. */
-  public DriveToSingleSubstation(Drivebase drivebase, Targetting targetting) {
-    super();
-    addRequirements(drivebase, targetting);
-    m_drivebase = drivebase;
-    m_targetting = targetting;
+  /** Creates a new FlashYellow. */
+  public SolidYellow(Lighting lighting) {
+    addRequirements(lighting);
+    m_lighting = lighting;
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    //m_drivebase.initForTrajectory();
+    m_lighting.setAll(Color.kYellow);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    m_drivebase.targetSingleSubstation();
+
   }
 
   // Called once the command ends or is interrupted.
@@ -40,6 +37,6 @@ public class DriveToSingleSubstation extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return false;
+    return true;
   }
 }

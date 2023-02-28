@@ -5,29 +5,29 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.constants.ControlConstants;
-import frc.robot.subsystems.ClawIntake;
-import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.GamePieceReader;
+import frc.robot.subsystems.Lighting;
 
-public class ShootManually extends CommandBase {
-  private final ClawIntake m_claw;
-  private final Shooter m_shooter;
-
+public class RequestCube extends CommandBase {
+  private final Lighting m_lighting;
+  private final GamePieceReader m_reader;
   private final Timer m_timer = new Timer();
 
-  /** Creates a new Shoot. */
-  public ShootManually(ClawIntake claw, Shooter shooter) {
-    super();
-    addRequirements(claw, shooter);
-    m_claw = claw;
-    m_shooter = shooter;
+  private boolean isOn = true;
+
+  /** Creates a new FlashYellow. */
+  public RequestCube(Lighting lighting, GamePieceReader reader) {
+    addRequirements(lighting, reader);
+    m_lighting = lighting;
+    m_reader = reader;
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    m_claw.closeClaw();
     m_timer.reset();
     m_timer.start();
   }
@@ -35,20 +35,25 @@ public class ShootManually extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if(m_timer.get() > ControlConstants.SHOT_DELAY){
-      m_shooter.shoot();
+    if(m_timer.get() > ControlConstants.LIGHT_FLASH_PERIOD){
+      if(isOn){
+        m_lighting.setAll(Color.kPurple);
+      }
+      else{
+        m_lighting.setAll(Color.kBlack);
+      }
+      isOn = !isOn;
+      m_timer.restart();
     }
   }
 
   // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted) {
-    m_shooter.reload();
-  }
+  public void end(boolean interrupted) {}
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return m_timer.get() > ControlConstants.MIN_SHOT_TIME;
+    return m_reader.hasGamePiece();
   }
 }

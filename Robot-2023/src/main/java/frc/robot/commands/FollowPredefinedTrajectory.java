@@ -28,8 +28,8 @@ public class FollowPredefinedTrajectory extends CommandBase {
 
 
   public FollowPredefinedTrajectory(
-    Trajectory trajectory,
-    Drivebase drivebase
+    Drivebase drivebase,
+    Trajectory trajectory
   ){
     super();
     addRequirements(drivebase);

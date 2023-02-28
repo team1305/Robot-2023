@@ -12,8 +12,10 @@ import frc.robot.commands.auto.SafeCommands.DriveToNext;
 import frc.robot.commands.auto.SafeCommands.EndCommands;
 import frc.robot.commands.auto.SafeCommands.ScoreFirst;
 import frc.robot.subsystems.Arm;
+import frc.robot.subsystems.ClawIntake;
 import frc.robot.subsystems.Drivebase;
-import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.GamePieceReader;
+import frc.robot.subsystems.RollerIntake;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Targetting;
 import frc.robot.subsystems.Wrist;
@@ -43,7 +45,9 @@ public class SuperAuto extends ParallelCommandGroup {
     Drivebase drivebase,
     Arm arm,
     Wrist wrist,
-    Intake intake,
+    RollerIntake roller,
+    ClawIntake claw,
+    GamePieceReader reader,
     Shooter shooter,
     Targetting targetting
   ) {
@@ -53,7 +57,9 @@ public class SuperAuto extends ParallelCommandGroup {
       drivebase,
       arm,
       wrist,
-      intake,
+      roller,
+      claw,
+      reader,
       shooter,
       targetting
     );
