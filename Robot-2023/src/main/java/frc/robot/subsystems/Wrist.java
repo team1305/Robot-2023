@@ -17,14 +17,14 @@ import frc.robot.constants.SmartDashboardConstants;
 
 public class Wrist extends SubsystemBase {
 
-  private final CANSparkMax m_motor = new CANSparkMax(RobotConstants.INTAKE_WRIST_MOTOR_CAN_ID, MotorType.kBrushless);
+  private final CANSparkMax m_motor = new CANSparkMax(RobotConstants.WRIST_MOTOR_CAN_ID, MotorType.kBrushless);
 
   private final DutyCycleEncoder m_encoder = new DutyCycleEncoder(RobotConstants.WRIST_ENCODER_CH);
 
   private final PIDController m_pidController = new PIDController(
     ControlConstants.WRIST_P,
-    ControlConstants.INTAKE_WRIST_I,
-     ControlConstants.INTAKE_WRIST_D
+    ControlConstants.WRIST_I,
+    ControlConstants.WRIST_D
   );
 
   private double m_targetPosition;
@@ -48,7 +48,7 @@ public class Wrist extends SubsystemBase {
   }
 
   public boolean onTarget(){
-    return Math.abs(m_targetPosition - m_encoder.getAbsolutePosition()) < ControlConstants.INTAKE_WRIST_ON_TARGET_THRESHOLD;
+    return Math.abs(m_targetPosition - m_encoder.getAbsolutePosition()) < ControlConstants.WRIST_ON_TARGET_THRESHOLD;
   }
 
   public void goToSetpoint(){
@@ -76,20 +76,20 @@ public class Wrist extends SubsystemBase {
   }
 
   private boolean reachedLowerLimit() {
-    return m_encoder.getAbsolutePosition() <= ControlConstants.INTAKE_WRIST_LOWER_LIMIT;
+    return m_encoder.getAbsolutePosition() <= ControlConstants.WRIST_LOWER_LIMIT;
   }
 
   private boolean reachedUpperLimit() {
-    return m_encoder.getAbsolutePosition() >= ControlConstants.INTAKE_WRIST_UPPER_LIMIT;
+    return m_encoder.getAbsolutePosition() >= ControlConstants.WRIST_UPPER_LIMIT;
   }
 
   @Override
   public void periodic() {
-    SmartDashboard.putNumber(SmartDashboardConstants.INTAKE_WRIST_SETPOINT, m_targetPosition);
-    SmartDashboard.putNumber(SmartDashboardConstants.INTAKE_WRIST_POWER, m_motor.get());
-    SmartDashboard.putNumber(SmartDashboardConstants.INTAKE_WRIST_POSITION, m_encoder.getAbsolutePosition());
-    SmartDashboard.putBoolean("Wrist On Target", onTarget());
-    SmartDashboard.putBoolean("Wrist reached upper limit", reachedUpperLimit());
-    SmartDashboard.putBoolean("Wrist reached lower limit", reachedLowerLimit());
+    SmartDashboard.putNumber(SmartDashboardConstants.WRIST_SETPOINT, m_targetPosition);
+    SmartDashboard.putNumber(SmartDashboardConstants.WRIST_POWER, m_motor.get());
+    SmartDashboard.putNumber(SmartDashboardConstants.WRIST_POSITION, m_encoder.getAbsolutePosition());
+    SmartDashboard.putBoolean(SmartDashboardConstants.WRIST_ON_TARGET, onTarget());
+    SmartDashboard.putBoolean(SmartDashboardConstants.WRIST_UPPER_LIMIT_REACHED, reachedUpperLimit());
+    SmartDashboard.putBoolean(SmartDashboardConstants.WRIST_LOWER_LIMIT_REACHED, reachedLowerLimit());
   }
 }

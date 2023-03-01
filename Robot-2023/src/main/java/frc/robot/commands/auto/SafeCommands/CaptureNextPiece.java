@@ -8,7 +8,6 @@ public class CaptureNextPiece {
         
     )
     {
-
         return new SafeCommand(
             new DummyCommand()
         , true);

@@ -14,13 +14,13 @@ import frc.robot.commands.GoToOverheadCubeMidPreset;
 import frc.robot.commands.RollOut;
 import frc.robot.commands.ShootManually;
 import frc.robot.commands.StayStill;
+import frc.robot.singletons.GamePieceReader;
+import frc.robot.singletons.Targetting;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.ClawIntake;
 import frc.robot.subsystems.Drivebase;
-import frc.robot.subsystems.GamePieceReader;
 import frc.robot.subsystems.RollerIntake;
 import frc.robot.subsystems.Shooter;
-import frc.robot.subsystems.Targetting;
 import frc.robot.subsystems.Wrist;
 import frc.robot.utils.DummyCommand;
 import frc.robot.utils.SafeCommand;
@@ -35,12 +35,11 @@ public class ScoreFirst {
         Wrist wrist,
         RollerIntake roller,
         ClawIntake claw,
-        GamePieceReader reader,
-        Shooter shooter,
-        Targetting targetting
+        Shooter shooter
     )
     {
-        GamePiece gamePiece = reader.capturedPiece();
+        GamePiece gamePiece = GamePieceReader.getInstance().capturedPiece();
+        Targetting targetting = Targetting.getInstance();
         GoalHeight goalHeight = firstGoalHeightChooser.getSelected();
 
         Command presetCommand = new DummyCommand();

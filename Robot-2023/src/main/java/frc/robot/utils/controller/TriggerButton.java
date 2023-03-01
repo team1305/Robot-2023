@@ -6,6 +6,6 @@ import frc.robot.constants.DriverControllerConstants;
 
 public class TriggerButton extends Trigger {
     public TriggerButton(GenericHID joystick, int axis){
-        super(() -> joystick.getRawAxis(axis) > DriverControllerConstants.DIGITAL_TRIGGER_THRESHOLD);
+        super(() -> Math.abs(joystick.getRawAxis(axis)) > DriverControllerConstants.DIGITAL_TRIGGER_THRESHOLD);
     }
 }

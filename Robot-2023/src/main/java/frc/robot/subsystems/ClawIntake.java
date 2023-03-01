@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.RobotConstants;
+import frc.robot.constants.SmartDashboardConstants;
 
 public class ClawIntake extends SubsystemBase {
 
@@ -30,6 +31,6 @@ public class ClawIntake extends SubsystemBase {
 
   @Override
   public void periodic() {
-    SmartDashboard.putBoolean("Claw Closed", m_solenoid.get());
+    SmartDashboard.putBoolean(SmartDashboardConstants.CLAW_CLOSED, m_solenoid.get());
   }
 }

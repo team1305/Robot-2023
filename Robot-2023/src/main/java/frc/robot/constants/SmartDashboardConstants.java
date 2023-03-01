@@ -1,56 +1,38 @@
 package frc.robot.constants;
 
 public class SmartDashboardConstants {
-    // Keys
-    public static final String AUTONOMOUS_COMMAND = "Autonomous Command";
+    // Drivebase
+    public static final String GYRO_YAW = "Yaw";
+    public static final String GYRO_PITCH = "Pitch";
+    public static final String GYRO_ROLL = "Roll";
+    public static final String LEFT_SPEED = "Left Speed";
+    public static final String RIGHT_SPEED = "Right Speed";
 
-    public static final String DRIVEBASE_COMMAND = "Drivebase Command";
-    public static final String INTAKE_COMMAND = "Intake Command";
-    public static final String INTAKE_ARM_COMMAND = "Intake Arm Command";
-    public static final String INTAKE_WRIST_COMMAND = "Intake Wrist Command";
-    public static final String SHOOTER_ARM_COMMAND = "Shooter Arm Command";
-    public static final String SHOOTER_COMMAND = "Shooter Command";
+    // Arm
+    public static final String ARM_SETPOINT = "Arm Setpoint";
+    public static final String ARM_POWER = "Arm Power";
+    public static final String ARM_POSITION = "Arm Position";
+    public static final String ARM_ON_TARGET = "Arm On Target";
+    public static final String ARM_UPPER_LIMIT_REACHED = "Arm Upper Limit Reached";
+    public static final String ARM_LOWER_LIMIT_REACHED = "Arm Lower Limit Reached";
 
-    public static final String INTAKE_HAS_GAME_PIECE = "Captured Piece";
+    // Wrist
+    public static final String WRIST_SETPOINT = "Wrist Setpoint";
+    public static final String WRIST_POWER = "Wrist Power";
+    public static final String WRIST_POSITION = "Wrist Position";
+    public static final String WRIST_ON_TARGET = "Wrist On Target";
+    public static final String WRIST_UPPER_LIMIT_REACHED = "Wrist Upper Limit Reached";
+    public static final String WRIST_LOWER_LIMIT_REACHED = "Wrist Lower Limit Reached";
 
-    public static final String INTAKE_ARM_SETPOINT = "Intake Arm Setpoint";
-    public static final String INTAKE_ARM_POWER = "Intake Arm Power";
-    public static final String INTAKE_ARM_POSITION = "Intake Arm Position";
+    // Roller
+    public static final String ROLLER_POWER = "Roller Power";
 
-    public static final String INTAKE_ARM_P = "Intake Arm P";
-    public static final String INTAKE_ARM_I = "Intake Arm I";
-    public static final String INTAKE_ARM_D = "Intake Arm D";
+    // Claw
+    public static final String CLAW_CLOSED = "Claw Closed";
+    
+    // Game Piece Reader
+    public static final String CAPTURED_PIECE = "Captured Piece";
 
-    public static final String INTAKE_WRIST_SETPOINT = "Intake Wrist Setpoint";
-    public static final String INTAKE_WRIST_POWER = "Intake Wrist Power";
-    public static final String INTAKE_WRIST_POSITION = "Intake Wrist Position";
-
-    public static final String INTAKE_WRIST_P = "Intake Wrist P";
-    public static final String INTAKE_WRIST_I = "Intake Wrist I";
-    public static final String INTAKE_WRIST_D = "Intake Wrist D";
-
-    public static final String SHOOTER_ARM_SETPOINT = "Shooter Arm Setpoint";
-    public static final String SHOOTER_ARM_POWER = "Shooter Arm Power";
-    public static final String SHOOTER_ARM_POSITION = "Shooter Arm Position";
-
-    public static final String SHOOTER_ARM_P = "Shooter Arm P";
-    public static final String SHOOTER_ARM_I = "Shooter Arm I";
-    public static final String SHOOTER_ARM_D = "Shooter Arm D";
-
-    public static final String DRIVE_BALANCE_P = "Drive Balance P";
-    public static final String DRIVE_BALANCE_I = "Drive Balance I";
-    public static final String DRIVE_BALANCE_D = "Drive Balance D";
-
-    public static final String DRIVE_HOLD_P = "Drive Hold P";
-    public static final String DRIVE_HOLD_I = "Drive Hold I";
-    public static final String DRIVE_HOLD_D = "Drive Hold D";
-
-    public static final String DRIVE_CRUISE_P = "Drive Cruise P";
-    public static final String DRIVE_CRUISE_I = "Drive Cruise I";
-    public static final String DRIVE_CRUISE_D = "Drive Cruise D";
-
-    // Auto names
-    public static final String AUTO_TWO_CUBE_AND_BALANCE = "2 cube and balance";
-    public static final String STRIGHT = "Striht";
-    public static final String STRIGHTANDBACK = "Striht&BAck";
+    // Pneumatics
+    public static final String COMPRESSOR_ENABLED = "Compressor Enabled";
 }

@@ -10,11 +10,12 @@ import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.RobotConstants;
+import frc.robot.constants.SmartDashboardConstants;
 
 public class RollerIntake extends SubsystemBase {
   // Motor controllers
-	private static WPI_TalonFX m_leftMotor = new WPI_TalonFX(RobotConstants.LEFT_INTAKE_MOTOR_CAN_ID);
-	private static WPI_TalonFX m_rightMotor = new WPI_TalonFX(RobotConstants.RIGHT_INTAKE_MOTOR_CAN_ID);
+	private static WPI_TalonFX m_leftMotor = new WPI_TalonFX(RobotConstants.LEFT_ROLLER_INTAKE_MOTOR_CAN_ID);
+	private static WPI_TalonFX m_rightMotor = new WPI_TalonFX(RobotConstants.RIGHT_ROLLER_INTAKE_MOTOR_CAN_ID);
 
   private final MotorControllerGroup m_intakeMotors = new MotorControllerGroup(m_leftMotor, m_rightMotor);
 
@@ -44,6 +45,6 @@ public class RollerIntake extends SubsystemBase {
 
   @Override
   public void periodic() {
-    SmartDashboard.putNumber("Roller Power", m_intakeMotors.get());
+    SmartDashboard.putNumber(SmartDashboardConstants.ROLLER_POWER, m_intakeMotors.get());
   }
 }

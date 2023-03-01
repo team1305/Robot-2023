@@ -31,7 +31,7 @@ public final class DriverControllerConstants {
     public static final int RIGHT_X = 4;
     public static final int RIGHT_Y = 5;
 
-    // Triggers
+    // Trigger Control
     public static final double DIGITAL_TRIGGER_THRESHOLD = 0.85;
 }    
 

@@ -16,9 +16,7 @@ import frc.robot.commands.GoToOverheadCubeHighPreset;
 import frc.robot.commands.GoToOverheadCubeMidPreset;
 import frc.robot.commands.RollOut;
 import frc.robot.commands.StayStill;
-import frc.robot.constants.AutoConstants;
 import frc.robot.subsystems.Drivebase;
-import frc.robot.subsystems.GamePieceReader;
 import frc.robot.subsystems.RollerIntake;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.ClawIntake;
@@ -32,8 +30,7 @@ public class TwoCubeAuto extends SequentialCommandGroup {
     Arm arm,
     Wrist wrist,
     RollerIntake roller,
-    ClawIntake claw,
-    GamePieceReader reader
+    ClawIntake claw
   ) {
     super();
     addRequirements(drivebase, wrist, arm);
@@ -51,14 +48,17 @@ public class TwoCubeAuto extends SequentialCommandGroup {
       Commands.deadline(
         new FollowPredefinedTrajectory(
           drivebase, 
-          new TrajectoryResolver(AutoConstants.PATH_RED_CLR_GRID_CUBE_TO_P1).getTrajectory(), 
+          TrajectoryResolver.getTrajectoryFromPath("paths/2-cube-red/Seq1.json"), 
           new Pose2d(new Translation2d(14.7, 4.4), Rotation2d.fromDegrees(180))
         ),
-        new AutoIntake(roller, claw, reader),
+        new AutoIntake(roller, claw),
         new GoToFloorPreset(arm, wrist)
       ),
       Commands.deadline(
-        new FollowPredefinedTrajectory(drivebase, new TrajectoryResolver(AutoConstants.PATH_RED_P1_TO_CLR_GRID_CUBE).getTrajectory()),
+        new FollowPredefinedTrajectory(
+          drivebase,
+          TrajectoryResolver.getTrajectoryFromPath("paths/2-cube-red/Seq2.json")
+        ),
         new GoToOverheadCubeMidPreset(arm, wrist)
       ),
       Commands.deadline(

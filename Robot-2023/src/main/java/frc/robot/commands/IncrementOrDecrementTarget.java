@@ -4,31 +4,30 @@
 
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.subsystems.Lighting;
+import frc.robot.singletons.Targetting;
 
-public class SolidYellow extends CommandBase {
- 
-  private final Lighting m_lighting;
+public class IncrementOrDecrementTarget extends CommandBase {
 
-  /** Creates a new FlashYellow. */
-  public SolidYellow(Lighting lighting) {
-    addRequirements(lighting);
-    m_lighting = lighting;
+  private final Targetting m_targetting;
+  private final double m_value;
+
+  /** Creates a new IncrementOrDecrementTarget. */
+  public IncrementOrDecrementTarget(double value) {
+    m_targetting = Targetting.getInstance();
+    m_value = value;
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    m_lighting.setAll(Color.kYellow);
+    if(m_value > 0) m_targetting.increment();
+    else m_targetting.decrement();
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
-  public void execute() {
-
-  }
+  public void execute() {}
 
   // Called once the command ends or is interrupted.
   @Override

@@ -40,7 +40,7 @@ public class RollOut extends CommandBase {
       m_timer.reset();
       m_timer.start();
     }
-    m_roller.setIntake(ControlConstants.ROLLER_OUT_VAL);
+    m_roller.setIntake(ControlConstants.ROLLER_OUT);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -50,7 +50,7 @@ public class RollOut extends CommandBase {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    m_roller.setIntake(0);
+    m_roller.setIntake(ControlConstants.ROLLER_OFF);
   }
 
   // Returns true when the command should end.

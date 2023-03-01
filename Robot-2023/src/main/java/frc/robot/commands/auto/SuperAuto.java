@@ -14,10 +14,8 @@ import frc.robot.commands.auto.SafeCommands.ScoreFirst;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.ClawIntake;
 import frc.robot.subsystems.Drivebase;
-import frc.robot.subsystems.GamePieceReader;
 import frc.robot.subsystems.RollerIntake;
 import frc.robot.subsystems.Shooter;
-import frc.robot.subsystems.Targetting;
 import frc.robot.subsystems.Wrist;
 import frc.robot.utils.DummyCommand;
 import frc.robot.utils.SafeCommand;
@@ -47,9 +45,7 @@ public class SuperAuto extends ParallelCommandGroup {
     Wrist wrist,
     RollerIntake roller,
     ClawIntake claw,
-    GamePieceReader reader,
-    Shooter shooter,
-    Targetting targetting
+    Shooter shooter
   ) {
 
     SafeCommand scoreFirst = ScoreFirst.getSafeCommand(
@@ -59,9 +55,7 @@ public class SuperAuto extends ParallelCommandGroup {
       wrist,
       roller,
       claw,
-      reader,
-      shooter,
-      targetting
+      shooter
     );
 
     boolean shouldScoreFirst = scoreFirst.isSafe();
@@ -71,8 +65,7 @@ public class SuperAuto extends ParallelCommandGroup {
       firstDriveDirectionChooser,
       drivebase,
       arm,
-      wrist,
-      targetting
+      wrist
     );
 
     boolean shouldDriveToNext = shouldScoreFirst && driveToNext.isSafe();

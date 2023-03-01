@@ -10,11 +10,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.commands.FollowPredefinedTrajectory;
 import frc.robot.commands.GoToStowedPreset;
-import frc.robot.presets.ArmPresets;
-import frc.robot.presets.WristPresets;
+import frc.robot.singletons.Targetting;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Drivebase;
-import frc.robot.subsystems.Targetting;
 import frc.robot.subsystems.Wrist;
 import frc.robot.utils.DummyCommand;
 import frc.robot.utils.SafeCommand;
@@ -27,10 +25,10 @@ public class DriveToNext {
         SendableChooser<CommunityAccess> firstDriveDirectionChooser,
         Drivebase drivebase,
         Arm arm,
-        Wrist wrist,
-        Targetting targetting
+        Wrist wrist
     )
     {
+        Targetting targetting = Targetting.getInstance();
         Integer startingPosition = startingPositionChooser.getSelected();
         CommunityAccess direction = firstDriveDirectionChooser.getSelected();
 
@@ -95,7 +93,7 @@ public class DriveToNext {
 
         trajectoryFileLocation = trajectoryFileLocation + "GP" + startingPosition + ".json";
 
-        Trajectory trajectory = new TrajectoryResolver(trajectoryFileLocation).getTrajectory();
+        Trajectory trajectory = TrajectoryResolver.getTrajectoryFromPath(trajectoryFileLocation);
 
         Pose2d initialPose = trajectory.sample(0).poseMeters;
 

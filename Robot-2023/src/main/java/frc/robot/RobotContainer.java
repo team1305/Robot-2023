@@ -15,7 +15,11 @@ import frc.robot.commands.BalanceOnChargeStation;
 import frc.robot.commands.CloseClaw;
 import frc.robot.commands.DriveToGoal;
 import frc.robot.commands.HoldOnChargeStation;
+import frc.robot.commands.IncrementOrDecrementTarget;
+import frc.robot.commands.NotifyStatus;
 import frc.robot.commands.OpenClaw;
+import frc.robot.commands.RequestCone;
+import frc.robot.commands.RequestCube;
 import frc.robot.commands.RollOut;
 import frc.robot.commands.RollIn;
 import frc.robot.commands.GoToConeHighPreset;
@@ -34,14 +38,13 @@ import frc.robot.commands.auto.SuperAuto;
 import frc.robot.constants.ControlConstants;
 import frc.robot.constants.DriverControllerConstants;
 import frc.robot.subsystems.Drivebase;
-import frc.robot.subsystems.GamePieceReader;
+import frc.robot.subsystems.Lighting;
 import frc.robot.subsystems.RollerIntake;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.ClawIntake;
 import frc.robot.subsystems.Wrist;
 import frc.robot.subsystems.Pneumatics;
 import frc.robot.subsystems.Shooter;
-import frc.robot.subsystems.Targetting;
 import frc.robot.utils.controller.DpadButton;
 import frc.robot.utils.controller.TriggerButton;
 import frc.robot.utils.game_specific.CommunityAccess;
@@ -67,10 +70,9 @@ public class RobotContainer {
   private final Wrist m_wrist;
   private final RollerIntake m_rollerIntake;
   private final ClawIntake m_clawIntake;
-  private final GamePieceReader m_gamePieceReader;
+  private final Lighting m_lighting;
   private final Shooter m_shooter;
   private final Pneumatics m_pneumatics;
-  private final Targetting m_targetting;
 
   // Choosers
   private final SendableChooser<GoalHeight> m_firstGoalHeightChooser = new SendableChooser<GoalHeight>();
@@ -93,11 +95,10 @@ public class RobotContainer {
     m_wrist = new Wrist();
     m_rollerIntake = new RollerIntake();
     m_clawIntake = new ClawIntake(moduleType);
-    m_gamePieceReader = new GamePieceReader();
+    m_lighting = new Lighting();
     m_shooter = new Shooter(moduleType);
     m_pneumatics = new Pneumatics(moduleType);
-    m_targetting = new Targetting();
-
+    
     setupDefaultCommands();
     configureButtonBindings();
     setupAutoChoosers();
@@ -114,6 +115,10 @@ public class RobotContainer {
 
     m_pneumatics.setDefaultCommand(
       new TurnOnCompressor(m_pneumatics)
+    );
+
+    m_lighting.setDefaultCommand(
+      new NotifyStatus(m_lighting)
     );
   }
 
@@ -146,7 +151,7 @@ public class RobotContainer {
     );
     
     new JoystickButton(m_primary, DriverControllerConstants.A_BUTTON).onTrue(
-      new AutoIntake(m_rollerIntake, m_clawIntake, m_gamePieceReader)
+      new AutoIntake(m_rollerIntake, m_clawIntake)
     );
 
     new JoystickButton(m_primary, DriverControllerConstants.B_BUTTON).whileTrue(
@@ -154,7 +159,7 @@ public class RobotContainer {
     );
 
     new JoystickButton(m_primary, DriverControllerConstants.Y_BUTTON).whileTrue(
-      new DriveToGoal(m_drivebase, m_targetting)
+      new DriveToGoal(m_drivebase)
     );
 
     new JoystickButton(m_primary, DriverControllerConstants.X_BUTTON).whileTrue(
@@ -170,7 +175,7 @@ public class RobotContainer {
 
     new JoystickButton(m_secondary, DriverControllerConstants.RIGHT_BUMPER).and(
       new JoystickButton(m_secondary, DriverControllerConstants.LEFT_BUMPER).negate()).whileTrue(
-        new ShootTargetted(m_clawIntake, m_shooter, m_targetting)
+        new ShootTargetted(m_clawIntake, m_shooter)
     );
 
     new JoystickButton(m_secondary, DriverControllerConstants.START).onTrue(
@@ -215,6 +220,18 @@ public class RobotContainer {
 
     new DpadButton(m_secondary, DriverControllerConstants.DPAD_WEST).onTrue(
       new GoToOverheadCubeMidPreset(m_arm, m_wrist)
+    );
+
+    new TriggerButton(m_secondary, DriverControllerConstants.LEFT_TRIGGER).onTrue(
+      m_lighting.getCurrentCommand() instanceof RequestCube ? new NotifyStatus(m_lighting) : new RequestCube(m_lighting) // Cancels the request if already requesting
+    );
+
+    new TriggerButton(m_secondary, DriverControllerConstants.RIGHT_TRIGGER).onTrue(
+      m_lighting.getCurrentCommand() instanceof RequestCone ? new NotifyStatus(m_lighting) : new RequestCone(m_lighting) // Cancels the request if already requesting
+    );
+
+    new TriggerButton(m_primary, DriverControllerConstants.LEFT_STICK).onTrue(
+      new IncrementOrDecrementTarget(m_primary.getRawAxis(DriverControllerConstants.LEFT_STICK))
     );
   } 
 
@@ -301,9 +318,7 @@ public class RobotContainer {
       m_wrist,
       m_rollerIntake,
       m_clawIntake,
-      m_gamePieceReader,
-      m_shooter,
-      m_targetting
+      m_shooter
     );
   }
 }

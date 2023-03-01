@@ -8,7 +8,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.constants.ControlConstants;
-import frc.robot.subsystems.GamePieceReader;
+import frc.robot.singletons.GamePieceReader;
 import frc.robot.subsystems.Lighting;
 
 public class RequestCone extends CommandBase {
@@ -19,10 +19,10 @@ public class RequestCone extends CommandBase {
   private boolean isOn = true;
 
   /** Creates a new FlashYellow. */
-  public RequestCone(Lighting lighting, GamePieceReader reader) {
-    addRequirements(lighting, reader);
+  public RequestCone(Lighting lighting) {
+    addRequirements(lighting);
     m_lighting = lighting;
-    m_reader = reader;
+    m_reader = GamePieceReader.getInstance();
   }
 
   // Called when the command is initially scheduled.
@@ -49,7 +49,9 @@ public class RequestCone extends CommandBase {
 
   // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted) {}
+  public void end(boolean interrupted) {
+    m_lighting.setAll(Color.kBlack);
+  }
 
   // Returns true when the command should end.
   @Override

@@ -22,7 +22,7 @@ public class RollIn extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    m_roller.setIntake(ControlConstants.ROLLER_IN_VAL);
+    m_roller.setIntake(ControlConstants.ROLLER_IN);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -32,7 +32,7 @@ public class RollIn extends CommandBase {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    m_roller.setIntake(0);
+    m_roller.setIntake(ControlConstants.ROLLER_OFF);
   }
 
   // Returns true when the command should end.

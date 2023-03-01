@@ -6,8 +6,8 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.constants.ControlConstants;
+import frc.robot.singletons.GamePieceReader;
 import frc.robot.subsystems.ClawIntake;
-import frc.robot.subsystems.GamePieceReader;
 import frc.robot.subsystems.RollerIntake;
 
 public class AutoIntake extends CommandBase {
@@ -17,12 +17,12 @@ public class AutoIntake extends CommandBase {
   private final GamePieceReader m_reader;
 
   /** Creates a new AutoIn. */
-  public AutoIntake(RollerIntake rollerIntake, ClawIntake clawIntake, GamePieceReader reader) {
+  public AutoIntake(RollerIntake rollerIntake, ClawIntake clawIntake) {
     super();
-    addRequirements(rollerIntake, clawIntake, reader);
+    addRequirements(rollerIntake, clawIntake);
     m_rollerIntake = rollerIntake;
     m_clawIntake = clawIntake;
-    m_reader = reader;
+    m_reader = GamePieceReader.getInstance();
   }
 
   // Called when the command is initially scheduled.
@@ -36,15 +36,15 @@ public class AutoIntake extends CommandBase {
   public void execute() {
     switch (m_reader.capturedPiece()) {
       case Cube:
-        m_rollerIntake.setIntake(0);
+        m_rollerIntake.setIntake(ControlConstants.ROLLER_OFF);
         m_clawIntake.openClaw();
         break;
       case Cone:
-        m_rollerIntake.setIntake(0);
+        m_rollerIntake.setIntake(ControlConstants.ROLLER_OFF);
         m_clawIntake.closeClaw();
         break;
       case None:
-        m_rollerIntake.setIntake(ControlConstants.ROLLER_IN_VAL);
+        m_rollerIntake.setIntake(ControlConstants.ROLLER_IN);
         m_clawIntake.openClaw();
         break;
       

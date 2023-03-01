@@ -1,6 +1,6 @@
 package frc.robot.constants;
 
-public final class HardwareConstants {
-    // NEOs
-    public static final int NEO_HALL_CPR = 48;   
+public class HardwareConstants {
+    public static final int CTRE_PNEUMATICS_DEFAULT_MODULE_NUM = 0;
+    public static final int REV_PNEUMATICS_DEFAULT_MODULE_NUM = 1;
 }

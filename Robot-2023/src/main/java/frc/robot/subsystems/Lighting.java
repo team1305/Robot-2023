@@ -11,8 +11,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Lighting extends SubsystemBase {
 
-  AddressableLED m_leds = new AddressableLED(9);
-  AddressableLEDBuffer m_ledbuffer = new AddressableLEDBuffer(60);
+  AddressableLED m_leds = new AddressableLED(0);
+  AddressableLEDBuffer m_ledbuffer = new AddressableLEDBuffer(122);
 
   /** Creates a new Lighting. */
   public Lighting() {

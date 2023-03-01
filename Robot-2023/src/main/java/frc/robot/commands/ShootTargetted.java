@@ -7,9 +7,9 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.constants.ControlConstants;
+import frc.robot.singletons.Targetting;
 import frc.robot.subsystems.ClawIntake;
 import frc.robot.subsystems.Shooter;
-import frc.robot.subsystems.Targetting;
 
 public class ShootTargetted extends CommandBase {
   private final ClawIntake m_claw;
@@ -19,12 +19,12 @@ public class ShootTargetted extends CommandBase {
   private final Timer m_reloadTimer = new Timer();
 
   /** Creates a new TargettedFire. */
-  public ShootTargetted(ClawIntake claw, Shooter shooter, Targetting targetting) {
+  public ShootTargetted(ClawIntake claw, Shooter shooter) {
     super();
-    addRequirements(claw, shooter, targetting);
+    addRequirements(claw, shooter);
     m_claw = claw;
     m_shooter = shooter;
-    m_targetting = targetting;
+    m_targetting = Targetting.getInstance();
   }
 
   // Called when the command is initially scheduled.

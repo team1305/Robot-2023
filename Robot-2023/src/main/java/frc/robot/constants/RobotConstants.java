@@ -19,18 +19,19 @@ public final class RobotConstants {
     
     public static final int ARM_MOTOR_1_CAN_ID = 9;
     public static final int ARM_MOTOR_2_CAN_ID = 10;
-    public static final int INTAKE_WRIST_MOTOR_CAN_ID = 11;
-    public static final int LEFT_INTAKE_MOTOR_CAN_ID = 12;
-    public static final int RIGHT_INTAKE_MOTOR_CAN_ID = 13;
+
+    public static final int WRIST_MOTOR_CAN_ID = 11;
+
+    public static final int LEFT_ROLLER_INTAKE_MOTOR_CAN_ID = 12;
+    public static final int RIGHT_ROLLER_INTAKE_MOTOR_CAN_ID = 13;
     
     public static final int PIGEON_CAN_ID = 14;
 
     // Pneumatic channels
-    public static final int SHOOTER_CH = 2;
     public static final int CLAW_CH = 0;
+    public static final int SHOOTER_CH = 2;
 
     // DIO Channels
-    public static final int SHOOTER_ARM_ENCODER_CH = 7;
-    public static final int INTAKE_ARM_ENCODER_CH = 8;
+    public static final int ARM_ENCODER_CH = 8;
     public static final int WRIST_ENCODER_CH = 9;
 }

@@ -8,6 +8,8 @@ import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.constants.HardwareConstants;
+import frc.robot.constants.SmartDashboardConstants;
 
 public class Pneumatics extends SubsystemBase {
   // Other Hardware
@@ -16,8 +18,17 @@ public class Pneumatics extends SubsystemBase {
   /** Creates a new Intake. **/
   public Pneumatics(PneumaticsModuleType moduleType) {
     super();
-    int module = moduleType == PneumaticsModuleType.CTREPCM ? 0 : 1;
-    m_compressor = new Compressor(module, moduleType);
+    m_compressor = new Compressor(getModuleNumber(moduleType), moduleType);
+  }
+
+  private int getModuleNumber(PneumaticsModuleType moduleType){
+    switch(moduleType){
+      case CTREPCM:
+        return HardwareConstants.CTRE_PNEUMATICS_DEFAULT_MODULE_NUM;
+      case REVPH:
+        return HardwareConstants.REV_PNEUMATICS_DEFAULT_MODULE_NUM;
+    }
+    return 0; // Shold not ever happen
   }
 
   public void compressorOn(){
@@ -28,9 +39,11 @@ public class Pneumatics extends SubsystemBase {
     m_compressor.disable();
   }
 
+  
+
   @Override
   public void periodic(){
-    SmartDashboard.putBoolean("Compressor Enabled", m_compressor.isEnabled());
+    SmartDashboard.putBoolean(SmartDashboardConstants.COMPRESSOR_ENABLED, m_compressor.isEnabled());
   }
 
 }

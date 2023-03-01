@@ -8,7 +8,6 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -23,9 +22,7 @@ public class Arm extends SubsystemBase {
 
   private final MotorControllerGroup m_motors = new MotorControllerGroup(m_motor1, m_motor2);
 
-  private final SlewRateLimiter m_limiter = new SlewRateLimiter(1.0);
-
-  private final DutyCycleEncoder m_absEncoder = new DutyCycleEncoder(RobotConstants.INTAKE_ARM_ENCODER_CH);
+  private final DutyCycleEncoder m_absEncoder = new DutyCycleEncoder(RobotConstants.ARM_ENCODER_CH);
 
   private final PIDController m_farPIDController = new PIDController(
     ControlConstants.ARM_FAR_P,
@@ -47,14 +44,14 @@ public class Arm extends SubsystemBase {
     m_motors.setInverted(true);
   }
 
+  
   public void setSetpoint(double value){
     m_targetPosition = value;
   }
 
   public void goToSetpoint(){
     if(Math.abs(m_absEncoder.getAbsolutePosition() - m_targetPosition) > ControlConstants.ARM_FAR_THRESHOLD){
-      SmartDashboard.putString("PID Used", "Far") ;
-      setIntakeArms(
+      setInRange(
         m_farPIDController.calculate(
           m_absEncoder.getAbsolutePosition(), 
           m_targetPosition
@@ -62,33 +59,36 @@ public class Arm extends SubsystemBase {
       );
     }
     else{
-      SmartDashboard.putString("PID Used", "Close") ;
-      setIntakeArms(
+      setInRange(
         m_closePIDController.calculate(
           m_absEncoder.getAbsolutePosition(), 
           m_targetPosition
         )
       );
     }
-
-
-   
   }
 
   public boolean onTarget(){
     return Math.abs(m_targetPosition - m_absEncoder.getAbsolutePosition()) < ControlConstants.ARM_ON_TARGET_THRESHOLD;
   }
 
-  private void setIntakeArms(double value){
-    double val = m_limiter.calculate(rangeFilter(value));
-    m_motors.set(val);
+  private void setInRange(double value){
+    m_motors.set(rangeFilter(value));
   }
   
   private double rangeFilter(double value){
-    if((value > 0 && reachedLowerLimit()) || (value < 0 && reachedUpperLimit())){
+    if(isRequestingDown(value) && reachedLowerLimit() || (isRequestingUp(value) && reachedUpperLimit())){
       return 0.0;
     }
     return value;
+  }
+
+  private boolean isRequestingDown(double value){
+    return value > 0;
+  }
+
+  private boolean isRequestingUp(double value){
+    return value < 0;
   }
 
   private boolean reachedLowerLimit() {
@@ -101,11 +101,11 @@ public class Arm extends SubsystemBase {
 
   @Override
   public void periodic() {
-    SmartDashboard.putNumber(SmartDashboardConstants.INTAKE_ARM_SETPOINT, m_targetPosition);
-    SmartDashboard.putNumber(SmartDashboardConstants.INTAKE_ARM_POWER, m_motors.get());
-    SmartDashboard.putNumber(SmartDashboardConstants.INTAKE_ARM_POSITION, m_absEncoder.getAbsolutePosition());
-    SmartDashboard.putBoolean("Arm On Target", onTarget());
-    SmartDashboard.putBoolean("Arm reached upper limit", reachedUpperLimit());
-    SmartDashboard.putBoolean("Arm reached lower limit", reachedLowerLimit());
+    SmartDashboard.putNumber(SmartDashboardConstants.ARM_SETPOINT, m_targetPosition);
+    SmartDashboard.putNumber(SmartDashboardConstants.ARM_POWER, m_motors.get());
+    SmartDashboard.putNumber(SmartDashboardConstants.ARM_POSITION, m_absEncoder.getAbsolutePosition());
+    SmartDashboard.putBoolean(SmartDashboardConstants.ARM_ON_TARGET, onTarget());
+    SmartDashboard.putBoolean(SmartDashboardConstants.ARM_UPPER_LIMIT_REACHED, reachedUpperLimit());
+    SmartDashboard.putBoolean(SmartDashboardConstants.ARM_LOWER_LIMIT_REACHED, reachedLowerLimit());
   }
 }
