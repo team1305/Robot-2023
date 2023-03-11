@@ -12,11 +12,12 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class Lighting extends SubsystemBase {
 
   AddressableLED m_leds = new AddressableLED(0);
-  AddressableLEDBuffer m_ledbuffer = new AddressableLEDBuffer(122);
+  AddressableLEDBuffer m_ledbuffer = new AddressableLEDBuffer(124);
 
   /** Creates a new Lighting. */
   public Lighting() {
     m_leds.setLength(m_ledbuffer.getLength());
+    m_leds.start();
   }
 
   public void setAll(Color color){

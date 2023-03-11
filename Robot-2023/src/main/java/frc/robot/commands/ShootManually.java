@@ -27,7 +27,7 @@ public class ShootManually extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    m_claw.closeClaw();
+    m_claw.openClaw();
     m_timer.reset();
     m_timer.start();
   }

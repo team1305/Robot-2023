@@ -23,9 +23,9 @@ import frc.robot.subsystems.ClawIntake;
 import frc.robot.subsystems.Wrist;
 import frc.robot.utils.TrajectoryResolver;
 
-public class TwoCubeAuto extends SequentialCommandGroup {
+public class OneCubeBumpAuto extends SequentialCommandGroup {
   /** Creates a new TwoCubeBalance. */
-  public TwoCubeAuto(
+  public OneCubeBumpAuto(
     Drivebase drivebase,
     Arm arm,
     Wrist wrist,
@@ -37,7 +37,7 @@ public class TwoCubeAuto extends SequentialCommandGroup {
 
     Alliance alliance = DriverStation.getAlliance();
 
-    String folderPath = "paths/2-cube-";
+    String folderPath = "paths/1-cube-bump-";
 
     switch(alliance){
       case Red:
@@ -51,9 +51,7 @@ public class TwoCubeAuto extends SequentialCommandGroup {
     }
 
     Trajectory trajectory1 = TrajectoryResolver.getTrajectoryFromPath(folderPath + "/Seq1.json");
-    Trajectory trajectory2 = TrajectoryResolver.getTrajectoryFromPath(folderPath + "/Seq2.json");
-    Trajectory trajectory3 = TrajectoryResolver.getTrajectoryFromPath(folderPath + "/Seq3.json");
-
+  
     addCommands(
       Commands.parallel(
         new GoToOverheadCubeHighPreset(arm, wrist),
@@ -69,29 +67,9 @@ public class TwoCubeAuto extends SequentialCommandGroup {
           drivebase, 
           trajectory1, 
           trajectory1.sample(0).poseMeters
-        ),
-        new AutoIntake(roller, claw),
-        new GoToFloorPreset(arm, wrist)
-      ),
-      Commands.deadline(
-        new FollowPredefinedTrajectory(
-          drivebase,
-          trajectory2
-        ),
-        new GoToOverheadCubeMidPreset(arm, wrist)
-      ),
-      Commands.deadline(
-        new RollOut(roller, 0.5),
-        new StayStill(drivebase),
-        new GoToOverheadCubeMidPreset(arm, wrist)
-      ),
-      Commands.deadline(
-        new FollowPredefinedTrajectory(
-          drivebase,
-          trajectory3
-        ),
-        new GoToFloorPreset(arm, wrist)
+        )
       )
+      
     );
   }
 }

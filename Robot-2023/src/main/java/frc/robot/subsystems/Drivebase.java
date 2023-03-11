@@ -462,12 +462,12 @@ public class Drivebase extends SubsystemBase {
   @Override
   public void periodic()
   {
-    SmartDashboard.putNumber(SmartDashboardConstants.GYRO_YAW, m_gyro.getYaw());
-    SmartDashboard.putNumber(SmartDashboardConstants.GYRO_PITCH, m_gyro.getPitch());
-    SmartDashboard.putNumber(SmartDashboardConstants.GYRO_ROLL, m_gyro.getRoll());
+    // SmartDashboard.putNumber(SmartDashboardConstants.GYRO_YAW, m_gyro.getYaw());
+    // SmartDashboard.putNumber(SmartDashboardConstants.GYRO_PITCH, m_gyro.getPitch());
+    // SmartDashboard.putNumber(SmartDashboardConstants.GYRO_ROLL, m_gyro.getRoll());
 
-    SmartDashboard.putNumber(SmartDashboardConstants.LEFT_SPEED, getLeftEncoderMetersPerSecond());
-    SmartDashboard.putNumber(SmartDashboardConstants.RIGHT_SPEED, getRightEncoderMetersPerSecond());
+    // SmartDashboard.putNumber(SmartDashboardConstants.LEFT_SPEED, getLeftEncoderMetersPerSecond());
+    // SmartDashboard.putNumber(SmartDashboardConstants.RIGHT_SPEED, getRightEncoderMetersPerSecond());
   }
 }
 

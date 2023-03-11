@@ -29,7 +29,7 @@ public class DriveToGoal extends CommandBase {
 
     int[] visibleTags = m_targetting.getAprilTagIDs(Limelight.front);
 
-    m_trajectory = TrajectoryResolver.getTrajectoryFromATIDAndGoal(visibleTags[0], m_targetting.getTarget());
+    m_trajectory = TrajectoryResolver.getTrajectoryFromATIDAndGoal(0, m_targetting.getTarget());
   }
 
   // Called when the command is initially scheduled.

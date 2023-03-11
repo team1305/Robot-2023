@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.commands.AutoIntake;
+import frc.robot.commands.BalanceOnChargeStation;
 import frc.robot.commands.FollowPredefinedTrajectory;
 import frc.robot.commands.GoToFloorPreset;
 import frc.robot.commands.GoToOverheadCubeHighPreset;
@@ -23,9 +24,9 @@ import frc.robot.subsystems.ClawIntake;
 import frc.robot.subsystems.Wrist;
 import frc.robot.utils.TrajectoryResolver;
 
-public class TwoCubeAuto extends SequentialCommandGroup {
+public class OneCubeAuto extends SequentialCommandGroup {
   /** Creates a new TwoCubeBalance. */
-  public TwoCubeAuto(
+  public OneCubeAuto(
     Drivebase drivebase,
     Arm arm,
     Wrist wrist,
@@ -37,7 +38,7 @@ public class TwoCubeAuto extends SequentialCommandGroup {
 
     Alliance alliance = DriverStation.getAlliance();
 
-    String folderPath = "paths/2-cube-";
+    String folderPath = "paths/1-cube-balance-";
 
     switch(alliance){
       case Red:
@@ -51,9 +52,7 @@ public class TwoCubeAuto extends SequentialCommandGroup {
     }
 
     Trajectory trajectory1 = TrajectoryResolver.getTrajectoryFromPath(folderPath + "/Seq1.json");
-    Trajectory trajectory2 = TrajectoryResolver.getTrajectoryFromPath(folderPath + "/Seq2.json");
-    Trajectory trajectory3 = TrajectoryResolver.getTrajectoryFromPath(folderPath + "/Seq3.json");
-
+  
     addCommands(
       Commands.parallel(
         new GoToOverheadCubeHighPreset(arm, wrist),
@@ -69,28 +68,10 @@ public class TwoCubeAuto extends SequentialCommandGroup {
           drivebase, 
           trajectory1, 
           trajectory1.sample(0).poseMeters
-        ),
-        new AutoIntake(roller, claw),
-        new GoToFloorPreset(arm, wrist)
+        )
       ),
-      Commands.deadline(
-        new FollowPredefinedTrajectory(
-          drivebase,
-          trajectory2
-        ),
-        new GoToOverheadCubeMidPreset(arm, wrist)
-      ),
-      Commands.deadline(
-        new RollOut(roller, 0.5),
-        new StayStill(drivebase),
-        new GoToOverheadCubeMidPreset(arm, wrist)
-      ),
-      Commands.deadline(
-        new FollowPredefinedTrajectory(
-          drivebase,
-          trajectory3
-        ),
-        new GoToFloorPreset(arm, wrist)
+      Commands.parallel(
+        new BalanceOnChargeStation(drivebase)
       )
     );
   }

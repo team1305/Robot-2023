@@ -7,6 +7,7 @@ public class ArmPresets {
 
     public static final double cone_high = 0.475;
     public static final double cone_mid = 0.475;
+    public static final double cone_low = 0.278;
 
     public static final double floor = 0.225;
     public static final double singleSubstation = 0.471;

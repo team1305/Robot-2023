@@ -29,7 +29,7 @@ public class DriveToSingleSubstation extends CommandBase {
     
     int[] visibleTags = m_targetting.getAprilTagIDs(Limelight.side);
 
-    m_trajectory = TrajectoryResolver.getTrajectoryFromATIDAndPose(visibleTags[0], m_targetting.getPose());
+    m_trajectory = TrajectoryResolver.getTrajectoryFromATIDAndPose(0, m_targetting.getPose());
   }
 
   // Called when the command is initially scheduled.

@@ -12,9 +12,9 @@ public class ControlConstants {
     public static final double CRUISE_P = 3.4602;
     public static final double CRUISE_I = 0;
     public static final double CRUISE_D = 0;
-    public static final double BALANCE_P = 0;
+    public static final double BALANCE_P = -0.025;
     public static final double BALANCE_I = 0;
-    public static final double BALANCE_D = 0;
+    public static final double BALANCE_D = -0.000;
     public static final double HOLD_P = 0;
     public static final double HOLD_I = 0;
     public static final double HOLD_D = 0;
@@ -56,7 +56,7 @@ public class ControlConstants {
     public static final double MIN_SHOT_TIME = 0.5;
 
     // Lighting Control
-    public static final double LIGHT_FLASH_PERIOD = 0.1; 
+    public static final double LIGHT_FLASH_PERIOD = 0.3; 
 
     // Manual Control Factors
     public static final double THROTTLE_FACTOR = -1.0;
@@ -80,6 +80,6 @@ public class ControlConstants {
     public static final double CUBE_BLUE_UPPER = 0.490;     //125
     
     // Triple Modular Redundancy Voter Thresholds
-    public static final double NEO_RPM_VOTER_THRESHOLD = 2.0;
+    public static final double NEO_RPM_VOTER_THRESHOLD = 5.0;
     public static final double NEO_REV_VOTER_THRESHOLD = 0.2;
 }

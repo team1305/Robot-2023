@@ -45,6 +45,6 @@ public class RollerIntake extends SubsystemBase {
 
   @Override
   public void periodic() {
-    SmartDashboard.putNumber(SmartDashboardConstants.ROLLER_POWER, m_intakeMotors.get());
+    // SmartDashboard.putNumber(SmartDashboardConstants.ROLLER_POWER, m_intakeMotors.get());
   }
 }

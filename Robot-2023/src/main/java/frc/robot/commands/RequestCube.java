@@ -37,7 +37,7 @@ public class RequestCube extends CommandBase {
   public void execute() {
     if(m_timer.get() > ControlConstants.LIGHT_FLASH_PERIOD){
       if(isOn){
-        m_lighting.setAll(Color.kPurple);
+        m_lighting.setAll(new Color(255, 0, 255));
       }
       else{
         m_lighting.setAll(Color.kBlack);

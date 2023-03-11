@@ -25,7 +25,9 @@ import frc.robot.commands.RollIn;
 import frc.robot.commands.GoToConeHighPreset;
 import frc.robot.commands.GoToConeMidPreset;
 import frc.robot.commands.GoToCubeHighPreset;
+import frc.robot.commands.GoToCubeMidPreset;
 import frc.robot.commands.GoToFloorPreset;
+import frc.robot.commands.GoToLowPreset;
 import frc.robot.commands.GoToOverheadCubeHighPreset;
 import frc.robot.commands.GoToOverheadCubeMidPreset;
 import frc.robot.commands.GoToSingleSubstationPreset;
@@ -34,7 +36,12 @@ import frc.robot.commands.ShootManually;
 import frc.robot.commands.ShootTargetted;
 import frc.robot.commands.TurnOffCompressor;
 import frc.robot.commands.TurnOnCompressor;
+import frc.robot.commands.auto.CubeOnly;
+import frc.robot.commands.auto.OneCubeAuto;
+import frc.robot.commands.auto.OneCubeBumpAuto;
 import frc.robot.commands.auto.SuperAuto;
+import frc.robot.commands.auto.TwoCubeAuto;
+import frc.robot.commands.auto.TwoCubeBumpAuto;
 import frc.robot.constants.ControlConstants;
 import frc.robot.constants.DriverControllerConstants;
 import frc.robot.subsystems.Drivebase;
@@ -76,6 +83,7 @@ public class RobotContainer {
 
   // Choosers
   private final SendableChooser<GoalHeight> m_firstGoalHeightChooser = new SendableChooser<GoalHeight>();
+  private final SendableChooser<Command> m_AutoMenuChooser = new SendableChooser<Command>();
   private final SendableChooser<Integer> m_startingPositionChooser = new SendableChooser<Integer>();
   private final SendableChooser<CommunityAccess> m_firstDriveDirectionChooser = new SendableChooser<CommunityAccess>();
   private final SendableChooser<Integer> m_gamePiecePositionChooser = new SendableChooser<Integer>();
@@ -142,11 +150,11 @@ public class RobotContainer {
       new RollIn(m_rollerIntake)
     );
     
-    new TriggerButton(m_primary, DriverControllerConstants.LEFT_TRIGGER).onTrue(
+    new TriggerButton(m_primary, DriverControllerConstants.RIGHT_TRIGGER).onTrue(
       new CloseClaw(m_clawIntake)
     );
 
-    new TriggerButton(m_primary, DriverControllerConstants.RIGHT_TRIGGER).onTrue(
+    new TriggerButton(m_primary, DriverControllerConstants.LEFT_TRIGGER).onTrue(
       new OpenClaw(m_clawIntake)
     );
     
@@ -158,9 +166,9 @@ public class RobotContainer {
       new BalanceOnChargeStation(m_drivebase)
     );
 
-    new JoystickButton(m_primary, DriverControllerConstants.Y_BUTTON).whileTrue(
-      new DriveToGoal(m_drivebase)
-    );
+    // new JoystickButton(m_primary, DriverControllerConstants.Y_BUTTON).whileTrue(
+    //   new DriveToGoal(m_drivebase)
+    // );
 
     new JoystickButton(m_primary, DriverControllerConstants.X_BUTTON).whileTrue(
       new HoldOnChargeStation(m_drivebase)
@@ -206,12 +214,16 @@ public class RobotContainer {
       new GoToStowedPreset(m_arm, m_wrist)
     );
 
+    new JoystickButton(m_secondary, DriverControllerConstants.LEFT_STICK).onTrue(
+      new GoToLowPreset(m_arm, m_wrist)
+    );
+
     new DpadButton(m_secondary, DriverControllerConstants.DPAD_NORTH).onTrue(
       new GoToCubeHighPreset(m_arm, m_wrist)
     );
 
     new DpadButton(m_secondary, DriverControllerConstants.DPAD_SOUTH).onTrue(
-      new GoToConeMidPreset(m_arm, m_wrist)
+      new GoToCubeMidPreset(m_arm, m_wrist)
     );
 
     new DpadButton(m_secondary, DriverControllerConstants.DPAD_EAST).onTrue(
@@ -222,26 +234,38 @@ public class RobotContainer {
       new GoToOverheadCubeMidPreset(m_arm, m_wrist)
     );
 
-    new TriggerButton(m_secondary, DriverControllerConstants.LEFT_TRIGGER).onTrue(
-      m_lighting.getCurrentCommand() instanceof RequestCube ? new NotifyStatus(m_lighting) : new RequestCube(m_lighting) // Cancels the request if already requesting
+    new TriggerButton(m_secondary, DriverControllerConstants.LEFT_TRIGGER).toggleOnTrue(
+      new RequestCube(m_lighting)
     );
 
-    new TriggerButton(m_secondary, DriverControllerConstants.RIGHT_TRIGGER).onTrue(
-      m_lighting.getCurrentCommand() instanceof RequestCone ? new NotifyStatus(m_lighting) : new RequestCone(m_lighting) // Cancels the request if already requesting
+    new TriggerButton(m_secondary, DriverControllerConstants.RIGHT_TRIGGER).toggleOnTrue(
+      new RequestCone(m_lighting) 
     );
 
     new TriggerButton(m_primary, DriverControllerConstants.LEFT_STICK).onTrue(
       new IncrementOrDecrementTarget(m_primary.getRawAxis(DriverControllerConstants.LEFT_STICK))
     );
+
+
   } 
 
   private void setupAutoChoosers(){
-    setupGoalHeightChoosers();
-    setupGridPositionChoosers();
-    setupDriveDirectionChoosers();
-    setupGamePiecePositionChoosers();
-    setupBooleanChoosers();
+    // setupGoalHeightChoosers();
+    setupAutoMenuChoosers();
+    // setupGridPositionChoosers();
+    // setupDriveDirectionChoosers();
+    // setupGamePiecePositionChoosers();
+    // setupBooleanChoosers();
     putChoosersToDashboard();
+  }
+
+  private void setupAutoMenuChoosers(){
+    m_AutoMenuChooser.setDefaultOption("Two-Cube", new TwoCubeAuto(m_drivebase, m_arm, m_wrist, m_rollerIntake, m_clawIntake));
+    m_AutoMenuChooser.addOption("One-Cube Balance", new OneCubeAuto(m_drivebase, m_arm, m_wrist, m_rollerIntake, m_clawIntake));    
+    m_AutoMenuChooser.addOption("One-Cube Bump", new OneCubeBumpAuto(m_drivebase, m_arm, m_wrist, m_rollerIntake, m_clawIntake));
+    m_AutoMenuChooser.addOption("Two-Cube Bump", new TwoCubeBumpAuto(m_drivebase, m_arm, m_wrist, m_rollerIntake, m_clawIntake));
+
+    m_AutoMenuChooser.addOption("Cube onyl", new CubeOnly(m_drivebase, m_arm, m_wrist, m_rollerIntake, m_clawIntake));
   }
 
   private void setupGoalHeightChoosers(){
@@ -282,17 +306,18 @@ public class RobotContainer {
   }
 
   private void putChoosersToDashboard(){
-    SmartDashboard.putData(m_startingPositionChooser);
-    SmartDashboard.putData(m_firstGoalHeightChooser);
-    SmartDashboard.putData(m_firstDriveDirectionChooser);
-    SmartDashboard.putData(m_gamePiecePositionChooser);
-    SmartDashboard.putData(m_scoreObjectChooser);
-    SmartDashboard.putData(m_secondDriveDirectionChooser);
-    SmartDashboard.putData(m_secondPositionChooser);
-    SmartDashboard.putData(m_scoreOverheadChooser);
-    SmartDashboard.putData(m_secondGoalHeightChooser);
-    SmartDashboard.putData(m_balanceChooser);
-    SmartDashboard.putData(m_thirdDriveDirectionChooser);
+    // SmartDashboard.putData(m_startingPositionChooser);
+    SmartDashboard.putData(m_AutoMenuChooser);
+    // SmartDashboard.putData(m_firstGoalHeightChooser);
+    // SmartDashboard.putData(m_firstDriveDirectionChooser);
+    // SmartDashboard.putData(m_gamePiecePositionChooser);
+    // SmartDashboard.putData(m_scoreObjectChooser);
+    // SmartDashboard.putData(m_secondDriveDirectionChooser);
+    // SmartDashboard.putData(m_secondPositionChooser);
+    // SmartDashboard.putData(m_scoreOverheadChooser);
+    // SmartDashboard.putData(m_secondGoalHeightChooser);
+    // SmartDashboard.putData(m_balanceChooser);
+    // SmartDashboard.putData(m_thirdDriveDirectionChooser);
   }
 
   /**
@@ -301,24 +326,6 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return new SuperAuto(
-      m_firstGoalHeightChooser,
-      m_startingPositionChooser,
-      m_firstDriveDirectionChooser,
-      m_gamePiecePositionChooser,
-      m_scoreObjectChooser,
-      m_secondDriveDirectionChooser,
-      m_secondPositionChooser,
-      m_scoreOverheadChooser,
-      m_secondGoalHeightChooser,
-      m_balanceChooser,
-      m_thirdDriveDirectionChooser,
-      m_drivebase,
-      m_arm,
-      m_wrist,
-      m_rollerIntake,
-      m_clawIntake,
-      m_shooter
-    );
+    return m_AutoMenuChooser.getSelected();
   }
 }

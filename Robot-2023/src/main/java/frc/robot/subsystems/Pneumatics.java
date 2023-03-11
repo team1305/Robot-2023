@@ -4,21 +4,30 @@
 
 package frc.robot.subsystems;
 
+import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.HardwareConstants;
+import frc.robot.constants.RobotConstants;
 import frc.robot.constants.SmartDashboardConstants;
 
 public class Pneumatics extends SubsystemBase {
   // Other Hardware
   private final Compressor m_compressor;
 
+  private final AnalogInput m_pressureSensor;
+
   /** Creates a new Intake. **/
   public Pneumatics(PneumaticsModuleType moduleType) {
     super();
     m_compressor = new Compressor(getModuleNumber(moduleType), moduleType);
+    m_pressureSensor = new AnalogInput(RobotConstants.PRESSURE_SENSOR);
+  }
+
+  private double computePSI(){
+    return (m_pressureSensor.getVoltage() * 50.0) - 22.0; // Taken from datasheet
   }
 
   private int getModuleNumber(PneumaticsModuleType moduleType){
@@ -44,6 +53,7 @@ public class Pneumatics extends SubsystemBase {
   @Override
   public void periodic(){
     SmartDashboard.putBoolean(SmartDashboardConstants.COMPRESSOR_ENABLED, m_compressor.isEnabled());
+    SmartDashboard.putNumber(SmartDashboardConstants.PRESSURE, computePSI());
   }
 
 }

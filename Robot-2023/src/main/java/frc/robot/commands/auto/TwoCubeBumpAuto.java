@@ -23,9 +23,9 @@ import frc.robot.subsystems.ClawIntake;
 import frc.robot.subsystems.Wrist;
 import frc.robot.utils.TrajectoryResolver;
 
-public class TwoCubeAuto extends SequentialCommandGroup {
+public class TwoCubeBumpAuto extends SequentialCommandGroup {
   /** Creates a new TwoCubeBalance. */
-  public TwoCubeAuto(
+  public TwoCubeBumpAuto(
     Drivebase drivebase,
     Arm arm,
     Wrist wrist,
@@ -37,7 +37,7 @@ public class TwoCubeAuto extends SequentialCommandGroup {
 
     Alliance alliance = DriverStation.getAlliance();
 
-    String folderPath = "paths/2-cube-";
+    String folderPath = "paths/2-cube-bump-";
 
     switch(alliance){
       case Red:
@@ -84,14 +84,9 @@ public class TwoCubeAuto extends SequentialCommandGroup {
         new RollOut(roller, 0.5),
         new StayStill(drivebase),
         new GoToOverheadCubeMidPreset(arm, wrist)
-      ),
-      Commands.deadline(
-        new FollowPredefinedTrajectory(
-          drivebase,
-          trajectory3
-        ),
-        new GoToFloorPreset(arm, wrist)
       )
+    
+      
     );
   }
 }

@@ -101,11 +101,11 @@ public class Arm extends SubsystemBase {
 
   @Override
   public void periodic() {
-    SmartDashboard.putNumber(SmartDashboardConstants.ARM_SETPOINT, m_targetPosition);
-    SmartDashboard.putNumber(SmartDashboardConstants.ARM_POWER, m_motors.get());
+    // SmartDashboard.putNumber(SmartDashboardConstants.ARM_SETPOINT, m_targetPosition);
+    // SmartDashboard.putNumber(SmartDashboardConstants.ARM_POWER, m_motors.get());
     SmartDashboard.putNumber(SmartDashboardConstants.ARM_POSITION, m_absEncoder.getAbsolutePosition());
     SmartDashboard.putBoolean(SmartDashboardConstants.ARM_ON_TARGET, onTarget());
-    SmartDashboard.putBoolean(SmartDashboardConstants.ARM_UPPER_LIMIT_REACHED, reachedUpperLimit());
-    SmartDashboard.putBoolean(SmartDashboardConstants.ARM_LOWER_LIMIT_REACHED, reachedLowerLimit());
+    // SmartDashboard.putBoolean(SmartDashboardConstants.ARM_UPPER_LIMIT_REACHED, reachedUpperLimit());
+    // SmartDashboard.putBoolean(SmartDashboardConstants.ARM_LOWER_LIMIT_REACHED, reachedLowerLimit());
   }
 }

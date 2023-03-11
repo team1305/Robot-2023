@@ -34,4 +34,8 @@ public final class RobotConstants {
     // DIO Channels
     public static final int ARM_ENCODER_CH = 8;
     public static final int WRIST_ENCODER_CH = 9;
+
+
+    // Analog Channels
+    public static final int PRESSURE_SENSOR = 0;
 }

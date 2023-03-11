@@ -35,4 +35,5 @@ public class SmartDashboardConstants {
 
     // Pneumatics
     public static final String COMPRESSOR_ENABLED = "Compressor Enabled";
+    public static final String PRESSURE = "Pressure"; 
 }

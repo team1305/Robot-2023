@@ -4,6 +4,7 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.singletons.GamePieceReader;
@@ -16,7 +17,9 @@ public class NotifyStatus extends CommandBase {
   private final GamePieceReader m_reader;
   private final Targetting m_targetting;
 
-  private Color m_previousColor = Color.kBlue;
+  private final Color m_defaultColor;
+  private Color m_previousColor;
+  
 
   /** Creates a new NotifyStatus. */
   public NotifyStatus(Lighting lighting) {
@@ -24,11 +27,24 @@ public class NotifyStatus extends CommandBase {
     m_lighting = lighting;
     m_reader = GamePieceReader.getInstance();
     m_targetting = Targetting.getInstance();
+    switch(DriverStation.getAlliance()){
+      case Red:
+        m_defaultColor = Color.kRed;
+        break;
+      case Blue:
+        m_defaultColor = Color.kBlue;
+        break;
+      default:
+        m_defaultColor = Color.kBlue;
+        break;
+    }
+    m_previousColor = m_defaultColor;
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+    DriverStation.reportWarning("Notifying Status", false);
     m_lighting.setAll(m_previousColor);
   }
 
@@ -46,7 +62,7 @@ public class NotifyStatus extends CommandBase {
         newColor = Color.kYellow;
         break;
       case None:
-        newColor = Color.kBlue;
+        newColor = m_defaultColor;
         break;
     }
 
