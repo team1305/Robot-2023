@@ -5,7 +5,7 @@ public class ArmPresets {
     public static final double cube_high = 0.487;
     public static final double cube_mid = 0.432;
 
-    public static final double cone_high = 0.475;
+    public static final double cone_high = 0.495;
     public static final double cone_mid = 0.475;
     public static final double cone_low = 0.278;
 

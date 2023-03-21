@@ -15,8 +15,8 @@ public class TrajectoryResolver {
                 Filesystem.getDeployDirectory().toPath().resolve(path)
             );
         }
-        catch (IOException e){
-            DriverStation.reportError("Trajectory file not found. Returning blank trajectory", false);
+        catch (Exception e){
+            DriverStation.reportError("Trajectory file not found. Returning blank trajectory " + e.getMessage(), false);
             return new Trajectory();
         }
     }

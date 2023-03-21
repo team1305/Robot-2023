@@ -13,9 +13,8 @@ import frc.robot.commands.ArcadeDrive;
 import frc.robot.commands.AutoIntake;
 import frc.robot.commands.BalanceOnChargeStation;
 import frc.robot.commands.CloseClaw;
-import frc.robot.commands.DriveToGoal;
-import frc.robot.commands.HoldOnChargeStation;
-import frc.robot.commands.IncrementOrDecrementTarget;
+import frc.robot.commands.HuntForCone;
+import frc.robot.commands.HuntForCube;
 import frc.robot.commands.NotifyStatus;
 import frc.robot.commands.OpenClaw;
 import frc.robot.commands.RequestCone;
@@ -34,14 +33,21 @@ import frc.robot.commands.GoToSingleSubstationPreset;
 import frc.robot.commands.GoToStowedPreset;
 import frc.robot.commands.ShootManually;
 import frc.robot.commands.ShootTargetted;
+import frc.robot.commands.TargetRetroGoal;
 import frc.robot.commands.TurnOffCompressor;
 import frc.robot.commands.TurnOnCompressor;
-import frc.robot.commands.auto.CubeOnly;
-import frc.robot.commands.auto.OneCubeAuto;
-import frc.robot.commands.auto.OneCubeBumpAuto;
-import frc.robot.commands.auto.SuperAuto;
-import frc.robot.commands.auto.TwoCubeAuto;
-import frc.robot.commands.auto.TwoCubeBumpAuto;
+import frc.robot.commands.auto.any.AnyScoreCone;
+import frc.robot.commands.auto.any.AnyScoreCube;
+import frc.robot.commands.auto.bump.BumpScoreCubeCommunityGrabCone;
+import frc.robot.commands.auto.bump.BumpScoreCubeCommunityGrabCube;
+import frc.robot.commands.auto.bump.BumpScoreCubeCommunityGrabCubeScoreCube;
+import frc.robot.commands.auto.charge.ChargeScoreCubeCommunityGrabBumpSideConeBalance;
+import frc.robot.commands.auto.charge.ChargeScoreCubeCommunityGrabBumpSideCubeBalance;
+import frc.robot.commands.auto.charge.ChargeScoreCubeCommunityGrabClearSideConeBalance;
+import frc.robot.commands.auto.charge.ChargeScoreCubeCommunityGrabClearSideCubeBalance;
+import frc.robot.commands.auto.clear.ClearScoreCubeCommunityGrabCubeScoreCubeCommunityGrabCube;
+import frc.robot.commands.auto.clear.ClearScoreCubeCommunityGrabCubeScoreCubeBalance;
+import frc.robot.commands.auto.clear.ClearScoreCubeCommunityGrabCubeScoreCubeCommunityGrabCone;
 import frc.robot.constants.ControlConstants;
 import frc.robot.constants.DriverControllerConstants;
 import frc.robot.subsystems.Drivebase;
@@ -54,8 +60,6 @@ import frc.robot.subsystems.Pneumatics;
 import frc.robot.subsystems.Shooter;
 import frc.robot.utils.controller.DpadButton;
 import frc.robot.utils.controller.TriggerButton;
-import frc.robot.utils.game_specific.CommunityAccess;
-import frc.robot.utils.game_specific.GoalHeight;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 
@@ -82,18 +86,18 @@ public class RobotContainer {
   private final Pneumatics m_pneumatics;
 
   // Choosers
-  private final SendableChooser<GoalHeight> m_firstGoalHeightChooser = new SendableChooser<GoalHeight>();
+  // private final SendableChooser<GoalHeight> m_firstGoalHeightChooser = new SendableChooser<GoalHeight>();
   private final SendableChooser<Command> m_AutoMenuChooser = new SendableChooser<Command>();
-  private final SendableChooser<Integer> m_startingPositionChooser = new SendableChooser<Integer>();
-  private final SendableChooser<CommunityAccess> m_firstDriveDirectionChooser = new SendableChooser<CommunityAccess>();
-  private final SendableChooser<Integer> m_gamePiecePositionChooser = new SendableChooser<Integer>();
-  private final SendableChooser<Boolean> m_scoreObjectChooser = new SendableChooser<Boolean>();
-  private final SendableChooser<CommunityAccess> m_secondDriveDirectionChooser = new SendableChooser<CommunityAccess>();
-  private final SendableChooser<Integer> m_secondPositionChooser = new SendableChooser<Integer>();
-  private final SendableChooser<Boolean> m_scoreOverheadChooser = new SendableChooser<Boolean>();
-  private final SendableChooser<GoalHeight> m_secondGoalHeightChooser = new SendableChooser<GoalHeight>();
-  private final SendableChooser<Boolean> m_balanceChooser = new SendableChooser<Boolean>();
-  private final SendableChooser<CommunityAccess> m_thirdDriveDirectionChooser = new SendableChooser<CommunityAccess>();
+  // private final SendableChooser<Integer> m_startingPositionChooser = new SendableChooser<Integer>();
+  // private final SendableChooser<CommunityAccess> m_firstDriveDirectionChooser = new SendableChooser<CommunityAccess>();
+  // private final SendableChooser<Integer> m_gamePiecePositionChooser = new SendableChooser<Integer>();
+  // private final SendableChooser<Boolean> m_scoreObjectChooser = new SendableChooser<Boolean>();
+  // private final SendableChooser<CommunityAccess> m_secondDriveDirectionChooser = new SendableChooser<CommunityAccess>();
+  // private final SendableChooser<Integer> m_secondPositionChooser = new SendableChooser<Integer>();
+  // private final SendableChooser<Boolean> m_scoreOverheadChooser = new SendableChooser<Boolean>();
+  // private final SendableChooser<GoalHeight> m_secondGoalHeightChooser = new SendableChooser<GoalHeight>();
+  // private final SendableChooser<Boolean> m_balanceChooser = new SendableChooser<Boolean>();
+  // private final SendableChooser<CommunityAccess> m_thirdDriveDirectionChooser = new SendableChooser<CommunityAccess>();
 
   public RobotContainer() {
     PneumaticsModuleType moduleType = PneumaticsModuleType.CTREPCM;
@@ -119,10 +123,6 @@ public class RobotContainer {
         () -> ControlConstants.THROTTLE_FACTOR * m_primary.getRawAxis(DriverControllerConstants.LEFT_Y),
         () -> ControlConstants.ROTATION_FACTOR * m_primary.getRawAxis(DriverControllerConstants.RIGHT_X)
       )
-    );
-
-    m_pneumatics.setDefaultCommand(
-      new TurnOnCompressor(m_pneumatics)
     );
 
     m_lighting.setDefaultCommand(
@@ -158,7 +158,7 @@ public class RobotContainer {
       new OpenClaw(m_clawIntake)
     );
     
-    new JoystickButton(m_primary, DriverControllerConstants.A_BUTTON).onTrue(
+    new JoystickButton(m_primary, DriverControllerConstants.A_BUTTON).toggleOnTrue(
       new AutoIntake(m_rollerIntake, m_clawIntake)
     );
 
@@ -166,12 +166,24 @@ public class RobotContainer {
       new BalanceOnChargeStation(m_drivebase)
     );
 
-    // new JoystickButton(m_primary, DriverControllerConstants.Y_BUTTON).whileTrue(
-    //   new DriveToGoal(m_drivebase)
-    // );
-
     new JoystickButton(m_primary, DriverControllerConstants.X_BUTTON).whileTrue(
-      new HoldOnChargeStation(m_drivebase)
+      new HuntForCube(m_drivebase)
+    );
+
+    new JoystickButton(m_primary, DriverControllerConstants.X_BUTTON).onTrue(
+      new AutoIntake(m_rollerIntake, m_clawIntake)
+    );
+
+    new JoystickButton(m_primary, DriverControllerConstants.Y_BUTTON).whileTrue(
+      new HuntForCone(m_drivebase, m_clawIntake)
+    );
+
+    new JoystickButton(m_primary, DriverControllerConstants.Y_BUTTON).onTrue(
+      new AutoIntake(m_rollerIntake, m_clawIntake)
+    );
+
+    new DpadButton(m_primary, DriverControllerConstants.DPAD_NORTH).whileTrue(
+      new TargetRetroGoal(m_drivebase)
     );
   }
 
@@ -241,83 +253,22 @@ public class RobotContainer {
     new TriggerButton(m_secondary, DriverControllerConstants.RIGHT_TRIGGER).toggleOnTrue(
       new RequestCone(m_lighting) 
     );
-
-    new TriggerButton(m_primary, DriverControllerConstants.LEFT_STICK).onTrue(
-      new IncrementOrDecrementTarget(m_primary.getRawAxis(DriverControllerConstants.LEFT_STICK))
-    );
-
-
-  } 
+  }
 
   private void setupAutoChoosers(){
-    // setupGoalHeightChoosers();
-    setupAutoMenuChoosers();
-    // setupGridPositionChoosers();
-    // setupDriveDirectionChoosers();
-    // setupGamePiecePositionChoosers();
-    // setupBooleanChoosers();
-    putChoosersToDashboard();
-  }
-
-  private void setupAutoMenuChoosers(){
-    m_AutoMenuChooser.setDefaultOption("Two-Cube", new TwoCubeAuto(m_drivebase, m_arm, m_wrist, m_rollerIntake, m_clawIntake));
-    m_AutoMenuChooser.addOption("One-Cube Balance", new OneCubeAuto(m_drivebase, m_arm, m_wrist, m_rollerIntake, m_clawIntake));    
-    m_AutoMenuChooser.addOption("One-Cube Bump", new OneCubeBumpAuto(m_drivebase, m_arm, m_wrist, m_rollerIntake, m_clawIntake));
-    m_AutoMenuChooser.addOption("Two-Cube Bump", new TwoCubeBumpAuto(m_drivebase, m_arm, m_wrist, m_rollerIntake, m_clawIntake));
-
-    m_AutoMenuChooser.addOption("Cube onyl", new CubeOnly(m_drivebase, m_arm, m_wrist, m_rollerIntake, m_clawIntake));
-  }
-
-  private void setupGoalHeightChoosers(){
-    for(GoalHeight height : GoalHeight.values()){
-      m_firstGoalHeightChooser.addOption(height.name(), height);
-      m_secondGoalHeightChooser.addOption(height.name(), height);
-    }
-  }
-
-  private void setupGridPositionChoosers(){
-    for(int i = 1; i <= 9; ++i){
-      m_startingPositionChooser.addOption("Position " + i, i);
-      m_secondPositionChooser.addOption("Position " + i, i);
-    }
-  }
-
-  private void setupDriveDirectionChoosers(){
-    for(CommunityAccess access : CommunityAccess.values()){
-      m_firstDriveDirectionChooser.addOption(access.name(), access);
-      m_secondDriveDirectionChooser.addOption(access.name(), access);
-      m_thirdDriveDirectionChooser.addOption(access.name(), access);
-    }
-  }
-
-  private void setupGamePiecePositionChoosers(){
-    for(int i = 1; i <= 4; ++i){
-      m_gamePiecePositionChooser.addOption("Position " + i, i);
-    }
-  }
-
-  private void setupBooleanChoosers(){
-    m_scoreObjectChooser.addOption("Yes", true);
-    m_scoreObjectChooser.addOption("No", false);
-    m_scoreOverheadChooser.addOption("Yes", true);
-    m_scoreOverheadChooser.addOption("No", false);
-    m_balanceChooser.addOption("Yes", true);
-    m_balanceChooser.addOption("No", false);
-  }
-
-  private void putChoosersToDashboard(){
-    // SmartDashboard.putData(m_startingPositionChooser);
+    m_AutoMenuChooser.addOption("Any - Cone only", new AnyScoreCone(m_drivebase, m_arm, m_wrist, m_clawIntake, m_shooter));
+    m_AutoMenuChooser.addOption("Any - Cube only", new AnyScoreCube(m_drivebase, m_arm, m_wrist, m_rollerIntake));
+    m_AutoMenuChooser.addOption("Bump - One Cube Grab Cone", new BumpScoreCubeCommunityGrabCone(m_drivebase, m_arm, m_wrist, m_rollerIntake, m_clawIntake));
+    m_AutoMenuChooser.addOption("Bump - One Cube Grab Cube", new BumpScoreCubeCommunityGrabCube(m_drivebase, m_arm, m_wrist, m_rollerIntake, m_clawIntake));
+    m_AutoMenuChooser.addOption("Bump - Two Cube", new BumpScoreCubeCommunityGrabCubeScoreCube(m_drivebase, m_arm, m_wrist, m_rollerIntake, m_clawIntake));
+    m_AutoMenuChooser.addOption("Charge - One Cube Grab Bump Side Cone & Balance", new ChargeScoreCubeCommunityGrabBumpSideConeBalance(m_drivebase, m_arm, m_wrist, m_rollerIntake, m_clawIntake));    
+    m_AutoMenuChooser.addOption("Charge - One Cube Grab Bump Side Cube & Balance", new ChargeScoreCubeCommunityGrabBumpSideCubeBalance(m_drivebase, m_arm, m_wrist, m_rollerIntake, m_clawIntake));    
+    m_AutoMenuChooser.addOption("Charge - One Cube Grab Clear Side Cone & Balance", new ChargeScoreCubeCommunityGrabClearSideConeBalance(m_drivebase, m_arm, m_wrist, m_rollerIntake, m_clawIntake));    
+    m_AutoMenuChooser.addOption("Charge - One Cube Grab Clear Side Cube & Balance", new ChargeScoreCubeCommunityGrabClearSideCubeBalance(m_drivebase, m_arm, m_wrist, m_rollerIntake, m_clawIntake));    
+    m_AutoMenuChooser.setDefaultOption("Clear - Two Cube & Balance", new ClearScoreCubeCommunityGrabCubeScoreCubeBalance(m_drivebase, m_arm, m_wrist, m_rollerIntake, m_clawIntake));    
+    m_AutoMenuChooser.addOption("Clear - Two Cube Grab Cone", new ClearScoreCubeCommunityGrabCubeScoreCubeCommunityGrabCone(m_drivebase, m_arm, m_wrist, m_rollerIntake, m_clawIntake));    
+    m_AutoMenuChooser.addOption("Clear - Two Cube Grab Cube", new ClearScoreCubeCommunityGrabCubeScoreCubeCommunityGrabCube(m_drivebase, m_arm, m_wrist, m_rollerIntake, m_clawIntake));    
     SmartDashboard.putData(m_AutoMenuChooser);
-    // SmartDashboard.putData(m_firstGoalHeightChooser);
-    // SmartDashboard.putData(m_firstDriveDirectionChooser);
-    // SmartDashboard.putData(m_gamePiecePositionChooser);
-    // SmartDashboard.putData(m_scoreObjectChooser);
-    // SmartDashboard.putData(m_secondDriveDirectionChooser);
-    // SmartDashboard.putData(m_secondPositionChooser);
-    // SmartDashboard.putData(m_scoreOverheadChooser);
-    // SmartDashboard.putData(m_secondGoalHeightChooser);
-    // SmartDashboard.putData(m_balanceChooser);
-    // SmartDashboard.putData(m_thirdDriveDirectionChooser);
   }
 
   /**

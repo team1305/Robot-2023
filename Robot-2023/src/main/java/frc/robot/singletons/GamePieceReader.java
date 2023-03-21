@@ -29,11 +29,8 @@ public class GamePieceReader {
    * @return Whether there is a game piece in the intake
    */
   public boolean hasGamePiece(){
-    GamePiece capturedPiece = capturedPiece();
-    if(capturedPiece == GamePiece.Cone || capturedPiece == GamePiece.Cube){
-      return true;
-    }
-    return false;
+
+    return m_colorSensor.getProximity() > ControlConstants.PROXIMATE_CAPTURE_THRESHOLD;
   }
 
   /**

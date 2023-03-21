@@ -4,6 +4,7 @@
 
 package frc.robot.commands;
 
+
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.constants.ControlConstants;
@@ -15,6 +16,7 @@ public class ShootTargetted extends CommandBase {
   private final ClawIntake m_claw;
   private final Shooter m_shooter;
   private final Targetting m_targetting;
+
   private final Timer m_dropTimer = new Timer();
   private final Timer m_reloadTimer = new Timer();
 
@@ -30,19 +32,28 @@ public class ShootTargetted extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    m_claw.openClaw();
     m_dropTimer.reset();
     m_reloadTimer.reset();
-    m_dropTimer.start();
+    m_reloadTimer.stop();
+    m_dropTimer.stop();
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if(m_dropTimer.get() > ControlConstants.SHOT_DELAY && m_targetting.isTargetted()){
-      m_shooter.shoot();
-      m_reloadTimer.start();
+    if(isTargetted()){
+      m_dropTimer.start();
+      m_claw.openClaw();
+      if(m_dropTimer.get() > ControlConstants.SHOT_DELAY){
+        m_shooter.shoot();
+        m_reloadTimer.start();
+      }
     }
+  }
+
+  private boolean isTargetted(){
+    return m_targetting.getFrontXAngle() < ControlConstants.X_ANGLE_THRESHOLD 
+        && m_targetting.getFrontYAngle() < ControlConstants.Y_ANGLE_THRESHOLD;
   }
 
   // Called once the command ends or is interrupted.

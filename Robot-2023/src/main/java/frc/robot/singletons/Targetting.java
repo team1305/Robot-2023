@@ -4,23 +4,19 @@
 
 package frc.robot.singletons;
 
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import frc.robot.utils.Limelight;
+import frc.robot.constants.HardwareConstants;
+import frc.robot.constants.RobotConstants;
 
 public class Targetting{
   private final NetworkTable m_tableFront;
   private final NetworkTable m_tableRear;
 
-  private boolean m_isTargetting = false;
-
-  private int m_target = 1;
-
   /** Creates a new Targetting. */
   public Targetting() {
-    m_tableFront = NetworkTableInstance.getDefault().getTable("limelight-front");
-    m_tableRear = NetworkTableInstance.getDefault().getTable("limelight-rear");
+    m_tableFront = NetworkTableInstance.getDefault().getTable(RobotConstants.FRONT_LIMELIGHT_NAME);
+    m_tableRear = NetworkTableInstance.getDefault().getTable(RobotConstants.REAR_LIMELIGHT_NAME);
   }
 
   // This class is a singleton
@@ -33,53 +29,27 @@ public class Targetting{
     return instance;
   }
 
-  public void increment(){
-    if(m_target < 9){
-      m_target++;
-    }
+  public double getFrontXAngle(){
+      return m_tableFront.getEntry(HardwareConstants.LIMELIGHT_ENTRY_TX).getDouble(0.0);
   }
 
-  public void decrement(){
-    if(m_target > 1){
-      m_target--;
-    }
+  public double getFrontYAngle(){
+    return m_tableFront.getEntry(HardwareConstants.LIMELIGHT_ENTRY_TY).getDouble(0.0);
   }
 
-  public int getTarget(){
-    return m_target;
+  public void setFrontPipeline(Number pipeline){
+    m_tableFront.getEntry(HardwareConstants.LIMELIGHT_ENTRY_PIPELINE).setNumber(pipeline);
   }
 
-  public boolean isTargetting(){
-    return m_isTargetting;
+  public double getRearXAngle(){
+    return m_tableRear.getEntry(HardwareConstants.LIMELIGHT_ENTRY_TX).getDouble(0.0);
   }
 
-  public int[] getAprilTagIDs(Limelight limelight){
-    int[] ids = {};
-    return ids; //TODO: Get if front limelight has an april tag
+  public double getRearYAngle(){
+    return m_tableRear.getEntry(HardwareConstants.LIMELIGHT_ENTRY_TY).getDouble(0.0);
   }
 
-  public void getReflectiveTarget(){}
-
-  public Pose2d getPose(){
-    return new Pose2d();
-  }
-
-  public boolean frontHasAprilTag(){
-    
-    m_tableFront.getEntry("json");
-    return false; //TODO: Get if front limelight has an april tag
-  }
-
-  public boolean rearHasAprilTag(){
-    return false; //TODO: Get if rear limelight has an april tag
-  }
-
-  public int[] rearAprilTags(){
-    int[] ids = {};
-    return ids; //TODO: Get if front limelight has an april tag
-  }
-
-  public boolean isTargetted(){
-    return false; //TODO: Get if front limelight has a target and is centered
+  public void setRearPipeline(Number pipeline){
+    m_tableRear.getEntry(HardwareConstants.LIMELIGHT_ENTRY_PIPELINE).setNumber(pipeline);
   }
 }

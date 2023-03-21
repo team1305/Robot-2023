@@ -7,6 +7,7 @@ package frc.robot.subsystems;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.RamseteController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
@@ -20,11 +21,9 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.motorcontrol.MotorController;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.ControlConstants;
 import frc.robot.constants.RobotConstants;
-import frc.robot.constants.SmartDashboardConstants;
 import frc.robot.utils.voter.TMRDoubleVoter;
 
 import com.ctre.phoenix.sensors.WPI_Pigeon2;
@@ -76,11 +75,27 @@ public class Drivebase extends SubsystemBase {
     ControlConstants.BALANCE_I,
     ControlConstants.BALANCE_D
   );
+
   private final PIDController m_holdPID = new PIDController(
     ControlConstants.HOLD_P,
     ControlConstants.HOLD_I,
     ControlConstants.HOLD_D
   );
+
+  private final PIDController m_alignPID = new PIDController(
+    ControlConstants.ALIGN_P,
+    ControlConstants.ALIGN_I,
+    ControlConstants.ALIGN_D
+  );
+
+  private final PIDController m_targetPID = new PIDController(
+    ControlConstants.TARGET_P,
+    ControlConstants.TARGET_I,
+    ControlConstants.TARGET_D
+  );
+
+  private final LinearFilter m_lowPassFilter = LinearFilter.singlePoleIIR(0.7, 0.02);
+
   private final PIDController m_cruisePID = new PIDController(
     ControlConstants.CRUISE_P,
     ControlConstants.CRUISE_I,
@@ -151,6 +166,41 @@ public class Drivebase extends SubsystemBase {
     m_drive.arcadeDrive(throttle, rotation);
   }
   
+  public void align(double currentAngle, double setpoint){
+    m_drive.arcadeDrive(
+      0.0, 
+      m_alignPID.calculate(currentAngle, setpoint)
+    );
+  }
+
+  public void hunt(double angle, double setpoint){
+    m_drive.arcadeDrive(
+      ControlConstants.HUNT_THROTTLE, 
+      m_alignPID.calculate(angle, setpoint)
+    );
+  }
+
+  public void target(double angle, double distance, double angleSetpoint, double distanceSetpoint){
+    m_drive.arcadeDrive(
+      speedLimit(
+        m_lowPassFilter.calculate(
+          m_targetPID.calculate(
+            distance, distanceSetpoint)
+          ), 
+        0.3
+      ),
+      speedLimit(m_alignPID.calculate(angle, 0.0), 0.4)
+    );
+  }
+
+  private double speedLimit(double value, double limit){
+    if(value > limit)
+      return limit;
+    if(value < -limit)
+      return -limit;
+    return value;
+  }
+
   /**
    *  A method to try to balance the robot.
    *  It uses the pitch value from the gyroscope as an input to a balance PID control.

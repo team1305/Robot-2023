@@ -51,6 +51,7 @@ public class Arm extends SubsystemBase {
 
   public void goToSetpoint(){
     if(Math.abs(m_absEncoder.getAbsolutePosition() - m_targetPosition) > ControlConstants.ARM_FAR_THRESHOLD){
+      SmartDashboard.putString("PID Used", "Far");
       setInRange(
         m_farPIDController.calculate(
           m_absEncoder.getAbsolutePosition(), 
@@ -59,6 +60,7 @@ public class Arm extends SubsystemBase {
       );
     }
     else{
+      SmartDashboard.putString("PID Used", "Near");
       setInRange(
         m_closePIDController.calculate(
           m_absEncoder.getAbsolutePosition(), 
@@ -73,9 +75,17 @@ public class Arm extends SubsystemBase {
   }
 
   private void setInRange(double value){
-    m_motors.set(rangeFilter(value));
+    m_motors.set(speedLimit(rangeFilter(value)));
   }
   
+  private double speedLimit(double value){
+    if(value > ControlConstants.ARM_POWER_LIMIT)
+      return ControlConstants.ARM_POWER_LIMIT;
+    if(value < -ControlConstants.ARM_POWER_LIMIT)
+      return -ControlConstants.ARM_POWER_LIMIT;
+    return value;
+  }
+
   private double rangeFilter(double value){
     if(isRequestingDown(value) && reachedLowerLimit() || (isRequestingUp(value) && reachedUpperLimit())){
       return 0.0;

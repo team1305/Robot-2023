@@ -12,6 +12,13 @@ public class ControlConstants {
     public static final double CRUISE_P = 3.4602;
     public static final double CRUISE_I = 0;
     public static final double CRUISE_D = 0;
+    public static final double TARGET_P = 0.275;
+    public static final double TARGET_I = 0.05;
+    public static final double TARGET_D = 0.065;
+    public static final double ALIGN_P = 0.03;
+    public static final double ALIGN_I = 0.04;
+    public static final double ALIGN_D = 0;
+    public static final double HUNT_THROTTLE = 0.5;
     public static final double BALANCE_P = -0.025;
     public static final double BALANCE_I = 0;
     public static final double BALANCE_D = -0.000;
@@ -28,15 +35,20 @@ public class ControlConstants {
     public static final double ARM_FAR_THRESHOLD = 0.03;
     public static final double ARM_FAR_P = 2.5;
     public static final double ARM_FAR_I = 0.0;
-    public static final double ARM_FAR_D = 0.0;
+    public static final double ARM_FAR_D = 0.5;
     public static final double ARM_CLOSE_P = 1.5;
     public static final double ARM_CLOSE_I = 1.8;
     public static final double ARM_CLOSE_D = 0.0;
+    public static final double ARM_S = 0;
+    public static final double ARM_G = 0;
+    public static final double ARM_V = 0;
+    public static final double ARM_A = 0;
     public static final double ARM_LOWER_LIMIT = 0.222;
     public static final double ARM_UPPER_LIMIT = 0.8;
     public static final double ARM_LOWER_POWER_LIMIT = -0.6;
     public static final double ARM_UPPER_POWER_LIMIT = 0.4;
     public static final double ARM_ON_TARGET_THRESHOLD = 0.005;
+    public static final double ARM_POWER_LIMIT = 0.5;
 
     // Wrist Control
     public static final double WRIST_P = 4.0;
@@ -82,4 +94,10 @@ public class ControlConstants {
     // Triple Modular Redundancy Voter Thresholds
     public static final double NEO_RPM_VOTER_THRESHOLD = 5.0;
     public static final double NEO_REV_VOTER_THRESHOLD = 0.2;
+
+    //Targetting
+    public static final double X_ANGLE_THRESHOLD = 1.2;
+    public static final double Y_ANGLE_THRESHOLD = 0.45;
+
+    public static final double PROXIMATE_CAPTURE_THRESHOLD = 200;
 }

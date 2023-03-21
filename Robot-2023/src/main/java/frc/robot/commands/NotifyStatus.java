@@ -8,14 +8,12 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.singletons.GamePieceReader;
-import frc.robot.singletons.Targetting;
 import frc.robot.subsystems.Lighting;
 
 public class NotifyStatus extends CommandBase {
 
   private final Lighting m_lighting;
   private final GamePieceReader m_reader;
-  private final Targetting m_targetting;
 
   private final Color m_defaultColor;
   private Color m_previousColor;
@@ -26,7 +24,6 @@ public class NotifyStatus extends CommandBase {
     addRequirements(lighting);
     m_lighting = lighting;
     m_reader = GamePieceReader.getInstance();
-    m_targetting = Targetting.getInstance();
     switch(DriverStation.getAlliance()){
       case Red:
         m_defaultColor = Color.kRed;
@@ -64,11 +61,6 @@ public class NotifyStatus extends CommandBase {
       case None:
         newColor = m_defaultColor;
         break;
-    }
-
-    if(m_targetting.isTargetting()){
-      newColor = Color.kRed;
-      if(m_targetting.isTargetted()) newColor = Color.kGreen;
     }
 
     if(newColor != m_previousColor){
