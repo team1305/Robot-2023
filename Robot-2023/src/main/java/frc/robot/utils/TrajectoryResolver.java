@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.Filesystem;
 
 public class TrajectoryResolver {
     public static Trajectory getTrajectoryFromPath(String path){
+        DriverStation.reportWarning(path, false);
         try{
             return TrajectoryUtil.fromPathweaverJson(
                 Filesystem.getDeployDirectory().toPath().resolve(path)

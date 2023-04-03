@@ -2,7 +2,7 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.commands.auto.charge;
+package frc.robot.commands.auto.clear;
 
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -13,6 +13,7 @@ import frc.robot.commands.BalanceOnChargeStation;
 import frc.robot.commands.FollowPredefinedTrajectory;
 import frc.robot.commands.GoToFloorPreset;
 import frc.robot.commands.GoToOverheadCubeHighPreset;
+import frc.robot.commands.GoToOverheadCubeMidPreset;
 import frc.robot.commands.GoToStowedPreset;
 import frc.robot.commands.HuntForCube;
 import frc.robot.commands.RollOut;
@@ -24,9 +25,9 @@ import frc.robot.subsystems.ClawIntake;
 import frc.robot.subsystems.Wrist;
 import frc.robot.utils.TrajectoryResolver;
 
-public class ChargeScoreCubeCommunityGrabClearSideCubeBalance extends SequentialCommandGroup {
+public class ClearScoreCubeCommunityGrabCubeScoreCubeCommunityGrabCubeBalance extends SequentialCommandGroup {
   /** Creates a new TwoCubeBalance. */
-  public ChargeScoreCubeCommunityGrabClearSideCubeBalance(
+  public ClearScoreCubeCommunityGrabCubeScoreCubeCommunityGrabCubeBalance(
     Drivebase drivebase,
     Arm arm,
     Wrist wrist,
@@ -36,12 +37,14 @@ public class ChargeScoreCubeCommunityGrabClearSideCubeBalance extends Sequential
     super();
     addRequirements(drivebase, wrist, arm);
 
-    String alliance = DriverStation.getAlliance().name().toLowerCase();
+   String alliance = DriverStation.getAlliance().name().toLowerCase();
 
-    String folderPath = "paths/auto/charge/" + alliance + "/";
+    String folderPath = "paths/auto/clear/" + alliance + "/";
 
-    Trajectory trajectory1 = TrajectoryResolver.getTrajectoryFromPath(folderPath + "auto-charge-" + alliance + "-1A.wpilib.json");
-    Trajectory trajectory2 = TrajectoryResolver.getTrajectoryFromPath(folderPath + "auto-charge-" + alliance + "-2.wpilib.json");
+    Trajectory trajectory1 = TrajectoryResolver.getTrajectoryFromPath(folderPath + "auto-clear-" + alliance + "-1.wpilib.json");
+    Trajectory trajectory2 = TrajectoryResolver.getTrajectoryFromPath(folderPath + "auto-clear-" + alliance + "-2.wpilib.json");
+    Trajectory trajectory3 = TrajectoryResolver.getTrajectoryFromPath(folderPath + "auto-clear-" + alliance + "-3.wpilib.json");
+    Trajectory trajectory4 = TrajectoryResolver.getTrajectoryFromPath(folderPath + "auto-clear-" + alliance + "-5.wpilib.json");
   
     addCommands(
       Commands.deadline(
@@ -55,28 +58,48 @@ public class ChargeScoreCubeCommunityGrabClearSideCubeBalance extends Sequential
           trajectory1, 
           trajectory1.sample(0).poseMeters
         ),
-        new GoToOverheadCubeHighPreset(arm, wrist)
+        new GoToFloorPreset(arm, wrist)
       ),
-      Commands.parallel( // was missing
-        new GoToFloorPreset(arm, wrist),
-        new StayStill(drivebase)
-      ).until(() -> arm.onTarget()),
       Commands.deadline(
         new AutoIntake(roller, claw).withTimeout(1.5),
-        new GoToFloorPreset(arm, wrist),
         new HuntForCube(drivebase)
       ),
       Commands.deadline(
         new FollowPredefinedTrajectory(
-          drivebase, 
+          drivebase,
           trajectory2
         ),
-        new GoToStowedPreset(arm, wrist)
+        new GoToOverheadCubeMidPreset(arm, wrist)
       ),
+      Commands.deadline(
+        new RollOut(roller, 0.5),
+        new StayStill(drivebase),
+        new GoToOverheadCubeMidPreset(arm, wrist)
+      ),
+      Commands.deadline(
+        new FollowPredefinedTrajectory(
+          drivebase,
+          trajectory3
+        ),
+        new GoToFloorPreset(arm, wrist)
+      ),    
+      Commands.deadline(
+        new AutoIntake(roller, claw).withTimeout(1.5),
+        new HuntForCube(drivebase)
+      ),
+      Commands.deadline(
+        new FollowPredefinedTrajectory(
+          drivebase,
+          trajectory4
+        ),
+        new GoToStowedPreset(arm, wrist)
+      ),        
       Commands.parallel(
         new BalanceOnChargeStation(drivebase),
         new GoToStowedPreset(arm, wrist)
       )
+      
+
     );
   }
 }

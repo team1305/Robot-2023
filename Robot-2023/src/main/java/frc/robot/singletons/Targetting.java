@@ -41,6 +41,10 @@ public class Targetting{
     m_tableFront.getEntry(HardwareConstants.LIMELIGHT_ENTRY_PIPELINE).setNumber(pipeline);
   }
 
+  public int getFrontPipeline(){
+    return m_tableFront.getEntry(HardwareConstants.LIMELIGHT_ENTRY_PIPELINE).getNumber(-1).intValue();
+  }
+
   public double getRearXAngle(){
     return m_tableRear.getEntry(HardwareConstants.LIMELIGHT_ENTRY_TX).getDouble(0.0);
   }

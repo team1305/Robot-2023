@@ -4,8 +4,9 @@
 
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.constants.ControlConstants;
 import frc.robot.constants.RobotConstants;
 import frc.robot.singletons.Targetting;
 import frc.robot.subsystems.Drivebase;
@@ -14,7 +15,12 @@ public class AlignWithRetroGoal extends CommandBase {
 
   Drivebase m_drivebase;
   Targetting m_targetting;
-  Timer m_timer = new Timer();
+
+  private final PIDController m_alignPID = new PIDController(
+    ControlConstants.ALIGN_P,
+    ControlConstants.ALIGN_I,
+    ControlConstants.ALIGN_D
+  );
 
   /** Creates a new AlignToPole. */
   public AlignWithRetroGoal(Drivebase drivebase) {
@@ -26,22 +32,28 @@ public class AlignWithRetroGoal extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    m_timer.reset();
-    m_timer.start();
     m_targetting.setFrontPipeline(RobotConstants.FRONT_LIMELIGHT_RETRO_TARGETTING);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    m_drivebase.align(m_targetting.getFrontXAngle(), 0.0);
+    if(m_targetting.getFrontPipeline() != RobotConstants.FRONT_LIMELIGHT_RETRO_TARGETTING){
+      m_targetting.setFrontPipeline(RobotConstants.FRONT_LIMELIGHT_RETRO_TARGETTING);
+    }
+    m_drivebase.arcadeDrive(
+      ControlConstants.STILL_SPEED, 
+      m_alignPID.calculate(
+        m_targetting.getFrontXAngle(),
+        ControlConstants.TARGETTED_X_OFFSET
+      )
+    );
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
     m_targetting.setFrontPipeline(RobotConstants.FRONT_LIMELIGHT_STREAM);
-    m_timer.stop();
   }
 
   // Returns true when the command should end.

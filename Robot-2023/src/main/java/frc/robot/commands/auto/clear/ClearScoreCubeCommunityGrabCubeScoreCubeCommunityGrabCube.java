@@ -39,9 +39,9 @@ public class ClearScoreCubeCommunityGrabCubeScoreCubeCommunityGrabCube extends S
 
     String folderPath = "paths/auto/clear/" + alliance + "/";
 
-    Trajectory trajectory1 = TrajectoryResolver.getTrajectoryFromPath(folderPath + "/auto-clear-" + alliance + "-1.wpilib.json");
-    Trajectory trajectory2 = TrajectoryResolver.getTrajectoryFromPath(folderPath + "/auto-clear-" + alliance + "-2.wpilib.json");
-    Trajectory trajectory3 = TrajectoryResolver.getTrajectoryFromPath(folderPath + "/auto-clear-" + alliance + "-3.wpilib.json");
+    Trajectory trajectory1 = TrajectoryResolver.getTrajectoryFromPath(folderPath + "auto-clear-" + alliance + "-1.wpilib.json");
+    Trajectory trajectory2 = TrajectoryResolver.getTrajectoryFromPath(folderPath + "auto-clear-" + alliance + "-2.wpilib.json");
+    Trajectory trajectory3 = TrajectoryResolver.getTrajectoryFromPath(folderPath + "auto-clear-" + alliance + "-3.wpilib.json");
   
     addCommands(
       Commands.deadline(

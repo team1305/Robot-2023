@@ -40,8 +40,8 @@ public class BumpScoreCubeCommunityGrabCubeScoreCube extends SequentialCommandGr
 
     String folderPath = "paths/auto/bump/" + alliance + "/";
 
-    Trajectory trajectory1 = TrajectoryResolver.getTrajectoryFromPath(folderPath + "/auto-bump-" + alliance + "-1.wpilib.json");
-    Trajectory trajectory2 = TrajectoryResolver.getTrajectoryFromPath(folderPath + "/auto-bump-" + alliance + "-2.wpilib.json");
+    Trajectory trajectory1 = TrajectoryResolver.getTrajectoryFromPath(folderPath + "auto-bump-" + alliance + "-1.wpilib.json");
+    Trajectory trajectory2 = TrajectoryResolver.getTrajectoryFromPath(folderPath + "auto-bump-" + alliance + "-2.wpilib.json");
   
     addCommands(
       Commands.deadline(

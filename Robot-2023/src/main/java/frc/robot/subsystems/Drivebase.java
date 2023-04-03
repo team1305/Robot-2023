@@ -7,7 +7,6 @@ package frc.robot.subsystems;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.RamseteController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
-import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
@@ -69,33 +68,6 @@ public class Drivebase extends SubsystemBase {
     Units.inchesToMeters(RobotConstants.TRACK_WIDTH_IN)
   );
 
-  // Controllers
-  private final PIDController m_balancePID = new PIDController(
-    ControlConstants.BALANCE_P,
-    ControlConstants.BALANCE_I,
-    ControlConstants.BALANCE_D
-  );
-
-  private final PIDController m_holdPID = new PIDController(
-    ControlConstants.HOLD_P,
-    ControlConstants.HOLD_I,
-    ControlConstants.HOLD_D
-  );
-
-  private final PIDController m_alignPID = new PIDController(
-    ControlConstants.ALIGN_P,
-    ControlConstants.ALIGN_I,
-    ControlConstants.ALIGN_D
-  );
-
-  private final PIDController m_targetPID = new PIDController(
-    ControlConstants.TARGET_P,
-    ControlConstants.TARGET_I,
-    ControlConstants.TARGET_D
-  );
-
-  private final LinearFilter m_lowPassFilter = LinearFilter.singlePoleIIR(0.7, 0.02);
-
   private final PIDController m_cruisePID = new PIDController(
     ControlConstants.CRUISE_P,
     ControlConstants.CRUISE_I,
@@ -117,8 +89,6 @@ public class Drivebase extends SubsystemBase {
   // Fields
   private DifferentialDriveWheelSpeeds m_previousSpeeds;
   private Double m_prevTime;
-  private double m_leftHoldPosition;
-  private double m_rightHoldPosition;
 
   /** Creates a new Drivebase Subsystem. */
   public Drivebase() {
@@ -165,87 +135,9 @@ public class Drivebase extends SubsystemBase {
   public void arcadeDrive(double throttle, double rotation) {
     m_drive.arcadeDrive(throttle, rotation);
   }
-  
-  public void align(double currentAngle, double setpoint){
-    m_drive.arcadeDrive(
-      0.0, 
-      m_alignPID.calculate(currentAngle, setpoint)
-    );
-  }
 
-  public void hunt(double angle, double setpoint){
-    m_drive.arcadeDrive(
-      ControlConstants.HUNT_THROTTLE, 
-      m_alignPID.calculate(angle, setpoint)
-    );
-  }
-
-  public void target(double angle, double distance, double angleSetpoint, double distanceSetpoint){
-    m_drive.arcadeDrive(
-      speedLimit(
-        m_lowPassFilter.calculate(
-          m_targetPID.calculate(
-            distance, distanceSetpoint)
-          ), 
-        0.3
-      ),
-      speedLimit(m_alignPID.calculate(angle, 0.0), 0.4)
-    );
-  }
-
-  private double speedLimit(double value, double limit){
-    if(value > limit)
-      return limit;
-    if(value < -limit)
-      return -limit;
-    return value;
-  }
-
-  /**
-   *  A method to try to balance the robot.
-   *  It uses the pitch value from the gyroscope as an input to a balance PID control.
-   *  The PID will try to achieve 0 pitch by driving back and forth.
-   */
-  public void balance(){
-    m_drive.arcadeDrive(
-      m_balancePID.calculate(
-        m_gyro.getPitch(),
-        0.0
-      ), 
-      ControlConstants.STILL_ROTATION
-    );
-  }
-
-  /**
-   *  A method to be run before attempting to hold position.
-   *  This will set the positions that should be held.
-   */
-  public void initHold(){
-    m_leftHoldPosition = getLeftEncoderMeters();
-    m_rightHoldPosition = getRightEncoderMeters();
-  }
-  
-  /**
-   *  A method to hold the current position of the robot.
-   *  It uses the left and right encoder values as inputs to a hold PID control.
-   *  The PID will try to maintain the current position.
-   * 
-   *  Before this method is run, the 'initHold' method should be run once.
-   */
-  public void hold(){
-    m_leftGroup.set(
-      m_holdPID.calculate(
-        getLeftEncoderMeters(),
-        m_leftHoldPosition
-      )
-    );
-    m_rightGroup.set(
-      m_holdPID.calculate(
-        getRightEncoderMeters(),
-        m_rightHoldPosition
-      )
-    );
-    m_drive.feed();
+  public double getPitch(){
+    return m_gyro.getPitch();
   }
 
   /**
@@ -507,17 +399,6 @@ public class Drivebase extends SubsystemBase {
     double wheelRotations = motorRotations * RobotConstants.GEARBOX_STAGE_1 * RobotConstants.GEARBOX_STAGE_2 * RobotConstants.PULLEY_STAGE;
     double distancePerRevolution = Units.inchesToMeters(RobotConstants.WHEEL_DIAMETER_IN) * Math.PI;
     return wheelRotations * distancePerRevolution;
-  }
-
-  @Override
-  public void periodic()
-  {
-    // SmartDashboard.putNumber(SmartDashboardConstants.GYRO_YAW, m_gyro.getYaw());
-    // SmartDashboard.putNumber(SmartDashboardConstants.GYRO_PITCH, m_gyro.getPitch());
-    // SmartDashboard.putNumber(SmartDashboardConstants.GYRO_ROLL, m_gyro.getRoll());
-
-    // SmartDashboard.putNumber(SmartDashboardConstants.LEFT_SPEED, getLeftEncoderMetersPerSecond());
-    // SmartDashboard.putNumber(SmartDashboardConstants.RIGHT_SPEED, getRightEncoderMetersPerSecond());
   }
 }
 

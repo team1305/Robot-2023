@@ -35,7 +35,7 @@ public class Wrist extends SubsystemBase {
     super();
   }
 
-  private double getPosition(){
+  public double getPosition(){
     return m_encoder.getPosition();
   }
 

@@ -37,7 +37,7 @@ public class BumpScoreCubeCommunityGrabCone extends SequentialCommandGroup {
 
     String folderPath = "paths/auto/bump/" + alliance + "/";
 
-    Trajectory trajectory1 = TrajectoryResolver.getTrajectoryFromPath(folderPath + "/auto-bump-" + alliance + "-1.wpilib.json");
+    Trajectory trajectory1 = TrajectoryResolver.getTrajectoryFromPath(folderPath + "auto-bump-" + alliance + "-1.wpilib.json");
   
     addCommands(
       Commands.deadline(

@@ -4,8 +4,11 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.constants.ControlConstants;
 import frc.robot.constants.RobotConstants;
+import frc.robot.singletons.GamePieceReader;
 import frc.robot.singletons.Targetting;
 import frc.robot.subsystems.ClawIntake;
 import frc.robot.subsystems.Drivebase;
@@ -14,6 +17,13 @@ public class HuntForCone extends CommandBase {
 
   Drivebase m_drivebase;
   Targetting m_targetting;
+  GamePieceReader m_gamePieceReader;
+
+  private final PIDController m_alignPID = new PIDController(
+    ControlConstants.ALIGN_P,
+    ControlConstants.ALIGN_I,
+    ControlConstants.ALIGN_D
+  );
 
   /** Creates a new HuntForCone. */
   public HuntForCone(Drivebase drivebase) {
@@ -28,6 +38,8 @@ public class HuntForCone extends CommandBase {
 
     m_drivebase = drivebase;
     m_targetting = Targetting.getInstance();
+    m_gamePieceReader = GamePieceReader.getInstance();
+
   }
 
   // Called when the command is initially scheduled.
@@ -40,7 +52,16 @@ public class HuntForCone extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    m_drivebase.hunt(m_targetting.getFrontXAngle(), 0.0);
+    if(m_targetting.getFrontPipeline() != RobotConstants.FRONT_LIMELIGHT_CONE_TRACKING){
+      m_targetting.setFrontPipeline(RobotConstants.FRONT_LIMELIGHT_CONE_TRACKING);
+    }
+    m_drivebase.arcadeDrive(
+      ControlConstants.HUNT_THROTTLE, 
+      m_alignPID.calculate(
+        m_targetting.getFrontXAngle(),
+        ControlConstants.TARGETTED_X_OFFSET
+      )
+    );
   }
 
   // Called once the command ends or is interrupted.
@@ -52,6 +73,6 @@ public class HuntForCone extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return false;
+    return m_gamePieceReader.hasGamePiece();
   }
 }

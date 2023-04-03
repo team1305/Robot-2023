@@ -7,11 +7,13 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.constants.ControlConstants;
+import frc.robot.singletons.ArmEncoder;
 import frc.robot.subsystems.RollerIntake;
 
 public class RollOut extends CommandBase {
   
   private final RollerIntake m_roller;
+  private final ArmEncoder m_armEncoder;
 
   private final Timer m_timer;
   private final Double m_timeout;
@@ -23,6 +25,7 @@ public class RollOut extends CommandBase {
     m_roller = intake;
     m_timer = null;
     m_timeout = null;
+    m_armEncoder = ArmEncoder.getInstance();
   }
 
   public RollOut(RollerIntake roller, double timeout) {
@@ -31,6 +34,7 @@ public class RollOut extends CommandBase {
     m_roller = roller;
     m_timer = new Timer();
     m_timeout = timeout;
+    m_armEncoder = ArmEncoder.getInstance();
   }
 
   // Called when the command is initially scheduled.
@@ -40,8 +44,12 @@ public class RollOut extends CommandBase {
       m_timer.reset();
       m_timer.start();
     }
-    m_roller.setIntake(ControlConstants.ROLLER_OUT);
+    if(m_armEncoder.getAbsolutePosition() < ControlConstants.SPIT_THRESHOLD)
+      m_roller.setIntake(ControlConstants.ROLLER_OUT_SLOW);
+    else
+    m_roller.setIntake(ControlConstants.ROLLER_OUT);   
   }
+
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override

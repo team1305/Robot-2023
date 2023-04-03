@@ -37,13 +37,13 @@ public class ClearScoreCubeCommunityGrabCubeScoreCubeBalance extends SequentialC
     super();
     addRequirements(drivebase, wrist, arm);
 
-   String alliance = DriverStation.getAlliance().name().toLowerCase();
+    String alliance = DriverStation.getAlliance().name().toLowerCase();
 
     String folderPath = "paths/auto/clear/" + alliance + "/";
 
-    Trajectory trajectory1 = TrajectoryResolver.getTrajectoryFromPath(folderPath + "/auto-clear-" + alliance + "-1.wpilib.json");
-    Trajectory trajectory2 = TrajectoryResolver.getTrajectoryFromPath(folderPath + "/auto-clear-" + alliance + "-2.wpilib.json");
-    Trajectory trajectory3 = TrajectoryResolver.getTrajectoryFromPath(folderPath + "/auto-clear-" + alliance + "-4.wpilib.json");
+    Trajectory trajectory1 = TrajectoryResolver.getTrajectoryFromPath(folderPath + "auto-clear-" + alliance + "-1.wpilib.json");
+    Trajectory trajectory2 = TrajectoryResolver.getTrajectoryFromPath(folderPath + "auto-clear-" + alliance + "-2.wpilib.json");
+    Trajectory trajectory3 = TrajectoryResolver.getTrajectoryFromPath(folderPath + "auto-clear-" + alliance + "-4.wpilib.json");
   
     addCommands(
       Commands.deadline(

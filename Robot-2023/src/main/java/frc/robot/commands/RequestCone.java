@@ -22,8 +22,8 @@ public class RequestCone extends CommandBase {
   /** Creates a new FlashYellow. */
   public RequestCone(Lighting lighting) {
     addRequirements(lighting);
-    m_lighting = lighting;
     m_reader = GamePieceReader.getInstance();
+    m_lighting = lighting;
   }
 
   // Called when the command is initially scheduled.
@@ -39,10 +39,10 @@ public class RequestCone extends CommandBase {
   public void execute() {
     if(m_timer.get() > ControlConstants.LIGHT_FLASH_PERIOD){
       if(isOn){
-        m_lighting.setAll(Color.kYellow);
+        m_lighting.setYellow();     
       }
       else{
-        m_lighting.setAll(Color.kBlack);
+        m_lighting.setBlack();
       }
       isOn = !isOn;
       m_timer.restart();

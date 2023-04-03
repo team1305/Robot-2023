@@ -4,7 +4,9 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.constants.ControlConstants;
 import frc.robot.constants.RobotConstants;
 import frc.robot.singletons.GamePieceReader;
 import frc.robot.singletons.Targetting;
@@ -15,6 +17,12 @@ public class HuntForCube extends CommandBase {
   Drivebase m_drivebase;
   Targetting m_targetting;
   GamePieceReader m_gamePieceReader;
+
+  private final PIDController m_alignPID = new PIDController(
+    ControlConstants.ALIGN_P,
+    ControlConstants.ALIGN_I,
+    ControlConstants.ALIGN_D
+  );
 
   /** Creates a new HuntForCube. */
   public HuntForCube(Drivebase drivebase) {
@@ -34,7 +42,16 @@ public class HuntForCube extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    m_drivebase.hunt(m_targetting.getFrontXAngle(), 0.0);
+    if(m_targetting.getFrontPipeline() != RobotConstants.FRONT_LIMELIGHT_CUBE_TRACKING){
+      m_targetting.setFrontPipeline(RobotConstants.FRONT_LIMELIGHT_CUBE_TRACKING);
+    }
+    m_drivebase.arcadeDrive(
+      ControlConstants.HUNT_THROTTLE, 
+      m_alignPID.calculate(
+        m_targetting.getFrontXAngle(),
+        ControlConstants.TARGETTED_X_OFFSET
+      )
+    );
   }
 
   // Called once the command ends or is interrupted.

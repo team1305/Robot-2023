@@ -12,11 +12,14 @@ public class ControlConstants {
     public static final double CRUISE_P = 3.4602;
     public static final double CRUISE_I = 0;
     public static final double CRUISE_D = 0;
-    public static final double TARGET_P = 0.275;
-    public static final double TARGET_I = 0.05;
-    public static final double TARGET_D = 0.065;
-    public static final double ALIGN_P = 0.03;
-    public static final double ALIGN_I = 0.04;
+    public static final double TARGET_P = 0.5; //0.2; //0.275;
+    public static final double TARGET_I = 0; 
+    public static final double TARGET_D = 0.15;
+    public static final double TARGET_P_CLOSE = 0.15; //0.2; //0.275;
+    public static final double TARGET_I_CLOSE = 0.065; 
+    public static final double TARGET_D_CLOSE = 0.01;
+    public static final double ALIGN_P = 0.04;
+    public static final double ALIGN_I = 0.045;
     public static final double ALIGN_D = 0;
     public static final double HUNT_THROTTLE = 0.5;
     public static final double BALANCE_P = -0.025;
@@ -49,6 +52,7 @@ public class ControlConstants {
     public static final double ARM_UPPER_POWER_LIMIT = 0.4;
     public static final double ARM_ON_TARGET_THRESHOLD = 0.005;
     public static final double ARM_POWER_LIMIT = 0.5;
+    public static final double SPIT_THRESHOLD = 0.3;
 
     // Wrist Control
     public static final double WRIST_P = 4.0;
@@ -61,11 +65,14 @@ public class ControlConstants {
     // Roller Intake Control
     public static final double ROLLER_IN = 0.40;
     public static final double ROLLER_OUT = -1.0;
+    public static final double ROLLER_OUT_SLOW = -0.2;
     public static final double ROLLER_OFF = 0.0;
 
     // Shooter Control
-    public static final double SHOT_DELAY = 0.1;
+    public static final double SHOT_DELAY = 0.05;
     public static final double MIN_SHOT_TIME = 0.5;
+    public static final double SHOOT_ANGLE = 0.0;
+    public static final double SHOOT_DISTANCE = 8.75;
 
     // Lighting Control
     public static final double LIGHT_FLASH_PERIOD = 0.3; 
@@ -90,14 +97,19 @@ public class ControlConstants {
     public static final double CUBE_GREEN_UPPER = 0.471;    //120
     public static final double CUBE_BLUE_LOWER = 0.384;     //98
     public static final double CUBE_BLUE_UPPER = 0.490;     //125
+
+    public static final double PROXIMATE_CAPTURE_THRESHOLD = 200;
     
     // Triple Modular Redundancy Voter Thresholds
     public static final double NEO_RPM_VOTER_THRESHOLD = 5.0;
     public static final double NEO_REV_VOTER_THRESHOLD = 0.2;
 
     //Targetting
-    public static final double X_ANGLE_THRESHOLD = 1.2;
-    public static final double Y_ANGLE_THRESHOLD = 0.45;
+    public static final double TARGETTED_X_OFFSET = 0.0;
+    public static final double TARGETTED_Y_OFFSET = 8.75;
+    public static final double ALMOST_TARGETTED_Y_OFFSET = 1.5;
+    public static final double X_ANGLE_THRESHOLD = 0.15;
+    public static final double Y_ANGLE_THRESHOLD = 0.5;
 
-    public static final double PROXIMATE_CAPTURE_THRESHOLD = 200;
+    
 }

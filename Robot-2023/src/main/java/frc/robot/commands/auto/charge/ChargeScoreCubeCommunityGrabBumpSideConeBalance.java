@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.commands.AutoIntake;
 import frc.robot.commands.BalanceOnChargeStation;
 import frc.robot.commands.FollowPredefinedTrajectory;
+import frc.robot.commands.GoToFloorPreset;
 import frc.robot.commands.GoToOverheadCubeHighPreset;
 import frc.robot.commands.GoToStowedPreset;
 import frc.robot.commands.HuntForCone;
@@ -39,8 +40,8 @@ public class ChargeScoreCubeCommunityGrabBumpSideConeBalance extends SequentialC
 
     String folderPath = "paths/auto/charge/" + alliance + "/";
 
-    Trajectory trajectory1 = TrajectoryResolver.getTrajectoryFromPath(folderPath + "/auto-charge-" + alliance + "-1B.wpilib.json");
-    Trajectory trajectory2 = TrajectoryResolver.getTrajectoryFromPath(folderPath + "/auto-charge-" + alliance + "-2.wpilib.json");
+    Trajectory trajectory1 = TrajectoryResolver.getTrajectoryFromPath(folderPath + "auto-charge-" + alliance + "-1B.wpilib.json");
+    Trajectory trajectory2 = TrajectoryResolver.getTrajectoryFromPath(folderPath + "auto-charge-" + alliance + "-2.wpilib.json");
   
     addCommands(
       Commands.deadline(
@@ -53,10 +54,17 @@ public class ChargeScoreCubeCommunityGrabBumpSideConeBalance extends SequentialC
           drivebase, 
           trajectory1, 
           trajectory1.sample(0).poseMeters
-        )
+
+        ),
+        new GoToOverheadCubeHighPreset(arm, wrist)
       ),
+      Commands.parallel( // was missing
+        new GoToFloorPreset(arm, wrist),
+        new StayStill(drivebase)
+      ).until(() -> arm.onTarget()),
       Commands.deadline(
         new AutoIntake(roller, claw).withTimeout(1.5),
+        new GoToFloorPreset(arm, wrist),
         new HuntForCone(drivebase)
       ),
       Commands.deadline(

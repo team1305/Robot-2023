@@ -21,8 +21,8 @@ public class RequestCube extends CommandBase {
   /** Creates a new FlashYellow. */
   public RequestCube(Lighting lighting) {
     addRequirements(lighting);
-    m_lighting = lighting;
     m_reader = GamePieceReader.getInstance();
+    m_lighting = lighting;
   }
 
   // Called when the command is initially scheduled.
@@ -37,10 +37,11 @@ public class RequestCube extends CommandBase {
   public void execute() {
     if(m_timer.get() > ControlConstants.LIGHT_FLASH_PERIOD){
       if(isOn){
-        m_lighting.setAll(new Color(255, 0, 255));
+        m_lighting.setPurple();
+       // m_lighting.setAll(new Color(255, 0, 255));
       }
       else{
-        m_lighting.setAll(Color.kBlack);
+        m_lighting.setBlack();
       }
       isOn = !isOn;
       m_timer.restart();

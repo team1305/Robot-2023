@@ -4,7 +4,9 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.constants.ControlConstants;
 import frc.robot.constants.RobotConstants;
 import frc.robot.singletons.Targetting;
 import frc.robot.subsystems.Drivebase;
@@ -13,6 +15,12 @@ public class AlignWithCube extends CommandBase {
 
   Targetting m_targetting;
   Drivebase m_drivebase;
+
+  private final PIDController m_alignPID = new PIDController(
+    ControlConstants.ALIGN_P,
+    ControlConstants.ALIGN_I,
+    ControlConstants.ALIGN_D
+  );
 
   /** Creates a new AlignWithCube. */
   public AlignWithCube(Drivebase drivebase) {
@@ -30,7 +38,16 @@ public class AlignWithCube extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    m_drivebase.align(m_targetting.getFrontXAngle(), 0.0);
+    if(m_targetting.getFrontPipeline() != RobotConstants.FRONT_LIMELIGHT_CUBE_TRACKING){
+      m_targetting.setFrontPipeline(RobotConstants.FRONT_LIMELIGHT_CUBE_TRACKING);
+    }
+    m_drivebase.arcadeDrive(
+      ControlConstants.STILL_SPEED, 
+      m_alignPID.calculate(
+        m_targetting.getFrontXAngle(),
+        ControlConstants.TARGETTED_X_OFFSET
+      )
+    );
   }
 
   // Called once the command ends or is interrupted.

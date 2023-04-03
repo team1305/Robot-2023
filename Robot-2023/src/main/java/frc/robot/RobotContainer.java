@@ -46,8 +46,10 @@ import frc.robot.commands.auto.charge.ChargeScoreCubeCommunityGrabBumpSideCubeBa
 import frc.robot.commands.auto.charge.ChargeScoreCubeCommunityGrabClearSideConeBalance;
 import frc.robot.commands.auto.charge.ChargeScoreCubeCommunityGrabClearSideCubeBalance;
 import frc.robot.commands.auto.clear.ClearScoreCubeCommunityGrabCubeScoreCubeCommunityGrabCube;
+import frc.robot.commands.auto.clear.ClearScoreCubeCommunityGrabCubeScoreCubeCommunityGrabCubeBalance;
 import frc.robot.commands.auto.clear.ClearScoreCubeCommunityGrabCubeScoreCubeBalance;
 import frc.robot.commands.auto.clear.ClearScoreCubeCommunityGrabCubeScoreCubeCommunityGrabCone;
+import frc.robot.commands.auto.clear.ClearScoreCubeCommunityGrabCubeScoreCubeCommunityGrabConeBalance;
 import frc.robot.constants.ControlConstants;
 import frc.robot.constants.DriverControllerConstants;
 import frc.robot.subsystems.Drivebase;
@@ -60,6 +62,7 @@ import frc.robot.subsystems.Pneumatics;
 import frc.robot.subsystems.Shooter;
 import frc.robot.utils.controller.DpadButton;
 import frc.robot.utils.controller.TriggerButton;
+import frc.robot.utils.Autos;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 
@@ -87,7 +90,7 @@ public class RobotContainer {
 
   // Choosers
   // private final SendableChooser<GoalHeight> m_firstGoalHeightChooser = new SendableChooser<GoalHeight>();
-  private final SendableChooser<Command> m_AutoMenuChooser = new SendableChooser<Command>();
+  private final SendableChooser<Autos> m_AutoMenuChooser = new SendableChooser<Autos>();
   // private final SendableChooser<Integer> m_startingPositionChooser = new SendableChooser<Integer>();
   // private final SendableChooser<CommunityAccess> m_firstDriveDirectionChooser = new SendableChooser<CommunityAccess>();
   // private final SendableChooser<Integer> m_gamePiecePositionChooser = new SendableChooser<Integer>();
@@ -125,9 +128,7 @@ public class RobotContainer {
       )
     );
 
-    m_lighting.setDefaultCommand(
-      new NotifyStatus(m_lighting)
-    );
+    m_lighting.setDefaultCommand(new NotifyStatus(m_lighting));
   }
 
   /**
@@ -185,6 +186,24 @@ public class RobotContainer {
     new DpadButton(m_primary, DriverControllerConstants.DPAD_NORTH).whileTrue(
       new TargetRetroGoal(m_drivebase)
     );
+
+    // Only to be used to debug arm positions, comment out for live playing
+//    new DpadButton(m_primary, DriverControllerConstants.DPAD_WEST).whileTrue(
+//      new MoveArmUp(m_arm, m_wrist)
+//    );
+    // Only to be used to debug arm positions, cmment out for live playing
+//    new DpadButton(m_primary, DriverControllerConstants.DPAD_EAST).whileTrue(
+//      new MoveArmDown(m_arm, m_wrist)
+//    );
+    // Only to be used to debug arm positions, cmment out for live playing
+//    new JoystickButton(m_primary, DriverControllerConstants.START).onTrue(
+//      new MoveWristUp(m_wrist)
+//    );
+    // Only to be used to debug arm positions, cmment out for live playing
+//    new JoystickButton(m_primary, DriverControllerConstants.BACK).onTrue(
+//      new MoveWristDown(m_wrist)
+//    );
+
   }
 
   private void configureSecondary(){
@@ -195,7 +214,7 @@ public class RobotContainer {
 
     new JoystickButton(m_secondary, DriverControllerConstants.RIGHT_BUMPER).and(
       new JoystickButton(m_secondary, DriverControllerConstants.LEFT_BUMPER).negate()).whileTrue(
-        new ShootTargetted(m_clawIntake, m_shooter)
+        new ShootTargetted(m_clawIntake, m_shooter, m_lighting)
     );
 
     new JoystickButton(m_secondary, DriverControllerConstants.START).onTrue(
@@ -253,21 +272,26 @@ public class RobotContainer {
     new TriggerButton(m_secondary, DriverControllerConstants.RIGHT_TRIGGER).toggleOnTrue(
       new RequestCone(m_lighting) 
     );
+
+   
+
   }
 
   private void setupAutoChoosers(){
-    m_AutoMenuChooser.addOption("Any - Cone only", new AnyScoreCone(m_drivebase, m_arm, m_wrist, m_clawIntake, m_shooter));
-    m_AutoMenuChooser.addOption("Any - Cube only", new AnyScoreCube(m_drivebase, m_arm, m_wrist, m_rollerIntake));
-    m_AutoMenuChooser.addOption("Bump - One Cube Grab Cone", new BumpScoreCubeCommunityGrabCone(m_drivebase, m_arm, m_wrist, m_rollerIntake, m_clawIntake));
-    m_AutoMenuChooser.addOption("Bump - One Cube Grab Cube", new BumpScoreCubeCommunityGrabCube(m_drivebase, m_arm, m_wrist, m_rollerIntake, m_clawIntake));
-    m_AutoMenuChooser.addOption("Bump - Two Cube", new BumpScoreCubeCommunityGrabCubeScoreCube(m_drivebase, m_arm, m_wrist, m_rollerIntake, m_clawIntake));
-    m_AutoMenuChooser.addOption("Charge - One Cube Grab Bump Side Cone & Balance", new ChargeScoreCubeCommunityGrabBumpSideConeBalance(m_drivebase, m_arm, m_wrist, m_rollerIntake, m_clawIntake));    
-    m_AutoMenuChooser.addOption("Charge - One Cube Grab Bump Side Cube & Balance", new ChargeScoreCubeCommunityGrabBumpSideCubeBalance(m_drivebase, m_arm, m_wrist, m_rollerIntake, m_clawIntake));    
-    m_AutoMenuChooser.addOption("Charge - One Cube Grab Clear Side Cone & Balance", new ChargeScoreCubeCommunityGrabClearSideConeBalance(m_drivebase, m_arm, m_wrist, m_rollerIntake, m_clawIntake));    
-    m_AutoMenuChooser.addOption("Charge - One Cube Grab Clear Side Cube & Balance", new ChargeScoreCubeCommunityGrabClearSideCubeBalance(m_drivebase, m_arm, m_wrist, m_rollerIntake, m_clawIntake));    
-    m_AutoMenuChooser.setDefaultOption("Clear - Two Cube & Balance", new ClearScoreCubeCommunityGrabCubeScoreCubeBalance(m_drivebase, m_arm, m_wrist, m_rollerIntake, m_clawIntake));    
-    m_AutoMenuChooser.addOption("Clear - Two Cube Grab Cone", new ClearScoreCubeCommunityGrabCubeScoreCubeCommunityGrabCone(m_drivebase, m_arm, m_wrist, m_rollerIntake, m_clawIntake));    
-    m_AutoMenuChooser.addOption("Clear - Two Cube Grab Cube", new ClearScoreCubeCommunityGrabCubeScoreCubeCommunityGrabCube(m_drivebase, m_arm, m_wrist, m_rollerIntake, m_clawIntake));    
+    m_AutoMenuChooser.addOption("Any - Cone only", Autos.any_score_cone);
+    m_AutoMenuChooser.addOption("Any - Cube only", Autos.any_score_cube);
+    m_AutoMenuChooser.addOption("Bump - One Cube Grab Cone", Autos.bump_score_cube_community_grab_cone);
+    m_AutoMenuChooser.addOption("Bump - One Cube Grab Cube", Autos.bump_score_cube_community_grab_cube);
+    m_AutoMenuChooser.addOption("Bump - Two Cube", Autos.bump_score_cube_community_grab_cube_score_cube);
+    m_AutoMenuChooser.addOption("Charge - One Cube Grab Bump Side Cone & Balance", Autos.charge_score_cube_community_grab_bump_side_cone_balance);    
+    m_AutoMenuChooser.addOption("Charge - One Cube Grab Bump Side Cube & Balance", Autos.charge_score_cube_community_grab_bump_side_cube_balance);    
+    m_AutoMenuChooser.addOption("Charge - One Cube Grab Clear Side Cone & Balance", Autos.charge_score_cube_community_grab_clear_side_cone_balance);    
+    m_AutoMenuChooser.addOption("Charge - One Cube Grab Clear Side Cube & Balance", Autos.charge_score_cube_community_grab_clear_side_cube_balance);    
+    m_AutoMenuChooser.setDefaultOption("Clear - Two Cube & Balance", Autos.clear_score_cube_community_grab_cube_score_cube_balance);    
+    m_AutoMenuChooser.addOption("Clear - Two Cube Grab Cone", Autos.clear_score_cube_community_grab_cube_score_cube_community_grab_cone);    
+    m_AutoMenuChooser.addOption("Clear - Two Cube Grab Cube", Autos.clear_score_cube_community_grab_cube_score_cube_community_grab_cube);    
+    m_AutoMenuChooser.addOption("Clear - Two Cube Grab Cone Balance", Autos.clear_score_cube_community_grab_cube_score_cube_community_grab_cone_balance);    
+    m_AutoMenuChooser.addOption("Clear - Two Cube Grab Cube Balance", Autos.clear_score_cube_community_grab_cube_score_cube_community_grab_cube_balance);    
     SmartDashboard.putData(m_AutoMenuChooser);
   }
 
@@ -277,6 +301,38 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return m_AutoMenuChooser.getSelected();
+    Autos auto = m_AutoMenuChooser.getSelected();
+    switch(auto){
+      case any_score_cone:
+        return new AnyScoreCone(m_drivebase, m_arm, m_wrist, m_clawIntake, m_shooter, m_lighting);
+      case any_score_cube:
+        return new AnyScoreCube(m_drivebase, m_arm, m_wrist, m_rollerIntake);
+      case bump_score_cube_community_grab_cone:
+        return new BumpScoreCubeCommunityGrabCone(m_drivebase, m_arm, m_wrist, m_rollerIntake, m_clawIntake);
+      case bump_score_cube_community_grab_cube:
+        return  new BumpScoreCubeCommunityGrabCube(m_drivebase, m_arm, m_wrist, m_rollerIntake, m_clawIntake);
+      case bump_score_cube_community_grab_cube_score_cube:
+        return  new BumpScoreCubeCommunityGrabCubeScoreCube(m_drivebase, m_arm, m_wrist, m_rollerIntake, m_clawIntake);
+      case charge_score_cube_community_grab_bump_side_cone_balance:
+        return new ChargeScoreCubeCommunityGrabBumpSideConeBalance(m_drivebase, m_arm, m_wrist, m_rollerIntake, m_clawIntake);
+      case charge_score_cube_community_grab_bump_side_cube_balance:
+         return new ChargeScoreCubeCommunityGrabBumpSideCubeBalance(m_drivebase, m_arm, m_wrist, m_rollerIntake, m_clawIntake);
+      case charge_score_cube_community_grab_clear_side_cone_balance:
+        return new ChargeScoreCubeCommunityGrabClearSideConeBalance(m_drivebase, m_arm, m_wrist, m_rollerIntake, m_clawIntake);
+      case charge_score_cube_community_grab_clear_side_cube_balance:
+        return new ChargeScoreCubeCommunityGrabClearSideCubeBalance(m_drivebase, m_arm, m_wrist, m_rollerIntake, m_clawIntake);
+      case clear_score_cube_community_grab_cube_score_cube_balance:
+        return new ClearScoreCubeCommunityGrabCubeScoreCubeBalance(m_drivebase, m_arm, m_wrist, m_rollerIntake, m_clawIntake);
+      case clear_score_cube_community_grab_cube_score_cube_community_grab_cone:
+        return new ClearScoreCubeCommunityGrabCubeScoreCubeCommunityGrabCone(m_drivebase, m_arm, m_wrist, m_rollerIntake, m_clawIntake);
+      case clear_score_cube_community_grab_cube_score_cube_community_grab_cube:
+        return  new ClearScoreCubeCommunityGrabCubeScoreCubeCommunityGrabCube(m_drivebase, m_arm, m_wrist, m_rollerIntake, m_clawIntake);
+      case clear_score_cube_community_grab_cube_score_cube_community_grab_cone_balance:
+        return new ClearScoreCubeCommunityGrabCubeScoreCubeCommunityGrabConeBalance(m_drivebase, m_arm, m_wrist, m_rollerIntake, m_clawIntake);
+      case clear_score_cube_community_grab_cube_score_cube_community_grab_cube_balance:
+        return  new ClearScoreCubeCommunityGrabCubeScoreCubeCommunityGrabCubeBalance(m_drivebase, m_arm, m_wrist, m_rollerIntake, m_clawIntake);
+      default:
+        return new AnyScoreCube(m_drivebase, m_arm, m_wrist, m_rollerIntake);
+    }
   }
 }
